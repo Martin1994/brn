@@ -1,0 +1,62 @@
+<div id="F-console-panel" class="panel">
+	<div class="top">
+		<div class="title" target="equipment">装备</div>
+		<div id="F-console-equipment" class="block item_panel" acceptor="equipment">
+			<div class="action">
+				<div class="selector" action="unload" block="equipment" default>卸下</div>
+				<div class="selector" action="switch" block="equipment">武器功能切换</div>
+				<div class="clear"></div>
+			</div>
+			<div class="list" block="equipment">
+				<div class="item" iid="wep" id="F-console-wep"></div>
+				<div class="item" iid="arb" id="F-console-arb"></div>
+				<div class="item" iid="arh" id="F-console-arh"></div>
+				<div class="item" iid="ara" id="F-console-ara"></div>
+				<div class="item" iid="arf" id="F-console-arf"></div>
+				<div class="item" iid="art" id="F-console-art"></div>
+			</div>
+		</div>
+		<div class="title" target="package">背包</div>
+		<div id="F-console-package" class="block item_panel" acceptor="package">
+			<div class="action">
+				<div class="selector" action="use" block="package" default>使用</div>
+				<div class="selector" action="drop" block="package">丢弃</div>
+				<div class="selector" action="merge" block="package">合并</div>
+				<div class="selector" action="compose" block="package">合成</div>
+				<div class="clear"></div>
+			</div>
+			<div class="list" block="package"></div>
+			<div class="submit"><button>确认</button></div>
+		</div>
+		<div class="title" target="pose">基础姿态</div>
+		<div id="F-console-pose" class="block tactic_panel" acceptor="pose">
+			<?php foreach($GLOBALS['poseinfo'] as $key => $pose){ ?>
+				<div class="tactic" tid="<?php echo $key; ?>"><?php echo $pose; ?></div>
+			<?php } ?>
+		</div>
+		<div class="title" target="tactic">应战方针</div>
+		<div id="F-console-tactic" class="block tactic_panel" acceptor="tactic">
+			<?php foreach($GLOBALS['tacticinfo'] as $key => $tactic){ ?>
+				<div class="tactic" tid="<?php echo $key; ?>"><?php echo $tactic; ?></div>
+			<?php } ?>
+		</div>
+		<div class="title" target="team">队伍</div>
+		<div id="F-console-teaminfo" class="block team_panel" acceptor="team">
+			<div class="no_team">
+				<div class="key">队名：</div><input type="text" id="F-console-teamname" />
+				<div class="key">密码：</div><input type="password" id="F-console-teampass" />
+				<div class="clear"></div>
+				<button action="create">创建队伍</button>
+				<button action="join">加入队伍</button>
+			</div>
+			<div class="in_team">
+				<div class="name"></div>
+				<button action="leave">离开队伍</button>
+			</div>
+		</div>
+	</div>
+	<div class="bottom">
+		<div id="F-console-panel-wound_dressing" class="title">包扎</div>
+		<div id="F-console-panel-shop" class="title">商店</div>
+	</div>
+</div>

@@ -1,0 +1,97 @@
+<div id="index-page">
+	<table class="center-content">
+		<tr>
+			<td>
+				<span class="center-frame">
+					<div class="time-title">
+						<?php
+						if($GLOBALS['starttime'] > time()){
+							echo '第<span class="gamenum">', ($GLOBALS['gamenum'] + 1), '</span>局游戏 即将开始';
+						}else{
+							echo '第<span class="gamenum">', $GLOBALS['gamenum'], '</span>局游戏 已进行';
+						}
+						?>
+					</div>
+					<div class="addon">
+						<div class="title">游戏状态</div>
+						<div class="value">
+							<span class="round"><?php echo $GLOBALS['round']; ?>禁</span><span class="subvalue"><?php
+								if(($GLOBALS['gamestate'] & GAME_STATE_START) === 0){
+									echo '<span class="end">已结束</span>';
+								}else if(($GLOBALS['gamestate'] & GAME_STATE_COMBO) === GAME_STATE_COMBO){
+									echo '<span class="combo">连斗中</span>';
+								}else{
+									echo '<span class="going">进行中</span>';
+								}
+								?></span>
+						</div>
+						<div class="title">最高伤害</div>
+						<div class="value">
+							<span class="damage"><?php echo $GLOBALS['hdamage']; ?></span><?php
+							if($GLOBALS['hdamage'] > 0){
+								echo '<span class="subvalue">由 <span class="username">', $GLOBALS['hplayer'], '</span> 击出</span>';
+							}
+							?>
+						</div>
+					</div>
+					<div
+						class="time-indicator"
+						time=<?php $time_diff = abs(time() - $GLOBALS['starttime']); echo $time_diff; ?>
+						count="<?php echo ($GLOBALS['starttime'] > time()) ? 'down' : 'up'; ?>">
+						<?php
+						$h = time_number_format(floor($time_diff / 3600));
+						$m = time_number_format(floor($time_diff / 60) - $h * 60);
+						$s = time_number_format($time_diff - $m * 60 - $h * 3600);
+						echo $h, ':', $m, ':', $s;
+						?>
+					</div>
+					<a href="game.php"><button id="index-enter-btn"<?php if($GLOBALS['starttime'] > time()){echo ' disabled';} ?>>进入游戏</button></a>
+				</div>
+			</td>
+		</tr>
+	</table>
+	
+	<div class="left-content">
+		<div class="toggle" function="hide"><button>-</button></div>
+		<div class="content">
+			<div class="last-game">
+				<div class="title">上局优胜</div>
+				<div class="value">
+					<?php
+					if($GLOBALS['winner']){
+						$first = true;
+						foreach($GLOBALS['winner'] as $winner){
+							if(false === $first){
+								echo '<br />';
+							}
+							$first = false;
+							echo '<span class="username">', $winner, '</span>';
+							echo
+								'<span class="mode">',
+								isset($GLOBALS['ending_type'][$GLOBALS['winmode']]) ? $GLOBALS['ending_type'][$GLOBALS['winmode']] : $GLOBALS['ending_type']['error'],
+								'</span>';
+						}
+					}else{
+						echo
+							'<span class="nobody">无人获胜</span>',
+							'</span><span class="mode">',
+							isset($GLOBALS['ending_type'][$GLOBALS['winmode']]) ? $GLOBALS['ending_type'][$GLOBALS['winmode']] : $GLOBALS['ending_type']['error'],
+							'</span>';
+					}
+					?>
+					
+				</div>
+			</div>
+			<div class="bulletin">
+				<div class="title">公　告</div>
+				<div class="content">
+					<?php echo $GLOBALS['bulletin']; ?>
+				</div>
+			</div>
+			<div class="game-version">
+				<div><span class="mod-name"><?php echo $GLOBALS['mod_name']; ?></span><div>
+				<div>version.<span class="mod-version"><?php echo $GLOBALS['mod_version']; ?></span></div>
+			</div>
+		</div>
+	</div>
+</div>

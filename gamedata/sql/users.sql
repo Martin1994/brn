@@ -1,0 +1,23 @@
+(
+  `_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `username` char(15) NOT NULL DEFAULT '',
+  `password` char(32) NOT NULL DEFAULT '',
+  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `lastgame` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ip` char(15) NOT NULL DEFAULT '',
+  `credits` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `token` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `validgames` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `wingames` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `gender` char(1) NOT NULL DEFAULT 'm',
+  `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `iconuri` char(50) NOT NULL default 'img/question.gif',
+  `club` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `motto` char(30) NOT NULL DEFAULT '',
+  `killmsg` char(30) NOT NULL DEFAULT '',
+  `lastword` char(30) NOT NULL DEFAULT '',
+  `achievement` varchar(1000) NOT NULL DEFAULT '[]',
+  PRIMARY KEY (`_id`),
+  INDEX RANK (`credits`),
+  UNIQUE KEY `username` (`username`)
+)

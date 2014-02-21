@@ -1,0 +1,51 @@
+<div id="about">
+	
+	<?php
+	include('./include/inc.version.php');
+	?>
+	<div class="block">
+		<div class="type">游戏引擎</div>
+		<div class="type-name"><?php echo $engine_name; ?></div>
+		<div class="type-version"><?php echo $engine_version; ?></div>
+		<div class="author">制作组</div>
+		<?php
+		foreach($engine_author as $info){
+			echo '<div class="author-name"><a href="'.$info['url'].'">'.$info['name'].'</a></div>';
+		}
+		?>
+		<div class="extra-info"><?php echo $engine_extra_info; ?></div>
+		<div class="licence">本引擎遵循 <a href="<?php echo $engine_license['url']; ?>"><?php echo $engine_license['name']; ?></a></div>
+	</div>
+	
+	<div class="block">
+		<div class="type">游戏 MOD</div>
+		<div class="type-name"><?php echo $GLOBALS['mod_name']; ?></div>
+		<div class="type-version"><?php echo $GLOBALS['mod_version']; ?></div>
+		<div class="author">制作组</div>
+		<?php
+		foreach($GLOBALS['mod_author'] as $info){
+			echo '<div class="author-name"><a href="'.$info['url'].'">'.$info['name'].'</a></div>';
+		}
+		?>
+		<div class="extra-info"><?php echo $GLOBALS['mod_extra_info']; ?></div>
+		<div class="licence">本 MOD 遵循 <a href="<?php echo $GLOBALS['mod_license']['url']; ?>"><?php echo $GLOBALS['mod_license']['name']; ?></a></div>
+	</div>
+	
+	<?php
+	include($GLOBALS['template_dir'].'/'.get_user_template().'/settings.php');
+	?>
+	<div class="block">
+		<div class="type">游戏界面</div>
+		<div class="type-name"><?php echo $template_name; ?></div>
+		<div class="type-version"><?php echo $template_version; ?></div>
+		<div class="author">制作组</div>
+		<?php
+		foreach($template_author as $info){
+			echo '<div class="author-name"><a href="'.$info['url'].'">'.$info['name'].'</a></div>';
+		}
+		?>
+		<div class="extra-info"><?php echo $template_extra_info; ?></div>
+		<div class="licence">本界面遵循 <a href="<?php echo $template_license['url']; ?>"><?php echo $template_license['name']; ?></a></div>
+	</div>
+	
+</div>

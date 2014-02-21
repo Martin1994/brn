@@ -1,0 +1,48 @@
+</div>
+<?php
+
+$name_suffix = array(
+	'Next-gen',
+	'Next-gen',
+	'Next-gen',
+	'Next-gen',
+	'Neo',
+	'NaN',
+	'is Not a Number',
+	'is Not a Name',
+	'Null',
+	'Nemoma',
+	'Nil',
+	'Nitram',
+	'Advance 4'
+	);
+
+$name_suffix = $name_suffix[mt_rand(0, sizeof($name_suffix) - 1)];
+
+$orgnization = array(
+	'无名机关',
+	'无名机关',
+	'无名机关',
+	'『无名机关』',
+	'呆符『无名机关』',
+	'呆萌『走路萌物集团』'
+	);
+
+$orgnization = $orgnization[mt_rand(0, sizeof($orgnization) - 1)];
+
+if($name_suffix === 'Advance 4'){
+	$orgnization = '『飞狐军火』';
+}
+
+?>
+<div id="footer">
+	<ul><li><a href="about.php">Copyright 2013-2014 <?php echo $orgnization; ?> | Powered by Battle Royale <?php echo $name_suffix; ?></a></li></ul>
+	<div class="performance"><div class="frame" fid="0"></div><div class="frame" fid="1"></div></div>
+	<div class="error">
+		<?php foreach($GLOBALS['error'] as $error_msg){ ?>
+			<div class="msg"><?php echo $error_msg; ?></div>
+		<?php } ?>
+	</div>
+</div>
+
+</body></html>

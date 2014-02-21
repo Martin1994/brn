@@ -1,0 +1,339 @@
+<script type="text/javascript" src="js/thbr/help.js"></script>
+<div id="help">
+	<div class="heading">游戏帮助</div>
+	<div class="content">
+		欢迎来到东方大逃杀，经过了漫长的重构，THBR 终于在新引擎上投入测试。接下来，你将了解全新 THBR 的方方面面
+		<div class="tabs">
+			<div class="tab" target="intro">新手入门</div>
+			<div class="tab" target="special">特殊物品</div>
+			<div class="tab" target="suit">套装</div>
+			<div class="tab" target="mix">合成列表</div>
+			<div class="tab" target="weather">天气</div>
+			<div class="clear"></div>
+		</div>
+		<div class="blocks">
+			<div class="block" block="intro">
+				<h3>如何进行游戏</h1>
+				<p><a href="register.php">帐号注册</a>完毕后，便可以<a href="game.php">进入游戏</a>，设置好喜欢的头像和座右铭等信息，就可以开始游戏了。</p>
+				<p>游戏界面分三部分：左边是你的角色状态，时刻注意自己的生命值是不是过低了，死了就不会再复活了，必须等待下局游戏；右边是操作面板，你可以在这里使用物品、切换策略、创建或加入队伍等等，有些地区是有商店的，进入有商店的地区后底端会显示商店按钮；中间是地图，可以用来行走和探索，当你遇到敌人或者物品、进入商店、包扎伤口时，也会在中间出现操作面板。</p>
+				
+				<h3>进入游戏后应该做什么</h3>
+				<p><b>移动</b>和<b>探索</b>是 THBR 的基本操作。</p>
+				<p>移动的方法是点击地图上你所不在的区域，鼠标移动到地图上如果方格是绿色的就代表可以移动。请注意红色字体的区域是禁区，是不能进入的；黄色字体的区域是下次禁区，它们即将成为禁区，请时刻注意。</p>
+				<p>探索的方法是点击地图上你所在的区域。请注意如果你在禁区里（游戏一开始时你就会在禁区内）是不能探索的，移动到开放的地区吧。</p>
+				<p>通过移动和探索你会发现敌人、队友以及物品。遇到敌人时请冷静对待，过于强大的敌人可能会对你造成致命伤。</p>
+				
+				<h3>禁区是什么</h3>
+				<p>每过一段时间就会增加一次禁区，地图上会有更多的区域无法进入。如果你所在的地区突然变成了禁区，那你会立刻死亡。</p>
+				<p>增加禁区的时候，会有新的 NPC 和物品增加到游戏中。</p>
+				<p>如果所有地图都变成禁区前没有分出胜负，那么游戏将会平局结束</p>
+				
+				<h3>游戏如何胜利</h3>
+				<p>干掉所有玩家即可获得胜利。</p>
+				<p>杀死<b>幽香</b>后获取并使用某样物品也可获得胜利。</p>
+				<p>有些结局是可以团队共同胜利的</p>
+				
+				<h3>如何操作物品</h3>
+				<p>在右侧操作面板的「背包」中，切换到「使用」，然后点击物品即可使用该物品，其中装备类物品会装备到装备区内，如果本来有装备则会替换该装备；回复类道具会有回复效果，但要小心有毒的补给品；子弹可以补充枪械的弹药；特殊类物品效果各不相同。</p>
+				<p>切换到「丢弃」则可以扔掉该物品。</p>
+				<p>切换到「合并」后，点击物品会让物品变成高亮状态，点击确认后会合并处于高亮状态的物品。比如你可以把两个 1 耐久的<b>解毒剂</b>合并成一个 2 耐久的<b>解毒剂</b>。</p>
+				<p>切换到「合成」后，点击物品会让物品变成高亮状态，点击确认后会合成这些物品。比如你可以将<b>咖喱</b>与<b>面包</b>合成为<b>咖喱面包</b>。</p>
+				<p>在右侧操作面板的「装备」中，切换到「卸下」即可卸下装备到背包中。</p>
+				<p>如果你装备的武器有多种使用方法（比如所有的枪支都可以当作殴打武器使用），点击 「武器功能切换」即可切换当前武器的属性。</p>
+				<p>当你获得新物品时，画面中央会出现拾取面板，可以通过拾取面板操作，同时你也可以在右侧的「背包」中进行更复杂的操作（例如先使用或扔掉某样背包中的物品），点击背包中的空闲栏位即可拾取道具，当然你也可以切换到「使用」并立即使用你获得的道具。</p>
+				<p>请注意，所有的这些操作都是可以在拾取物品的时候完成的</p>
+				
+				<h3>如何击杀对手并避免自己死亡</h3>
+				<p>首先一定要确保自己的生命值充足。当生命值不足时，请使用补给品（例如开局配给的<b>面包</b>），或者不进行任何动作，生命值会缓慢地回复。</p>
+				<p><b>永远亭</b>的生命回复速度是其他地区的 2 倍，请善加利用。不过这里也会出现很多生命值不足的玩家，当自己的输出火力足够强大时可以到此处发起偷袭</p>
+				<p>游戏刚开始时NPC都较弱，但第一次禁区后就要小心新出现的 NPC 了，他们的攻击力都很高，在第一次禁区前应当有齐全的防具以提高自身防御力。</p>
+				<p>游戏一开始是无法击杀 NPC 与玩家的，因为你角色的攻击力不足。攻击力主要受到以下因素影响：装备、基础攻击、熟练度。装备可以通过探索或击杀 NPC 获得；基础攻击会在等级提升时增加；熟练度会在每次使用武器后提升。</p>
+				<p><b>熟练度是影响攻击最大也是最持久的因素。</b></p>
+				
+				<h3>死亡后怎么办</h3>
+				<p>游戏角色在死亡后是不能复活的，只能等待下一局开始后重新开始。</p>
+				<p>注册小号继续本局是没有意义的，因为新的角色将会比别人晚加入很久，构不成威胁。</p>
+				
+				<h3>如何获得金钱</h3>
+				<p>最主要的获得方式是击杀 NPC 并拿走他们身上的金钱。</p>
+				
+				<h3>如何组队</h3>
+				<p>在右侧的操作面板中有一项是「队伍」，在这里可以创建或加入队伍。队伍的凭证只有队伍名和密码两项，请做好保密措施。</p>
+				
+				<h3>如何判断 NPC 的等级</h3>
+				<p>最初级的杂兵是「小毛玉」，萌萌的很好欺负，其次则是「毛玉」、「毛玉战士」，第一次禁区后会出现 Boss 级别的「毛玉之王」。</p>
+				<p>东方角色除了「琪露诺」之外，都在第一次禁区以后出现，更强力的东方角色会在第二次禁区后出现。</p>
+				<p>越强力的 NPC 会出现的越晚，他们身上的装备也越强大。</p>
+				<p>在自身属性还不够高的时候，多找找「小毛玉」锻炼熟练度吧。</p>
+				
+				<h3>如何使用 Spell Card</h3>
+				<p>特效类的 SC 直接使用即可</p>
+				<p>进攻类的 SC 在遇到敌人时使用</p>
+			</div>
+			<div class="block" block="special">
+				<div class="title">毒药</div><div class="value">可以对补给品下毒，使用有毒的补给品会造成一次性伤害及一段时间的持续伤害。</div><div class="clear"></div>
+				<div class="title">解毒剂</div><div class="value">使用后可以解除毒状态，避免持续伤害。</div><div class="clear"></div>
+				<div class="title">御神签</div><div class="value">有可能永久提升攻击防御与生命也有可能永久降低的道具，谨慎使用。</div><div class="clear"></div>
+				<div class="title">结界解除钥匙</div><div class="value">使用它便可直接获胜。</div><div class="clear"></div>
+				<div class="title">虚拟结界Bug</div><div class="value">使用它便可直接获胜。</div><div class="clear"></div>
+				<div class="title">黑历史史册残页</div><div class="value">召唤某些特殊的NPC。</div><div class="clear"></div>
+				<div class="title">凯夫拉纤维</div><div class="value">使用后你的身体防具会带有防弹属性，对枪械攻击有一定免疫力。</div><div class="clear"></div>
+				<div class="title">怪力药丸</div><div class="value">使用后段时间内可以提升攻击力。</div><div class="clear"></div>
+				<div class="title">忍耐药丸</div><div class="value">使用后短时间内可以提升防御力。</div><div class="clear"></div>
+				<div class="title">「スペル増幅」</div><div class="value">使用后在 100 秒内可以快速回复体力，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
+				<div class="title">伊吹瓢</div><div class="value">使用后可以不限时地快速回复体力，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
+				<div class="title">「体力回復」</div><div class="value">使用后在 100 秒内可以快速回复生命，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
+				<div class="title">病気平癒守</div><div class="value">使用后可以不限时地可以快速回复生命，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
+				<div class="title">境符「四重結界」</div><div class="value">使用后在 300 秒内背包容量增加 4 ，不过要小心如果到了时限背包中还有额外的物品，那些物品会永久地消失在结界中。</div><div class="clear"></div>
+				<div class="title">緋想の剣</div><div class="value">立刻更改天气，不过小心会变成奇怪的天气。</div><div class="clear"></div>
+				<div class="title">龍星</div><div class="value">持续 60 秒的无敌药水，谁用谁知道。</div><div class="clear"></div>
+				<div class="title">日符「ロイヤルフレア」</div><div class="value">传说中的地图炮，不过只能打玩家，收人头你懂的。</div><div class="clear"></div>
+				<div class="title">月符「サイレントセレナ」</div><div class="value">小范围的地图炮，只能打到当前地区，不过可以打到NPC。</div><div class="clear"></div>
+				<div class="title">足軽「スーサイドスクワッド」</div><div class="value">使用后在 300 秒内受到身代人偶的保护，人偶可以抵消 1000 点伤害，超过伤害之后人偶便会消失。</div><div class="clear"></div>
+				<div class="title">長視「赤月下」</div><div class="value">使用后在 120 秒内将不受到任何远程攻击。</div><div class="clear"></div>
+				<div class="title">短視「超短脳波」</div><div class="value">使用后产生 2 个幻影，在 120 秒内你的任何攻击幻影都会参与，时间结束后幻影消失。</div><div class="clear"></div>
+				<div class="title">身代わり人形</div><div class="value">能永久提升防御并降低的攻击的道具，谨慎使用。</div><div class="clear"></div>
+				<div class="title">制御棒</div><div class="value">能永久提升攻击并降低的防御的道具，谨慎使用。</div><div class="clear"></div>
+				<div class="title">生薬「国士無双の薬」</div><div class="value">使用后永久提升 15% 攻防，不过据说不能多吃。</div><div class="clear"></div>
+				<div class="title">「夢想天生」</div><div class="value">使用后在 60 秒内如果能成功造成 7 次打击，会在最后一次打击时释放「夢想天生」。</div><div class="clear"></div>
+				<div class="title">狸猫的枫叶</div><div class="value">佩戴后套装激活所需要装备的数量 - 1。</div><div class="clear"></div>
+				<div class="title">御札「神社繁榮祈願札」</div><div class="value">布下陷阱后，如果有人踩到，会窃取该角色身上 25% 的现金。</div><div class="clear"></div>
+			</div>
+			<div class="block" block="suit">
+				<table class="suit">
+					<tr><td class="name">套装名</td><td class="quantity">激活数量</td><td class="effect">效果</td></tr>
+					<tr>
+					<td rowspan=3>铃仙</td>
+					<td>2</td>
+					<td>闪避概率提升10%，反击概率提升10%</td>
+					</tr>
+					<tr>
+					<td>3</td>
+					<td>射系命中率提升30%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>出现一个攻击力25%的幻影与本体同时攻击敌人</td>
+					</tr>
+					<tr>
+					<td rowspan=3>八意永林</td>
+					<td>2</td>
+					<td>生命上限提升300</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>生命回复速度提升200%，生命值上限再提升700</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>补给品生命回复量提升100%；任何补给品都有解毒剂的效果</td>
+					</tr>
+					<tr>
+					<td rowspan=2>八云紫</td>
+					<td>3</td>
+					<td>背包容量+2</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>自由出入禁区</td>
+					</tr>
+					<tr>
+					<td rowspan=3>斯卡雷特</td>
+					<td>2</td>
+					<td>毒免疫</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>丧失回血能力；击中偷取生命10%</td>
+					</tr>
+					<tr>
+					<td>?</td>
+					<td>晚上的时候简直就是开挂</td>
+					</tr>
+					<tr>
+					<td rowspan=3>妖梦/妖忌</td>
+					<td>2</td>
+					<td>5%几率施放反射下界斩，反弹对方的攻击</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>斩系攻击提升35%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>反射下界斩几率提升至10%；魂魄对剑追加一次攻击（50%攻击力）</td>
+					</tr>
+					<tr>
+					<td rowspan=4>琪露诺</td>
+					<td>2</td>
+					<td>投系追加两次5%的攻击</td>
+					</tr>
+					<tr>
+					<td>3</td>
+					<td>射系无限弹药</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>陷阱攻击力提升100%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>踩到陷阱时50%几率回收该陷阱（可立刻再次布下）</td>
+					</tr>
+					<tr>
+					<td rowspan=3>灵梦/黑灵梦</td>
+					<td>2</td>
+					<td>攻击时25%几率追加一次阴阳玉攻击（当前手上武器类型，40攻击）</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>攻击提升20%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>25%几率战斗伤害被阴阳玉抵消</td>
+					</tr>
+					<tr>
+					<td rowspan=3>魔里沙/黑魔里沙</td>
+					<td>2</td>
+					<td>下毒时长增加25%</td>
+					</tr>
+					<tr>
+					<td>3</td>
+					<td>殴系攻击提升30%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>八卦炉追加一次攻击（50%攻击力）</td>
+					</tr>
+					<tr>
+					<td rowspan=2>冴月麟</td>
+					<td>2</td>
+					<td>对手反击概率降低50%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>30%触发压碎打击，造成当前生命值1/4的伤害</td>
+					</tr>
+					<tr>
+					<td rowspan=3>射命丸文</td>
+					<td>3</td>
+					<td>闪避几率提升15%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>致伤率提升50%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>对手被攻击时你会写下新闻嘲讽对手，对方60秒内降低防御力25%</td>
+					</tr>
+					<tr>
+					<td rowspan=3>十六夜</td>
+					<td>2</td>
+					<td>先攻几率提升50%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>爆击效果改为连续进行4次60%攻击力的攻击</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>15%几率投系不消耗</td>
+					</tr>
+					<tr>
+					<td rowspan=3>霖之助</td>
+					<td>2</td>
+					<td>购买价格降低30%</td>
+					</tr>
+					<tr>
+					<td>3</td>
+					<td>每秒获得1货币</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>装备无法损坏</td>
+					</tr>
+					<tr>
+					<td rowspan=2>上白泽</td>
+					<td>3</td>
+					<td>投系攻击提升30%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>经验获得率提升300%</td>
+					</tr>
+					<tr>
+					<td rowspan=3>幽幽子</td>
+					<td>2</td>
+					<td>击杀后60秒内护甲提升100%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>提升(ln(击杀数)/10)%的攻击力</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>爆击时触发寿命「无寿国への約束手形」；不爆击时触发霊符「无寿の夢」</td>
+					</tr>
+					<tr>
+					<td rowspan=2>古名地</td>
+					<td>2</td>
+					<td>爆击概率提升100%</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>先发率提升10%；发见率提升10%；命中率提升10%；闪避率提升10%</td>
+					</tr>
+					<tr>
+					<td rowspan=3>爱丽丝</td>
+					<td>2</td>
+					<td>50%概率攻击时释放上海人形，使用当前手上武器的相同类型造成25武器攻击力的伤害</td>
+					</tr>
+					<tr>
+					<td>4</td>
+					<td>爆系攻击力提升40%；陷阱攻击力提升50%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>上海人形释放几率提升为100%，武器伤害提升为50；上海人形攻击后将变为待机状态，10秒内可抵消100点伤害</td>
+					</tr><tr>
+					</tr>
+				</table>
+			</div>
+			<div class="block" block="mix">
+				<?php
+				foreach($GLOBALS['mixinfo'] as $info){
+					echo '<div class="mix-result"><span class="name">',$info['result'][0],'</span>　<span class="kind">',isset($GLOBALS['iteminfo'][$info['result'][1]])?$GLOBALS['iteminfo'][$info['result'][1]]:$GLOBALS['iteminfo']['default'],'</span>　效:',$info['result'][2],'　耐:',$info['result'][3],'</div>';
+					echo '<div class="mix-equal"> = </div><div class="mix-stuff">';
+					$first = true;
+					foreach($info['stuff'] as $name){
+						if(!$first){
+							echo ' + ';
+						}
+						echo '<span class="name">',$name,'</span>';
+						$first = false;
+					}
+					echo '</div><div class="clear"></div>';
+				}
+				?>
+			</div>
+			<div class="block" block="weather">
+				<div class="title">蒼天</div><div class="value">天空清澈，让人干劲十足的天气。</div><div class="clear"></div>
+				<div class="title">快晴</div><div class="value">能见度十分的棒，不利于隐藏的天气。</div><div class="clear"></div>
+				<div class="title">曇天</div><div class="value">光线不是十分的充足。</div><div class="clear"></div>
+				<div class="title">晴嵐</div><div class="value">视线被水汽挡住了，需要集中精力。</div><div class="clear"></div>
+				<div class="title">天気雨</div><div class="value">明明是大晴天却下了雨，小心着凉。</div><div class="clear"></div>
+				<div class="title">台风</div><div class="value">行动不便的天气。</div><div class="clear"></div>
+				<div class="title">疎雨</div><div class="value">长期处于雨水中，身体状况不佳。</div><div class="clear"></div>
+				<div class="title">雪</div><div class="value">能见度十分的糟糕。</div><div class="clear"></div>
+				<div class="title">川雾</div><div class="value">根本分不清敌我。</div><div class="clear"></div>
+				<div class="title">浓雾</div><div class="value">窃取生命值的好时机。</div><div class="clear"></div>
+				<div class="title">花昙</div><div class="value">所有攻击性 SpellCard 都失效了。</div><div class="clear"></div>
+				<div class="title">凪</div><div class="value">风和日丽，是适合修身养息的天气。</div><div class="clear"></div>
+				<div class="title">钻石星辰</div><div class="value">受伤与护甲受损时都会伴随着无比的剧痛。</div><div class="clear"></div>
+				<div class="title">血月</div><div class="value">夜之王的世界。</div><div class="clear"></div>
+			</div>
+		</div>
+	</div>
+</div>

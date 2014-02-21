@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title><?php echo $GLOBALS['page_title']; ?></title>
+		<link rel="stylesheet" type="text/css" href="css/default/default.css">
+		<link rel="stylesheet" type="text/css" href="css/thbr/default.css">
+		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+		<script type="text/javascript" src="js/default/general.js"></script>
+	</head>
+	<body>
+		<div id="nav">
+			
+			<div id="nav-title"<?php if(isset($GLOBALS['index_page'])){echo ' class="index"';} ?>><?php echo $GLOBALS['page_header']; ?></div>
+			
+			<ul id="nav-page">
+				<li><a href="index.php">首页</a></li>
+				<li><a href="game.php">游戏</a></li>
+				<li><a href="news.php">战况</a></li>
+				<li><a href="history.php">历史</a></li>
+				<li><a href="rank.php">排行</a></li>
+				<li><a href="help.php">帮助</a></li>
+				<li id="nav-page-admin"><a href="admin.php">管理</a></li>
+			</ul>
+			
+			<ul id="nav-cuser">
+				<li id="nav-cuser-name"></li>
+				<li id="nav-cuser-logout"><a href="#">登出</a></li>
+				<li id="nav-cuser-login"><a href="#">登录</a></li>
+				<li id="nav-cuser-register"><a href="register.php">注册</a></li>
+			</ul>
+			
+			<div id="nav-login">
+				<div class="output"></div>
+				<form id="nav-login-form">
+					<div>用户名：<input type="text" id="nav-login-user" /></div>
+					<div>密　码：<input type="password" id="nav-login-pass" /></div>
+					<div><input type="submit" class="submit" value="登录" /></div>
+				</form>
+			</div>
+			
+		</div>
+		
+		<div id="wrapper">
+			

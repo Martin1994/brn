@@ -1,0 +1,12 @@
+<div class="board">
+	<div id="register">
+		<div id="register-welcome">注册</div>
+		<form method="post">
+			<div class="key">用户名</div><div class="value"><input type="text" name="username" <?php if(isset($GLOBALS['username'])){ echo 'value="'.$GLOBALS['username'].'"'; } ?> /></div>
+			<div class="key">密码</div><div class="value"><input type="password" name="password" /></div>
+			<div class="key">确认密码</div><div class="value"><input type="password" name="password_confirm" /></div>
+			<input type="submit" value="提交" />
+		</form>
+		<div id="register-info"><?php if(isset($GLOBALS['info'])){ echo $GLOBALS['info']; } ?></div>
+	</div>
+</div>

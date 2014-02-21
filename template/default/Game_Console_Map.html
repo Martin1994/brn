@@ -1,0 +1,24 @@
+<div id="F-console-map">
+	<img src="img/map.png">
+	<div id="F-console-map-table">
+		<?php
+		include(get_mod_path(MOD_NAME).'/init/map.php');
+		?><table><?php
+		for($y = 1; $y <= $map_size[1]; $y ++){
+			?><tr><?php
+			for($x = 1; $x <= $map_size[0]; $x ++){
+				?><td class="map_block" mid=<?php
+				if(isset($map_detial[strval($x).'-'.strval($y)])){
+					echo $map_detial[strval($x).'-'.strval($y)];
+					echo '>'.$GLOBALS['map'][$map_detial[strval($x).'-'.strval($y)]];
+				}else{
+					echo '-1>';
+				}
+				?></td><?php
+			}
+			?></tr><?php
+		}
+	?></table>
+	<div class="mask"><div class="text">点击地图任意位置以继续...</div></div>
+	</div>
+</div>

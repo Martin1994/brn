@@ -1,0 +1,145 @@
+#help a:link{
+	color: #6cf;
+}
+
+#help a:visited{
+	color: #39c;
+}
+#help .clear{
+	clear: both;
+}
+
+#help .tabs{
+	margin: 50px auto 0;
+	width: 800px;
+	cursor: default;
+}
+
+#help .tab{
+	font-size: 20px;
+	padding: 10px 20px;
+	float: left;
+	background: #333;
+}
+
+#help .tab:hover{
+	background: #555;
+}
+
+#help .tab.selected{
+	background: #ccc;
+	color: #333;
+}
+
+#help .blocks{
+	margin: 0 auto;
+	width: 800px;
+	background: #444;
+}
+
+#help .block{
+	padding: 20px;
+	display: none;
+}
+
+#help p{
+	text-align: left;
+	text-indent: 2em;
+	line-height: 1.5em;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 12px;
+}
+
+#help .title{
+	text-align: right;
+	float:left;
+	width: 150px;
+	margin: 10px;
+	font-weight: bold;
+}
+
+#help .value{
+	text-align: left;
+	float:left;
+	margin: 10px;
+	width: 570px;
+}
+
+#help .suit{
+	vertical-align: middle;
+	border-collapse:collapse;
+	line-height: 1.5em;
+}
+
+#help .suit td{
+	border: 1px solid #ccc;
+}
+
+#help .suit .name{
+	width: 100px;
+	background: #333;
+}
+
+#help .suit .quantity{
+	width: 80px;
+	background: #333;
+}
+
+#help .suit .effect{
+	background: #333;
+}
+
+#help .mix-info{
+	text-align: left;
+}
+#help .mix-result{
+	padding: 10px;
+	width: 280px;
+	text-align: right;
+	float:left;
+	font-size: 12px;
+}
+
+#help .mix-equal{
+	padding: 10px 0;
+	float:left;
+	font-size: 12px;
+}
+
+#help .mix-result .name{
+	font-size: 16px;
+	font-weight: bold;
+	padding: 0 5px;
+}
+
+#help .mix-stuff{
+	padding: 10px;
+	width: 420px;
+	text-align: left;
+	float: left;
+}
+
+#F-console-weather .noumu{
+	font-weight: bold;
+	color: #c33;
+}
+
+#F-console-weather .hanagumori{
+	font-weight: bold;
+	color: #f66;
+}
+
+#F-console-weather .nagi{
+	font-weight: bold;
+	color: #cc3;
+}
+
+#F-console-weather .diamond-dust{
+	font-weight: bold;
+	color: #009;
+}
+
+#F-console-weather .scarlet-moon{
+	font-weight: bold;
+	color: #900;
+}

@@ -1,0 +1,29 @@
+<div id="rank">
+	<div class="title">玩家排行</div>
+	<?php 
+		if(!$GLOBALS['data'] || sizeof($GLOBALS['data']) === 0){
+			echo '<div class="no_result">没有查询到结果</div>';
+		}else{
+			echo '<div class="table">';
+			$odd = true;
+			
+			echo '<div class="user_rank table_title">排名</div>';
+			echo '<div class="user_credits table_title">积分</div>';
+			echo '<div class="user_icon table_title">头像</div>';
+			echo '<div class="user_name table_title">玩家名</div>';
+			echo '<div class="user_motton table_title">宣言</div>';
+			
+			foreach($GLOBALS['data'] as $user){
+				echo '<div class="user '.($odd ? 'odd' : 'even').'">';
+				$odd = !$odd;
+					echo '<div class="user_rank">'.(++ $GLOBALS['start']).'</div>';
+					echo '<div class="user_credits">'.$user['credits'].'</div>';
+					echo '<div class="user_icon"><img src="'.$user['iconuri'].'"></div>';
+					echo '<div class="user_name">'.$user['username'].'</div>';
+					echo '<div class="user_motto">'.$user['motto'].'</div>';
+				echo '</div>';
+			}
+			echo '</div>';
+		}
+	?>
+</div>

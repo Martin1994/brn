@@ -1,0 +1,27 @@
+<div id="history">
+	<div class="title">历史战绩</div>
+	<?php
+		if(!$GLOBALS['data'] || sizeof($GLOBALS['data']) === 0){
+			echo '<div class="no_result">没有查询到结果</div>';
+		}else{
+			echo '<div class="table">';
+			foreach($GLOBALS['data'] as $game){
+				echo '<div class="game">';
+					echo '<div class="num">第<span class="gamenum">'.$game['gamenum'].'</span>回</div>';
+					echo '<div class="type">'.$GLOBALS['ending_type'][$game['type']].'</div>';
+					echo '<div class="clear"></div>';
+					if(sizeof($game['winner_info']) > 0){
+						foreach($game['winner_info'] as $winner){
+							echo '<div class="winner">';
+								echo '<div class="winner_icon"><img src="'.$winner['icon'].'"></div>';
+								echo '<div class="winner_name">'.$winner['name'].'</div>';
+								echo '<div class="winner_motto">'.$winner['motto'].'</div>';
+							echo '</div>';
+						}
+					}
+				echo '</div>';
+			}
+			echo '</div>';
+		}
+	?>
+</div>

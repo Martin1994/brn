@@ -1,0 +1,32 @@
+<div id="F-console-playerinfo">
+	<div id="F-console-name"></div>
+	<div id="F-console-IDcard">
+		<div id="F-console-number"></div>
+		<div id="F-console-gender"></div>
+	</div>
+	<img id="F-console-avatar">
+	<div id="F-console-level">等级 0</div>
+	<div id="F-console-exp" class="p"><div id="F-console-exp-label" class="label">经验 0 / 0</div><div class="indicator"></div></div>
+	<div id="F-console-hp" class="p"><div id="F-console-hp-label" class="label">生命 0 / 0</div><div class="indicator"></div></div>
+	<div id="F-console-sp" class="p"><div id="F-console-sp-label" class="label">体力 0 / 0</div><div class="indicator"></div></div>
+	<div class="proficiency">
+		<?php
+		foreach($GLOBALS['weapon_types'] as $code => $name){
+			echo '<div class="value"><div>'.$name.'熟</div><div type="'.$code.'">0</div></div>';
+		}
+		?>
+		<div class="clear"></div>
+	</div>
+	<div class="infodetail">
+		<div class="key">攻击：</div><div class="value" id="F-console-att">0</div><div class="clear"></div>
+		<div class="key">防御：</div><div class="value" id="F-console-def">0</div><div class="clear"></div>
+		<div class="key">社团：</div><div class="value" id="F-console-club">无</div><div class="clear"></div>
+		<div class="key">队伍：</div><div class="value" id="F-console-team">无</div><div class="clear"></div>
+		<div class="key">金钱：</div><div class="value" id="F-console-money">0</div><div class="clear"></div>
+		<div class="key">怒气：</div><div class="value" id="F-console-rage">0</div><div class="clear"></div>
+	</div>
+	<div class="infodetail bottom">
+		<div class="key">天气：</div><div class="value" id="F-console-weather">大气层外</div>
+		<div class="key">地点：</div><div class="value" id="F-console-area">真空</div>
+	</div>
+</div>

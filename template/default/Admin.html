@@ -1,0 +1,27 @@
+<div id="admin">
+	<div class="admin">
+		<div class="blocks">
+			<div class="title">游戏状况</div>
+			<?php
+			if($GLOBALS['game_state'] === 'start'){
+				echo '<div class="button" id="admin-game-start">开始游戏</div>';
+			}else{
+				echo '<div class="button" id="admin-game-stop" disabled>结束游戏</div>';
+				echo '<div class="button" id="admin-game-restart">重新开始游戏</div>';
+			}
+			?>
+			<div class="title">游戏数据</div>
+			<div class="button enable-function" target="settings">编辑游戏设置</div>
+		</div>
+		<div class="functions">
+			<div class=" function settings">
+				<div class="title">编辑游戏设置</div>
+				<div class="intro">设置的格式为json，可修改的内容请参考 gamedata/settings.*.php 的内容<br />键名即变量名，键值即变量值</div>
+				<textarea id="admin-setting-text"><?php echo json_encode($GLOBALS['game_settings'][0]['settings']); ?></textarea>
+				<button id="admin-setting-submit">修改</button>
+				<button class="back">返回</button>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="js/default/admin.js"></script>

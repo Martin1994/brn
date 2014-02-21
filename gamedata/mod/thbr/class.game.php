@@ -1,0 +1,155 @@
+<?php
+
+class game_thbr extends game_bra
+{
+	
+	protected function new_npc(&$player)
+	{
+		return array_merge(parent::new_npc($player), array(
+			'icon' => 'img/thbr/n_'.$player['icon'].'.png'
+			));
+	}
+	
+	protected function np_generate_icon(&$user, $gender)
+	{
+		global $param, $icon_num;
+		
+		if(false === isset($param['icon'])){
+			$param['icon'] = $user['icon'];
+			return $user['iconuri'];
+		}
+		
+		$icon = $param['icon'];
+		
+		if($icon === 'customed'){
+			return 'img/upload/'.md5($user['username']).'.img';
+		}else{
+			if($icon > $icon_num[$gender]){
+				throw_error("头像设置错误");
+			}
+			
+			if($icon == 0){
+				$icon = mt_rand(1, $icon_num[$gender]);
+			}
+		
+			return 'img/thbr/'.$gender.'_'.$icon.'.png';
+		}
+	}
+	
+	public function game_forbid_area()
+	{
+		$return = game::game_forbid_area(); //不调用BRA的禁区（BRA实现了禁区死亡），直接调用BRN的禁区，然后重新实现禁区死亡
+		
+		global $db, $map;
+		$forbidden = $this->gameinfo['forbiddenlist'];
+		$safe = array();
+		$all = array();
+		for($i = 0; $i < sizeof($map); $i ++){
+			if(false === in_array($i, $forbidden)){
+				$safe[] = $i;
+			}
+			$all[] = $i;
+		}
+		
+		//禁区死亡
+		$players_dying = $db->select('players', '*', array('type' => GAME_PLAYER_USER, 'area' => array('$in' => $forbidden), 'hp' => array('$gt' => 0), 'tactic' => array('$ne' => 3)));
+		if(is_array($players_dying)){
+			foreach($players_dying as $pdata){
+				$player = new_player($pdata);
+				foreach($player->buff as &$buff){
+					switch($buff['type']){
+						//八云紫套三件效果
+						case 'yukari_suit':
+							if($buff['param']['quantity'] >= 3){
+								$player->notice('八云紫的力量让你躲避了禁区死亡');
+								continue 2; //自动躲避禁区
+							}
+							
+						//毛玉套三件效果
+						case 'kedama_suit':
+							if($buff['param']['quantity'] >= 3){
+								$player->notice('毛玉的力量让你躲避了禁区死亡');
+								continue 2; //自动躲避禁区
+							}
+						
+						default:
+							break;
+					}
+				}
+				$player->sacrifice(); //TODO: 死因
+			}
+		}
+		unset($players_dying);
+		
+		//NPC换区
+		$this->moving_NPC($all, $safe);
+		
+		return $return;
+	}
+	
+	public function insert_news($type, $args = array())
+	{
+		
+		$content = '';
+		switch($type){
+			case 'aya_ridicule':
+				$attacker = '<span class="username">'.$args['attacker'].'</span>';
+				$defender = '<span class="username">'.$args['defender'].'</span>';
+				switch(random(0,4)){
+					case 0:
+						$rhetoric = $defender.'惨遭重创';
+						break;
+					
+					case 1:
+						$rhetoric = $defender.'被'.$attacker.'打得灰头土脸';
+						break;
+					
+					case 2:
+						$rhetoric = $defender.'受到了'.$attacker.'的打击，吓得落荒而逃';
+						break;
+					
+					case 3:
+						$rhetoric = $attacker.'在遭遇战中玩弄'.$defender.'于鼓掌之间';
+						break;
+					
+					default:
+						$rhetoric = '由于屡战屡败，'.$defender.'对'.$attacker.'产生了心理阴影';
+						break;
+				}
+				$content = '文文·新闻：'.$rhetoric;
+				break;
+			
+			default:
+				parent::insert_news($type, $args);
+				return;
+		}
+		
+		global $db;
+		$db->insert('news', array('time' => time(), 'content' => $content));
+		
+		$this->update_news_cache();
+	}
+	
+	public function &summon_npc($nid){
+		include (get_mod_path(MOD_NAME).'/init/npc.php');
+		
+		if(!isset($npcinfo[$nid])){
+			return throw_error('NPC #'.$this->data['sk']['id'].' doesn\'t exist');
+		}
+		
+		$npc = $npcinfo[$nid];
+		
+		$sub = isset($npc['sub']) ? $npc['sub'] : array(array());
+		unset($npc['sub']);
+		
+		$npc = array_merge($npc, $sub[array_rand($sub)]);
+		$npc['number'] = 1;
+		$npc = $this->new_npc($npc);
+		
+		$GLOBALS['db']->insert('players', $npc);
+		
+		return $npc;
+	}
+}
+
+?>

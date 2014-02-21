@@ -1,0 +1,2286 @@
+html{ 
+	background: #f9f9f9;
+}
+
+body{
+	margin: 0;
+	padding: 0;
+	border: 0;
+	text-align: center;
+	font: 12px Arial, 微软雅黑, Helvetica, sans-serif;
+}
+
+/*------------------GameUI------------------*/
+
+.frame{
+	display: none;
+}
+
+.board{
+	background: #f9f9f9;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+
+/*---------------Frame Console---------------*/
+
+#frame-game{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: #666;
+	color: #ccc;
+}
+
+#frame-game button,
+#frame-game input{
+	background: #555;
+	border: 1px solid #999;
+	color: #ccc;
+}
+
+#frame-game button[disabled],
+#frame-game input[disabled]{
+	background: #333;
+	border: 1px solid #555;
+	color: #555;
+}
+
+#F-console-left{
+	position: absolute;
+	left: 0;
+	height: 100%;
+}
+
+#F-console-center{
+	position: absolute;
+	left: 0;
+	right: 0;
+	padding: 0 0 0 0;
+	height: 100%;
+}
+
+#F-console-center .wrapper{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	vertical-align: middle;
+}
+
+#F-console-right{
+	position: absolute;
+	right: 0px;
+	height: 100%;
+}
+
+/*-----------Frame Console - Panel-----------*/
+
+#F-console-panel{
+	float: right;
+	height: 100%;
+	width: 270px;
+	background: #333;
+	border-left: 1px solid #555;
+}
+
+#F-console-panel .top{
+	position: absolute;
+	width: 100%;
+	top: 35px;
+	left: 0px;
+}
+
+#F-console-panel .bottom{
+	position: absolute;
+	width: 100%;
+	bottom: 60px;
+	left: 0px;
+}
+
+#F-console-panel .title{
+	margin: 0 auto;	
+	width: 250px;
+	border: 2px solid #ccc;
+	text-align: center;
+	height: 28px;
+	font: normal 16px/28px 微软雅黑, 黑体, Helvetica, sans-serif;
+}
+
+#F-console-panel-shop,
+#F-console-panel-wound_dressing{
+	display: none;
+}
+
+#F-console-panel .title:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-panel .title.selected{
+	background: #ccc;
+	color: #555;
+}
+
+#F-console-panel .block{
+	margin: 0 auto;	
+	width: 250px;
+	border: 2px solid #ccc;
+	background: #444;
+	background: rgba(0, 0, 0, 0.4);
+	display: none;
+}
+
+#F-console-panel .action{
+	font: normal 13px/20px sans-serif;
+}
+
+#F-console-panel .action .selector{
+	float: left;
+	height: 20px;
+	padding: 0 10px;
+	text-align: center;
+}
+
+#F-console-panel .action .selector:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-panel .action .selector.selected{
+	background: #eee;
+	color: #333;
+}
+
+#F-console-panel .action .clear{
+	clear: both;
+}
+
+#F-console-panel .item_panel .item{
+	margin: 5px;
+	height: 45px;
+	text-align: center;
+}
+
+#F-console-panel .item_panel .item:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-panel .item_panel .item.selected{
+	background: #ccc;
+	color: #333;
+}
+
+#F-console-panel .item_panel .item[iid="0"]{
+	margin-top: 20px;
+	border-top: 1px solid #ccc;
+	display: none;
+}
+
+#F-console-panel .item_panel .item .n{
+	float: left;
+	font: bold 20px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+	width: 50%;
+	white-space: nowrap;
+}
+
+#F-console-panel .item_panel .item .k{
+	float: right;
+	font: normal 13px/25px 微软雅黑, 黑体, Helvetica, sans-serif;
+	width: 50%;
+}
+
+#F-console-panel .item_panel .item .k .alt{
+	color: #777;
+	margin-left: 5px;
+}
+
+#F-console-panel .item_panel .item .detial{
+	float: right;
+	width: 50%;
+}
+
+#F-console-panel .item_panel .item .detial div{
+	float: left;
+	width: 50%;
+	height: 15px;
+	font: normal 10px/15px 黑体, Helvetica, sans-serif;
+}
+
+#F-console-panel .item_panel .item .null{
+	float: left;
+	color: #555;
+	color: rgba(255, 255, 255, 0.15);
+	font: bold 28px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+	width: 100%;
+}
+
+#F-console-panel .item_panel .item .n .poison{
+	color: #c3c;
+}
+
+#F-console-panel .item_panel .submit{
+	margin: 25px 5px 5px;
+	border-top: 1px solid #ccc;
+	display: none;
+}
+
+#F-console-panel .item_panel .submit button{
+	width: 100%;
+	height: 45px;
+	font: bold 20px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+}
+
+#F-console-panel .tactic_panel .tactic{
+	margin: 5px;
+	height: 45px;
+	text-align: center;
+	font: bold 20px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+	white-space:nowrap;
+}
+
+#F-console-panel .tactic_panel .tactic:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-panel .tactic_panel .tactic.selected{
+	background: #ccc;
+	color: #333;
+}
+
+#F-console-panel .team_panel .no_team,
+#F-console-panel .team_panel .in_team{
+	margin: 5px;
+	height: 100px;
+	display: none;
+	text-align: center;
+}
+
+#F-console-panel .team_panel input,
+#F-console-panel .team_panel .key{
+	height: 20px;
+	margin: 5px 0;
+}
+
+#F-console-panel .team_panel .key{
+	float: left;
+	clear: left;
+	font: normal 13px/20px sans-serif;
+	padding: 0 0 0 5px;
+}
+
+#F-console-panel .team_panel input{
+	float: right;
+	clear: right;
+	width: 150px;
+}
+
+#F-console-panel .team_panel .clear{
+	clear: both;
+}
+
+#F-console-panel .team_panel .no_team button{
+	margin: 10px 20px;
+}
+
+#F-console-panel .team_panel .in_team .name{
+	padding: 12px 0;
+	font: bold 20px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+	white-space:nowrap;
+}
+
+/*------------Frame Console - Map------------*/
+
+#F-console-map{
+	margin: 0 auto;
+	width: 490px;
+	height: 490px;
+	border: #ccc solid 5px;
+}
+
+#F-console-map img{
+	position: absolute;
+}
+
+#F-console-map-table{
+	position: absolute;
+}
+
+#F-console-map-table table{
+	border-collapse: collapse;
+	border-width: 0;
+}
+
+#F-console-map-table td:hover{
+	background: rgba(0, 255, 0, 0.5);
+}
+
+#F-console-map-table td.forbidden:hover{
+	background: rgba(255, 0, 0, 0.5);
+}
+
+#F-console-map-table td[mid="-1"]:hover{
+	background: rgba(255, 0, 0, 0.5);
+}
+
+#F-console-map-table td.radar{
+	background: rgba(16, 48, 16, 0.8);
+	color: #090;
+	font-weight: bold;
+}
+
+#F-console-map-table td.radar:hover{
+	background: rgba(16, 64, 16, 0.67);
+}
+
+#F-console-map .map_block{
+	padding: 0;
+	width: 49px;
+	height: 49px;
+	font: bold 13px sans-serif;
+	text-align: center;
+	vertical-align: middle;
+	color: #3e3;
+	text-shadow: 1px 1px #333;
+}
+
+#F-console-map .dangerous{
+	color: #ee3;
+}
+
+#F-console-map .forbidden{
+	color: #e33;
+}
+
+#F-console-map .mask{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	color: #ccc;
+	display: none;
+}
+
+#F-console-map .mask .text{
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
+
+/*---------Frame Console - Item Param--------*/
+
+#F-console-center .wrapper[content="item_param"]{
+	display: none;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+#F-console-item_param{
+	position: relative;
+	color: #ccc;
+	width: 490px;
+	min-height: 100px;
+	border: #999 solid 5px;
+	margin: 0 auto;
+	padding: 20px 0 40px;
+	background: #333;
+	background: rgba(0, 0, 0, 0.6);
+}
+
+#F-console-item_param .key{
+	float: left;
+	clear: left;
+	text-align: right;
+}
+
+#F-console-item_param .value{
+	float: right;
+	clear: right;
+	text-align: left;
+}
+
+#F-console-item_param .key,
+#F-console-item_param .value{
+	width: 45%;
+	padding: 5px 0;
+}
+
+#F-console-item_param .submit{
+	text-align: center;
+	position: absolute;
+	bottom: 5px;
+	width: 100%;
+}
+
+#F-console-item_param .submit input,
+#F-console-item_param .submit button{
+	width: 50px;
+	margin: 0 10px;
+}
+
+#F-console-item_param .clear{
+	clear: both;
+}
+
+/*------------Frame Console - Shop-----------*/
+
+#F-console-center .wrapper[content="shop"]{
+	display: none;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+#F-console-shop{
+	position: relative;
+	margin: 0 auto;
+	width: 490px;
+	min-height: 250px;
+	background: #333;
+	background: rgba(0, 0, 0, 0.9);
+	border: 5px solid #555;
+	color: #ccc;
+}
+
+#F-console-shop .counter{
+	padding: 5px;
+	overflow: hidden;
+}
+
+#F-console-shop .counter div{
+	padding: 0 10px;
+	float: left;
+}
+
+#F-console-shop .counter div:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-shop .counter div.selected{
+	background: #eee;
+	color: #333;
+}
+
+#F-console-shop .goods{
+	margin: 10px 5px 30px;
+	max-height: 500px;
+	overflow: auto;
+}
+
+#F-console-shop .goods .item{
+	float: left;
+	width: 50%;
+	height: 60px;
+	margin: 5px 0;
+}
+
+#F-console-shop .goods .item:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#F-console-shop .goods .item div{
+	float: left;
+	text-align: center;
+}
+
+#F-console-shop .goods .item .controller{
+	float: left;
+	width: 15%;
+	height: 100%;
+}
+
+#F-console-shop .goods .item .controller button{
+	width: 100%;
+	text-align: center;
+	height: 33%;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border-width: 0;
+}
+
+#F-console-shop .goods .item .controller button:hover{
+	text-shadow: 1px 0 1px #ccc, 0 1px 1px #ccc, 0 -1px 1px #ccc, -1px 0 1px #ccc;
+}
+
+#F-console-shop .goods .item .controller input{
+	width: 100%;
+	text-align: center;
+	height: 34%;
+	padding: 0;
+	margin: 0;
+	background: none;
+}
+
+#F-console-shop .goods .item .detial{
+	width: 85%;
+}
+
+#F-console-shop .goods .item .n{
+	width: 100%;
+	height: 25px;
+	font: bold 22px/25px 黑体, Helvetica, sans-serif;
+	white-space:nowrap;
+}
+
+#F-console-shop .goods .item .k{
+	width: 33%;
+	font-size: 12px;
+}
+
+#F-console-shop .goods .item .e{
+	width: 34%;
+	font-size: 12px;
+}
+
+#F-console-shop .goods .item .s{
+	width: 33%;
+	font-size: 12px;
+}
+
+#F-console-shop .goods .item .price{
+	width: 60%;
+	font-size: 12px;
+}
+
+#F-console-shop .goods .item .stock{
+	width: 40%;
+	font-size: 12px;
+}
+
+#F-console-shop .bottom{
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+#F-console-shop .bottom .subtotal{
+	float: left;
+	margin: 5px;
+}
+
+#F-console-shop .bottom button{
+	float: right;
+	padding: 1px 10px;
+	margin: 5px;
+	font-size: 13px;
+}
+
+#F-console-shop .affordable{
+	color: #3cc;
+	padding: 0 3px;
+}
+
+#F-console-shop .unaffordable{
+	color: #c33;
+	padding: 0 3px;
+}
+
+#F-console-shop .clear{
+	clear: both;
+}
+
+/*---------Frame Console - Collecting--------*/
+
+#F-console-center .wrapper[content="collecting"]{
+	display: none;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+#F-console-collecting{
+	position: relative;
+	margin: 0 auto;
+	width: 490px;
+	background: #333;
+	background: rgba(0, 0, 0, 0.9);
+	border: 5px solid #555;
+	color: #ccc;
+	text-align: center;
+}
+
+#F-console-collecting .text{
+	font-size: 20px;
+	margin: 20px 0;
+}
+
+#F-console-collecting .item{
+	margin: 0 auto;
+	width: 400px;
+	height: 50px;
+}
+
+#F-console-collecting .item .n{
+	float: left;
+	font: bold 25px/45px 微软雅黑, 黑体, Helvetica, sans-serif;
+	width: 50%;
+	white-space:nowrap;
+}
+
+#F-console-collecting .item .k{
+	float: right;
+	font: normal 13px/25px 微软雅黑, 黑体, Helvetica, sans-serif;
+	width: 50%;
+}
+
+#F-console-collecting .item .k .alt{
+	color: #777;
+	margin-left: 5px;
+}
+
+#F-console-collecting .item .detial{
+	float: right;
+	width: 50%;
+}
+
+#F-console-collecting .item .detial div{
+	float: left;
+	width: 50%;
+	height: 15px;
+	font: normal 10px/15px 黑体, Helvetica, sans-serif;
+}
+
+#F-console-collecting button{
+	width: 100px;
+	height: 40px;
+	padding: 0;
+	margin: 20px;
+	font: bold 20px/40px 微软雅黑, 黑体, Helvetica, sans-serif;
+}
+
+/*-----------Frame Console - Battle----------*/
+
+#F-console-center .wrapper[content="battle"]{
+	display: none;
+}
+
+#F-console-battle{
+	margin: 0 auto;
+	width: 490px;
+	height: 490px;
+	background: #333;
+	border: 1px solid #444;
+}
+
+#F-console-battle .player{
+	position: relative;
+	margin: 0 auto;
+	width: 225px;
+	height: 100%;
+	border-top: 1px solid #333;
+	overflow: auto;
+}
+
+#F-console-battle .name{
+	margin: 25px auto 0;
+	text-align: center;
+	font: bold 20px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+}
+
+#F-console-battle .IDcard{
+	margin: 5px auto 0;
+	text-align: center;
+	font: 17px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+	width: 140px;
+	height: 30px;
+}
+
+#F-console-battle .number{
+	float: left;
+	margin: 0 0 0 30px;
+}
+
+#F-console-battle .gender{
+	float: right;
+	margin: 0 40px 0 0;
+}
+
+#F-console-battle .avatar{
+	position: relative;
+	margin: 0 auto;
+	padding: 3px;
+	background: #333;
+	border: 1px solid #777;
+	display: block;
+}
+
+#F-console-battle .status{
+	margin: 10px 0 0;
+	text-align: center;
+	color: #ccc;
+	font-weight: bold;
+}
+
+#F-console-battle .status .normal{
+	color: #3cc;
+}
+
+#F-console-battle .status .attention{
+	color: #cc3;
+}
+
+#F-console-battle .status .dangerous{
+	color: #c33;
+}
+
+#F-console-battle .status .dead{
+	color: #900;
+}
+
+#F-console-battle .status .fog{
+	color: #999;
+}
+
+#F-console-battle .action{
+	width: 148px;
+	margin: 10px auto 0;
+}
+
+#F-console-battle button{
+	width: 100%;
+	height: 40px;
+	margin: 10px 0 0;
+	white-space: nowrap;
+}
+
+#F-console-battle .back{
+	position: absolute;
+	width: 100%;
+	bottom: 10px;
+	color: #777;
+	text-align: center;
+}
+
+#F-console-battle .text{
+	color: #ccc;
+	font-size: 12px;
+	text-align: center;
+}
+
+/*-------Frame Console - Wound Dressing------*/
+
+#F-console-center .wrapper[content="wound_dressing"]{
+	display: none;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+#F-console-wound_dressing{
+	position: relative;
+	margin: 0 auto;
+	padding: 20px 0;
+	width: 490px;
+	background: #333;
+	background: rgba(0, 0, 0, 0.9);
+	border: 5px solid #555;
+	color: #ccc;
+	text-align: center;
+}
+
+#F-console-wound_dressing .title{
+	width: 100%;
+	margin: 10px 0;
+	font-size: 15px;
+}
+
+#F-console-wound_dressing .buttons{
+	width: 100%;
+	margin: 10px 0;
+	padding: 20px 0 0;
+}
+
+#F-console-wound_dressing .buttons button{
+	display: block;
+	margin: 5px auto;
+	width: 75px;
+	height: 30px;
+}
+
+#F-console-wound_dressing .buttons button[action="back"]{
+	margin-top: 15px;
+}
+
+/*--------Frame Console - Player Info--------*/
+
+#F-console-playerinfo{
+	float: left;
+	height: 100%;
+	width: 200px;
+	background: #333;
+	border-right: 1px solid #555;
+	display: block;
+}
+
+#F-console-IDcard{
+	margin: 5px auto 0;
+	text-align: center;
+	font: 17px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+	width: 140px;
+	height: 30px;
+}
+
+#F-console-name{
+	margin: 75px auto 0;
+	text-align: center;
+	font: bold 20px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+}
+
+#F-console-number{
+	float: left;
+	margin: 0 0 0 30px;
+}
+
+#F-console-gender{
+	float: right;
+	margin: 0 40px 0 0;
+}
+
+#F-console-avatar{
+	position: relative;
+	margin: 0 auto;
+	padding: 3px;
+	background: #333;
+	border: 1px solid #777;
+	display: block;
+}
+
+#F-console-level{
+	position: relative;
+	margin: 0 auto;
+	width: 140px;
+	text-align: right;
+	color: #ccc;
+	height: 15px;
+	font-size: 12px;
+	line-height: 15px;
+	margin-top: -15px;
+	text-shadow: 1px 0 #333333, 0 1px #333333, 0 -1px #333333, -1px 0 #333333;
+}
+
+#F-console-exp{
+	height: 3px;
+}
+
+#F-console-hp{
+	height: 7px;
+}
+
+#F-console-sp{
+	height: 7px;
+}
+
+#F-console-playerinfo .p{
+	position: relative;
+	width: 140px;
+	margin: 3px auto;
+	border: 1px solid #777;
+	padding: 3px;
+}
+
+#F-console-playerinfo .p .label{
+	position: absolute;
+	width: 140px;
+	text-align: center;
+	color: #ccc;
+	text-shadow: 1px 0 #333333, 0 1px #333333, 0 -1px #333333, -1px 0 #333333;
+	font-size: 12px;
+}
+
+#F-console-exp .label{
+	margin: -6px 0 0 0;	
+}
+
+#F-console-hp .label{
+	margin: -4px 0 0 0;	
+}
+
+#F-console-sp .label{
+	margin: -4px 0 0 0;	
+}
+
+#F-console-hp .indicator{
+	background: #d33;
+}
+
+#F-console-hp .indicator.poisoned{
+	background: #d3d;
+}
+
+#F-console-sp .indicator{
+	background: #dd3;
+}
+
+#F-console-exp .indicator{
+	background: #ccc;
+}
+
+#F-console-playerinfo .indicator{
+	width: 100%;
+	height: 100%;
+}
+
+#F-console-playerinfo .proficiency{
+	margin: 10px 0 0 0;
+	background: #444;
+}
+
+#F-console-playerinfo .proficiency .value{
+	float: left;
+	width: 20%;
+	text-align: center;
+}
+
+#F-console-playerinfo .infodetail{
+	font-size: 14px;
+	margin: 10px 0 0 0;	
+}
+
+#F-console-playerinfo .infodetail.bottom{
+	position: absolute;
+	bottom: 50px;
+	width: 200px;
+}
+
+#F-console-playerinfo .infodetail .key{
+	float: left;
+	clear: left;
+	margin: 0 0 15px 30px;
+	color: #ccc;
+	width: 60px;
+	text-align: center;
+}
+
+#F-console-playerinfo .infodetail .value{
+	float: right;
+	clear: right;
+	margin: 0 25px 15px 0;
+	color: #ccc;
+	width: 80px;
+	text-align: center;
+}
+
+#F-console-playerinfo .clear{
+	clear: both;
+}
+
+#F-console-weather .miasma{
+	font-weight: bold;
+	color: #390;
+}
+
+#F-console-weather .tornado{
+	font-weight: bold;
+	color: #C33;
+}
+
+#F-console-weather .blizzard{
+	font-weight: bold;
+	color: #6CF;
+}
+
+#F-console-weather .hail{
+	font-weight: bold;
+	color: #33C;
+}
+
+/*---------Frame Console - Buff Info---------*/
+
+#F-console-buffinfo{
+	position: absolute;
+	top: 0;
+	left: 200px;
+	clear: right;
+	padding-top: 28px;
+	text-align: center;
+	width: auto;
+	
+	pointer-events:none;
+}
+
+#F-console-buffinfo .buff{
+	float: left;
+	margin: 10px;
+}
+
+#F-console-buffinfo .buff .icon{
+	width: 50px;
+	height: 50px;
+	font: normal 12px/50px sans-serif;
+	border: 1px solid #ccc;
+	background: #333;
+	white-space: nowrap;
+	
+	box-shadow: 0 0 7px rgba(255, 255, 255, 1);
+	-webkit-box-shadow: 0 0 7px rgba(255, 255, 255, 1);
+	-moz-box-shadow: 0 0 7px rgba(255, 255, 255, 1);
+}
+
+#F-console-buffinfo .buff .time{
+	font: bold 13px Arial,sans-serif;
+	padding: 3px;
+}
+
+/*----------Frame Console - Notice-----------*/
+
+#F-console-notice{
+	position: absolute;
+	top: 100px;
+	left: 200px;
+}
+
+#F-console-notice .notice{
+	margin: 0 5px;
+	display: none;
+	white-space:nowrap;
+	margin: 10px;
+	font: bold 13px sans-serif;
+	color: #dd3;
+	text-shadow: 1px 1px #333333;
+}
+
+/*---------Frame Console - Feedback----------*/
+
+#F-console-feedback{
+	position: absolute;
+	margin: 28px 0;
+	width: 100%;
+	
+	pointer-events:none;
+}
+
+#F-console-feedback div{
+	display: none;
+	width: 100%;
+	margin: 0 auto;
+	padding: 5px;
+	width: 600px;
+	font: bold 13px sans-serif;
+	color: #ccc;
+	text-shadow: 1px 1px #333333;
+	text-align: center;
+}
+
+#F-console-feedback .feedback{
+	background: #292;
+	background: rgba(0, 255, 0, 0.5);
+}
+
+#F-console-feedback .error{
+	background: #922;
+	background: rgba(255, 0, 0, 0.5);
+}
+
+/*-----------Frame Console - Chat------------*/
+
+#F-console-chat{
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#F-console-chat-dialog{
+	position: absolute;
+	bottom: 52px;
+	left: 200px;
+	padding: 5px 5px 35px;
+	background: #555;
+	background: rgba(0, 0, 0, 0.4);
+	text-shadow: 1px 1px #333333;
+}
+
+#F-console-chat-toggle{
+	width: 100%;
+	text-align: right;
+	height: 20px;
+}
+
+#F-console-chat-toggle-button{
+	width: 20px;
+	height: 20px;
+	background: #555;
+	border: 1px solid #999;
+	color: #ccc;
+}
+
+#F-console-chat-display{
+	width: 100%;
+}
+
+#F-console-chat-display .piece{
+	width: 100%;
+	display: none;
+	color: #ccc;
+	font-size: 13px;
+	margin: 5px 5px;
+}
+
+#F-console-chat-display .piece .time{
+	color: #999;
+	font: bold 13px sans-serif;
+}
+
+#F-console-chat-display .piece .username{
+	color: #dd9;
+	font: bold 13px sans-serif;
+	margin: 0 5px;
+}
+
+#F-console-chat-display .piece .chatmsg{
+	
+}
+
+#F-console-chat-display .piece .lastword{
+	font-weight: bold;
+	color: #c33;
+}
+
+#F-console-chat-display .piece .error{
+	color: #d33;
+	font: bold 13px sans-serif;
+	margin: 0 5px;
+}
+
+#F-console-chat-display .piece .notice{
+	color: #dd3;
+	font: bold 13px sans-serif;
+	margin: 0 5px;
+}
+
+#F-console-chat-display .piece .feedback{
+	color: #3d8;
+	font: bold 13px sans-serif;
+	margin: 0 5px;
+}
+
+#frame-game .chatinput{
+	position: absolute;
+	bottom: 52px;
+	height: 22px;
+}
+
+#frame-game .chatinput[type="text"]{
+	left: 200px;
+	right: 300px;
+	margin: 5px 60px 5px 5px;
+}
+
+#frame-game .chatinput[type="submit"]{
+	margin: 5px;
+}
+
+#F-console-chat-submit{
+	width: 50px;
+	right: 300px;
+}
+
+#F-console-chat-speak{
+	width: 350px;
+	left: 200px;
+}
+
+#F-console-chat-form{
+	display: none;
+	margin: 0;
+}
+
+/*-----------Frame Console - Chat------------*/
+
+#F-console-brief{
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	border-width: 0;
+	padding: 0;
+}
+
+#F-console-brief .frame{
+	display: none;
+	width: 100%;
+	height: 100%;
+}
+
+#F-console-brief .brief{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #111;
+}
+
+#F-console-brief .welcome .text{
+	margin: 100px auto;
+	padding: 25px;
+	border: 2px solid #ccc;
+	width: 800px;
+	font: bold 35px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+	text-align: center;
+}
+
+#F-console-brief .die{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #000;
+	background: rgba(0, 0, 0, 0.9);
+}
+
+#F-console-brief .die .text{
+	margin: 200px auto;
+	width: 800px;
+	font: bold 35px 黑体, Helvetica, sans-serif;
+	color: #911;
+	text-align: center;
+}
+
+#F-console-brief .end{
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #000;
+	background: rgba(0, 0, 0, 0.9);
+}
+
+#F-console-brief .end .text{
+	font: bold 35px 黑体, Helvetica, sans-serif;
+	color: #911;
+	margin: 200px auto;
+	text-align: center;
+}
+
+/*----------------Frame Enter----------------*/
+
+#frame-enter{
+	text-align: center;
+}
+
+#F-enter-welcome{
+	position: relative;
+	top: 50px;
+	font-weight:bold;
+	font-size: 60px;
+	font-family: Arial, 黑体, Helvetica, sans-serif;
+}
+
+#F-enter-avatar{
+	position: relative;
+	top: 100px;
+	padding: 3px;
+	border: 1px solid #ccc;
+}
+
+#frame-enter .icon-selector{
+	position: relative;
+	top: 120px;
+}
+
+#frame-enter .icon-selector select{
+	display: none;
+}
+
+#F-enter-info{
+	text-align: left;
+	position: relative;
+	top: 150px;
+	width: 300px;
+	margin: 0 auto;
+	font: normal 15px/28px Arial, 微软雅黑, sans-serif;
+}
+
+#F-enter-info .info{
+	padding: 5px 0;
+	height: 28px;
+}
+
+#frame-enter .gender-selector{
+	float: right;
+	margin: 0 30px;
+}
+
+#frame-enter input[type="text"]{
+	float: right;
+	width: 200px;
+}
+
+#F-enter-enterbtn{
+	width: 150px;
+	position: relative;
+	top: 170px;
+	font: 30px Arial, 黑体, Helvetica, sans-serif;
+}
+
+/*-------------------Index-------------------*/
+
+#index-page .center-content{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+}
+
+#index-page .center-content td{
+	text-align: center;
+	vertical-align: middle;
+}
+
+#index-page .center-frame{
+	display: inline-block;
+	position: relative;
+	margin: 0 auto;
+}
+
+#index-page .center-frame .time-title{
+	font-size: 36px; 
+}
+
+#index-page .center-frame .time-title .gamenum{
+	color: #c00;
+	margin: 0 10px;
+	font-weight: bold;
+}
+
+#index-page .center-frame .time-indicator{
+	font-size: 144px;
+	font-weight: bold;
+}
+
+#index-enter-btn{
+	margin-top: 50px;
+	padding: 2px 10px;
+	font-size: 24px;
+	font-family: 微软雅黑, 黑体;
+}
+
+#index-page .center-content .addon{
+	position: absolute;
+	left: 100%;
+	white-space: nowrap;
+	text-align: left;
+	padding: 25px 0 0 0;
+}
+
+#index-page .center-content .addon .title{
+	font-size: 14px;
+}
+
+#index-page .center-content .addon .value{
+	font-size: 26px;
+	font-weight: bold;
+	margin: 0 0 10px 10px;
+}
+
+#index-page .center-content .addon .subvalue{
+	font-size: 13px;
+	font-weight: normal;
+}
+
+#index-page .center-content .addon .round{
+	color: #c00;
+}
+
+#index-page .center-content .addon .going{
+}
+
+#index-page .center-content .addon .combo{
+	color: #c00;
+}
+
+#index-page .center-content .addon .end{
+	color: #c00;
+}
+
+#index-page .center-content .addon .damage{
+	color: #c00;
+}
+
+#index-page .center-content .addon .username{
+	color: #c00;
+}
+
+#index-page .left-content{
+	position: absolute;
+	left: 0;
+	bottom: 52px;
+	width: 300px;
+	min-height: 28px;
+	background: #444;
+	color: #ccc;
+}
+
+#index-page .left-content .toggle{
+	position: absolute;
+	right: 5px;
+	top: 5px;
+}
+
+#index-page .left-content .toggle button{
+	width: 20px;
+	height: 20px;
+	border: 1px solid #ccc;
+	background: #555;
+	color: #ccc;
+}
+
+#index-page .left-content .last-game{
+	margin: 30px 5px 5px 5px;
+	border-top: 3px solid #666;
+	border-bottom: 3px solid #666;
+	white-space: nowrap;
+}
+
+#index-page .left-content .last-game .title{
+	font-size: 16px;
+}
+
+#index-page .left-content .last-game .value{
+	font-size: 26px;
+	padding: 0 0 0 10px;
+}
+
+#index-page .left-content .last-game .username{
+	font-weight: bold;
+	color: #dd9;
+}
+
+#index-page .left-content .last-game .nobody{
+}
+
+#index-page .left-content .last-game .error{
+	color: #f33;
+}
+
+#index-page .left-content .last-game .timeup{
+	color: #f33;
+}
+
+#index-page .left-content .last-game .dieout{
+	color: #c00;
+	font-weight: bold;
+}
+
+#index-page .left-content .last-game .eliminate{
+	color: #3f3;
+}
+
+#index-page .left-content .last-game .survive{
+}
+
+#index-page .left-content .last-game .mode{
+	font-size: 12px;
+}
+
+#index-page .left-content .bulletin{
+	margin: 20px 5px 5px 5px;
+}
+
+#index-page .left-content .bulletin .title{
+	font-weight: bold;
+	font-size: 24px;
+	text-align: center;
+	margin-bottom: 5px;
+}
+
+#index-page .left-content .bulletin .content{
+	margin: 0 5px 10px;
+	padding: 1px;
+	border-left: 3px solid #ccc;
+	background: #555;
+}
+
+#index-page .left-content .bulletin .content p{
+	margin: 5px;
+}
+
+#index-page .left-content .game-version{
+	text-align: center;
+}
+
+#index-page .left-content .game-version .mod-name{
+	font-size: 16px;
+	font-weight: bold;
+}
+
+#index-page .left-content .game-version .mod-version{
+	font-size: 13px;
+}
+
+/*------------------Wrapper------------------*/
+
+#wrapper{
+	background: #f9f9f9;
+	width: 100%;
+	text-align: left;
+	display: block;
+}
+
+/*------------------Navigator------------------*/
+
+#nav{
+	width: 100%;
+	z-index: 1000;
+	margin: 0 auto;
+	color: #ccc;
+	height: 28px;
+	background: #444;
+	font: normal 13px/28px sans-serif;
+	display: block;
+	position: absolute;
+}
+
+#nav-title{
+	position: absolute;
+	z-index: -1;
+	width: 100%;
+	height: 28px;
+	font: bold 25px/28px 微软雅黑,黑体,sans-serif;
+	color: #d00;
+	text-shadow: 2px 2px #600, 1px 1px #700;
+}
+
+#nav-title.index{
+	font-size: 72px;
+	margin: 72px 0 0 0;
+}
+
+#nav ul{
+	padding: 0px;
+	list-style-type: none;
+	margin: 0px;
+	border-right: 1px solid #555;
+	border-left: 1px solid #333;
+}
+
+#nav li{
+	margin: 0px;
+	border-left: 1px solid #555;
+	border-right: 1px solid #333;
+	text-align: center;
+}
+
+#nav a{
+	padding: 0px 20px 0px 20px;
+	color: #ccc;
+	text-decoration: none;
+	display: block;
+}
+
+#nav-cuser-name{
+	padding: 0px 20px 0px 20px;
+	color: #ccc;
+	text-decoration: none;
+	display: none;
+	font-family: consolas, 微软雅黑, Helvetica, sans-serif;
+	font-size: 15px;
+	min-width: 159px;
+	text-align: center;
+}
+
+#nav-cuser-logout{
+	display: none;
+}
+
+#nav-cuser{
+	float: right;	
+}
+
+#nav-cuser li{
+	float: right;
+}
+
+#nav-page{
+	float: left;	
+}
+
+#nav-page li{
+	float: left;
+}
+
+#nav-login{
+	position: absolute;
+	z-index: 10000;
+	top: 28px;
+	right: 0;
+	padding: 30px 10px 5px 10px;
+	background: #444;
+	background: rgba(68, 68, 68, 0.6);
+	display: none;
+}
+
+#nav-login div{
+	margin: 5px 0;
+}
+
+#nav-login input.submit{
+	width: 100%;
+}
+
+#nav-login div.output{
+	position: absolute;
+	text-align: center;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+}
+
+#nav-cuser-name img.icon{
+	float: left;
+	margin: 0 10px 0 0;
+	height: 28px;
+}
+
+#nav-page-admin{
+	display: none;
+}
+
+/*-----------------Register-----------------*/
+
+#register{
+	position: relative;
+	width: 600px;
+	height: 375px;
+	top: 100px;
+	border: 1px solid #ccc;
+	background: #eee;
+	margin: 0 auto;
+	font: normal 20px/50px 黑体,sans-serif;
+}
+
+#register-welcome{
+	font: bold 50px 黑体,sans-serif;
+	margin: 30px 0;
+}
+
+#register .key{
+	float: left;
+	clear: left;
+	height: 50px;
+	width: 50%;
+	text-align: center;
+}
+
+#register .value{
+	float: right;
+	clear: right;
+	width: 50%;
+	text-align: center;	
+	height: 50px;
+}
+
+#register .value input{
+	font-size: 22px;
+	width: 200px;
+	height: 30px;
+	margin: 10px 0;
+}
+
+#register input[type="submit"]{
+	height: 30px;
+	width: 60px;
+	margin: 30px auto;
+	clear: both;
+}
+
+#register-info{
+	font-size: 13px;
+	color: #c33;
+}
+
+/*----------------About Page----------------*/
+
+#news{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+}
+
+#news_playerlist{
+	position: absolute;
+	height: 100%;
+	width: 400px;
+	left: 0;
+	background: #333;
+	color: #ccc;
+	overflow: auto;
+}
+
+#news_playerlist .player{
+	margin: 5px;
+	padding: 10px;
+}
+
+#news_playerlist .player:hover{
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#news_playerlist .icon{
+	margin-right: 10px;
+	display: inline-block;
+}
+
+#news_playerlist .info{
+	display: inline-block;
+}
+
+#news_playerlist .info div{
+	float: left;
+	margin-right: 10px;
+}
+
+#news_playerlist .name{
+	font-size: 20px;
+	line-height: 40px;
+	height: 40px;
+	text-align: center;
+}
+
+#news_playerlist .number{
+	clear: left;
+}
+
+#news_playerlist .motto{
+	clear: left;
+	white-space:nowrap;
+	line-height: 25px;
+	height: 25px;
+}
+
+#news_newslist{
+	position: absolute;
+	height: 100%;
+	left: 400px;
+	right: 0;
+	background: #555;
+	color: #ccc;
+	border-left: 1px solid #444;
+	padding: 20px;
+	overflow: auto;
+}
+
+#news_newslist .time{
+	color: #999;
+	font: bold 13px sans-serif;
+	margin-right: 5px;
+}
+
+#news_newslist .username{
+	color: #dd9;
+	font: bold 13px sans-serif;
+	margin: 0 5px;
+}
+
+#news_newslist .gamenum{
+	text-shadow: 1px 1px #700;
+	margin: 0 5px;
+	font-weight: bold;
+}
+
+#news_newslist .system{
+	color: #f33;
+}
+
+#news_newslist .join{
+	color: #cc3;
+}
+
+/*---------------History Page---------------*/
+
+#history{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+	overflow: auto;
+	background: #333;
+	color: #ccc;
+}
+
+#history .title{
+	text-align: center;
+	font: bold 28px 微软雅黑,黑体;
+	text-shadow: 1px 1px #777, 2px 2px #777;
+	margin: 20px auto;
+	font-size: 28px;
+}
+
+#history .no_result{
+	text-align: center;
+	font: bold 28px 微软雅黑,黑体;
+	margin: 50px auto;
+	font-size: 28px;
+}
+
+#history .table{
+	width: 800px;
+	margin: 0 auto;
+}
+
+#history .clear{
+	clear: both;
+}
+
+#history .game{
+	border-top: solid 5px #ccc;
+	padding: 0;
+	width: 100%;
+	font-size: 15px;
+	margin: 15px 0;
+}
+
+#history .game:hover{
+	background: #555;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#history .game .num{
+	float: left;
+	width: 25%;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+	background: #444;
+}
+
+#history .game .gamenum{
+	color: #c33;
+	margin: 0 2px;
+}
+
+#history .game .type{
+	float: left;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+	width: 75%;
+	background: #555;
+}
+
+#history .game .type .error{
+	color: #c33;
+}
+
+#history .game .type .dieout{
+	color: #c33;
+}
+
+#history .game .type .survive{
+	color: #ccc;
+}
+
+#history .game .type .eliminate{
+	color: #3c3;
+}
+
+#history .game .winner{
+	width: 100%;
+	height: 100px;
+}
+
+#history .game .winner_icon{
+	float: left;
+	width: 150px;
+	margin: 10px 0;
+	text-align: center;
+}
+
+#history .game .winner_name{
+	float: left;
+	width: 200px;
+	text-align: center;
+	font: bold 20px 微软雅黑, Arial;
+	line-height: 100px;
+	white-space: nowrap;
+}
+
+#history .game .winner_motto{
+	float: left;
+	width: 450px;
+	text-align: center;
+	font: bold 15px 微软雅黑, Arial;
+	line-height: 100px;
+	white-space: nowrap;
+}
+
+/*-----------------Rank Page----------------*/
+
+#rank{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+	overflow: auto;
+	background: #333;
+	color: #ccc;
+}
+
+#rank .table{
+	width: 800px;
+	margin: 0 auto;
+}
+
+#rank .title{
+	text-align: center;
+	font: bold 28px 微软雅黑,黑体;
+	text-shadow: 1px 1px #777, 2px 2px #777;
+	margin: 20px auto;
+	font-size: 28px;
+}
+
+#rank .no_result{
+	text-align: center;
+	font: bold 28px 微软雅黑,黑体;
+	margin: 50px auto;
+	font-size: 28px;
+}
+
+#rank .user{
+	width: 100%;
+	height: 100px;
+}
+
+#rank .user.odd{
+	background: #555;
+	background: rgba(0, 0, 0, 0.05);
+}
+
+#rank .user.even{
+	background: #666;
+	background: rgba(255, 255, 255, 0.05);
+}
+
+#rank .user:hover{
+	background: #777;
+	background: rgba(255, 255, 255, 0.2);
+}
+
+#rank .user_rank{
+	float: left;
+	width: 30px;
+	text-align: center;
+	font-weight: bold;
+	color: #c33;
+	line-height: 100px;
+	white-space: nowrap;
+	background: #333;
+	background: rgba(0, 0, 0, 0.2);
+}
+
+#rank .user_credits{
+	float: left;
+	width: 50px;
+	text-align: center;
+	line-height: 100px;
+	white-space: nowrap;
+	background: #444;
+	background: #333;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+#rank .user_icon{
+	float: left;
+	width: 150px;
+	margin: 10px 0;
+	text-align: center;
+}
+
+#rank .user_name{
+	float: left;
+	width: 140px;
+	text-align: center;
+	font: bold 20px 微软雅黑, Arial;
+	line-height: 100px;
+	white-space: nowrap;
+}
+
+#rank .user_motto{
+	float: left;
+	width: 430px;
+	text-align: center;
+	font: bold 15px 微软雅黑, Arial;
+	line-height: 100px;
+	white-space: nowrap;
+}
+
+#rank .table_title{
+	height: 28px;
+	line-height: 28px;
+	font: bold 15px 微软雅黑, Arial;
+	white-space: nowrap;
+	margin: 0;
+	background: #222;
+	text-align: center;
+}
+
+/*----------------Admin Page----------------*/
+
+#admin{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+	overflow: auto;
+	background: #333;
+}
+
+#admin .blocks{
+	margin: 50px auto;
+	width: 500px;
+}
+
+#admin .blocks .title{
+	margin: 20px auto 0;
+	width: auto;
+	font-size: 36px;
+	border-top: 4px solid #222;
+	background: #666;
+	color: #ccc;
+	text-align: center;
+	line-height: 50px;
+}
+
+#admin .blocks .button{
+	width: 100%;
+	height: 50px;
+	line-height: 50px;
+	white-space: nowrap;
+	text-align: center;
+	font-size: 20px;
+	margin: 0 auto;
+	background: #555;
+	color: #ccc;
+	border: 0 solid #999;
+}
+
+#admin .blocks .button:hover{
+	background: #999;
+	background: rgba(255, 255, 255, 0.4);
+	color: #eee;
+}
+
+#admin .function .title{
+	font-size: 36px;
+	margin: 26px 0 20px;
+	color: #ccc;
+}
+
+#admin .function .intro{
+	font-size: 12px;
+	color: #ccc;
+}
+
+#admin .function{
+	margin: 0 auto;
+	width: 500px;
+	text-align: center;
+	display: none;
+}
+
+#admin .function textarea{
+	width: 490px;
+	height: 300px;
+	background: #555;
+	color: #ccc;
+	border: 1px solid #999;
+	margin: 10px;
+}
+
+#admin .function button{
+	background: #555;
+	color: #ccc;
+	border: 1px solid #999;
+	margin: 10px;
+}
+
+/*----------------About Page----------------*/
+
+#about{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+	overflow: auto;
+	background: #333;
+	color: #ccc;
+}
+
+#about a:link{
+	color: #6cf;
+}
+
+#about a:visited{
+	color: #39c;
+}
+
+#about .block{
+	position: relative;
+	width: 100%;
+	text-align: center;
+	margin-bottom: 50px;
+}
+
+#about .block .type{
+	font-size: 26px;
+	margin-bottom: 20px;
+	background: #282828;
+	padding: 20px 0;
+	font-weight: bold;
+}
+
+#about .block .type-name{
+	font-size: 30px;
+	font-weight: bold;
+	margin-top: 10px;
+}
+
+#about .block .type-version{
+	font-size: 15px;
+}
+
+#about .block .author{
+	font-size: 20px;
+	margin-top: 20px;
+	line-height: 1.5em;
+}
+
+#about .block .author-name{
+	font-size: 15px;
+	line-height: 1.5em;
+}
+
+#about .block .licence{
+	font-size: 15px;
+	margin-top: 20px;
+	line-height: 1.5em;
+}
+
+#about .block .extra-info{
+	font-size: 15px;
+	margin-top: 20px;
+	line-height: 1.5em;
+}
+
+/*----------------Error Page----------------*/
+
+#Error_Page{
+	position: relative;
+	top: 100px;
+	width: 600px;
+	padding: 100px;
+	margin: 0 auto;
+	background: #eee;
+	border: 1px solid #aaa;
+}
+
+/*-------------------Help-------------------*/
+
+#help{
+	position: absolute;
+	top: 28px;
+	bottom: 52px;
+	width: 100%;
+	overflow: auto;
+	background: #333;
+	color: #ccc;
+}
+
+#help .heading{
+	font-size: 36px;
+	font-weight: bold;
+	text-align: center;
+	margin: 30px;
+}
+
+#help .content{
+	text-align: center;
+	font-size: 15px;
+}
+
+/*------------------Footer------------------*/
+
+#footer{
+	position: absolute;
+	width: 100%;
+	margin: 0;
+	background: #444;
+	height: 52px;
+	bottom: 0;
+}
+
+#footer ul{
+	position: relative;
+	margin: 0 auto;
+	padding: 0;
+	list-style-type: none;
+}
+
+#footer li{
+	text-align: center;
+	font: bold 13px/52px sans-serif;
+	color: #ccc;
+}
+
+#footer li a{
+	color: #ccc;
+	text-decoration: none;
+}
+
+#footer .performance{
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%;
+	width: 270px;
+	margin: 0;
+	padding: 0;
+	color: #ccc;
+}
+
+#footer .performance .frame{
+	display: block;
+	float: right;
+	width: 135px;
+	height: 100%;
+}
+
+#footer .performance .key,
+#footer .performance .value{
+	height: 26px;
+	line-height: 26px;
+	margin: 0 5px;
+}
+
+#footer .performance .key{
+	float: left;
+	clear: left;
+}
+
+#footer .performance .value{
+	float: right;
+	clear: right;
+}
+
+#footer .error{
+	position: absolute;
+	left: 0;
+	top: 0;
+	color: #ccc;
+	overflow: auto;
+}
+
+/*------------------Comet------------------*/
+#comet{
+	display: none;
+}
