@@ -14,7 +14,7 @@ class chlorocomet_mongodb implements IChloroComet
 			return throw_error('COMET ERROR: Invaild Configuration.');
 		}
 		
-		$db = new Mongo('mongodb://'.$config['mongodb']['user'].':'.$config['mongodb']['pass'].'@'.$config['mongodb']['host']);
+		$db = new MongoClient('mongodb://'.$config['mongodb']['user'].':'.$config['mongodb']['pass'].'@'.$config['mongodb']['host']);
 		$this->collection = $db->selectDB($config['mongodb']['db'])->selectCollection($config['mongodb']['collection']);
 		
 		return;
@@ -24,18 +24,6 @@ class chlorocomet_mongodb implements IChloroComet
 	{
 		$this->self = strval($hash);
 		$this->ajax = $ajax;
-	}
-	
-	public function set($hash, array $value)
-	{
-		if(false === is_array($hash)){
-			$hash = array($hash);
-		}
-		
-		return $this->collection->update(
-			array('hash' => array('$in' => $hash)),
-			array('$set' => array('value' => array($value)))
-			);
 	}
 	
 	public function add($hash, array $value)

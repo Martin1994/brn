@@ -28,18 +28,6 @@ class chlorocomet_file implements IChloroComet
 		$this->ajax = $ajax;
 	}
 	
-	public function set($hash, array $value)
-	{
-		if(true === is_array($hash)){
-			foreach($hash as $subhash){
-				$this->set(strval($subhash), $value);
-			}
-			return;
-		}
-		
-		return file_put_contents($this->get_uri($hash), json_encode($value, JSON_FORCE_OBJECT).',');
-	}
-	
 	public function add($hash, array $value)
 	{
 		if(true === is_array($hash)){
@@ -74,7 +62,7 @@ class chlorocomet_file implements IChloroComet
 		if($handle = opendir($this->directory)){
 			while(false !== ($hash = readdir($handle))){
 				if($hash != "." && $hash != ".."){
-					$hash = substr($hash, 0, strlen($hash) - 4); //È¥µô".txt"
+					$hash = substr($hash, 0, strlen($hash) - 4); //åŽ»æŽ‰".txt"
 					if(false === in_array($hash, $exception)){
 						$this->add($hash, $value);
 					}

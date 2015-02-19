@@ -8,7 +8,7 @@ $GLOBALS['new_player'] = array(
 	'basedef' => 100,
 	'proficiency' => 0,
 	'area' => 0,
-	'money' => 200
+	'money' => 400
 	);
 	
 $GLOBALS['clubskill'] = array(

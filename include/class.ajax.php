@@ -1,5 +1,5 @@
 <?php
-//TODO: ½«ÍÆËÍÂß¼­¸ÄÎª½Å±¾½áÊøÊ±ajaxÀàÍ³Ò»½«ĞèÒªÍÆËÍµÄÄÚÈİ·¢ËÍÖÁcometÀà
+//TODO: å°†æ¨é€é€»è¾‘æ”¹ä¸ºè„šæœ¬ç»“æŸæ—¶ajaxç±»ç»Ÿä¸€å°†éœ€è¦æ¨é€çš„å†…å®¹å‘é€è‡³cometç±»
 class chloroajax
 {
 	
@@ -14,14 +14,14 @@ class chloroajax
 	}
 	
 	/**
-	 * ·¢ËÍajaxÃüÁî
-	 * param: $action String ÃüÁîÃû
-	 *        $param Array ÃüÁî²ÎÊı£¨ĞÎÈç: Array('p1' => 'v1', 'p2' => 2)£©
-	 *        $comet Array/Boolean ·¢ËÍ¶ÔÏó£º
-	 *                                 Êı×éÄÚÈİÎªuserID£¬$exception¼ü´æÔÚÔò´ú±íÈ«Ô±·¢ËÍÇÒ²»·¢ËÍ$exceptionÄÚµÄuserID£»
-	 *                                 true´ú±íÈ«Ô±·¢ËÍ£»
-	 *                                 Ä¬ÈÏÖµfalse´ú±í·¢ËÍ´¥·¢±¾´Î½Å±¾µÄÍæ¼Ò
-	 *        $unshift Boolean ÊÇ·ñ½«±¾ÌõÏûÏ¢²åÈëµ½ÏûÏ¢¶ÓÁĞµÄµÚÒ»Ìõ
+	 * å‘é€ajaxå‘½ä»¤
+	 * param: $action String å‘½ä»¤å
+	 *        $param Array å‘½ä»¤å‚æ•°ï¼ˆå½¢å¦‚: Array('p1' => 'v1', 'p2' => 2)ï¼‰
+	 *        $comet Array/Boolean å‘é€å¯¹è±¡ï¼š
+	 *                                 æ•°ç»„å†…å®¹ä¸ºuserIDï¼Œ$exceptioné”®å­˜åœ¨åˆ™ä»£è¡¨å…¨å‘˜å‘é€ä¸”ä¸å‘é€$exceptionå†…çš„userIDï¼›
+	 *                                 trueä»£è¡¨å…¨å‘˜å‘é€ï¼›
+	 *                                 é»˜è®¤å€¼falseä»£è¡¨å‘é€è§¦å‘æœ¬æ¬¡è„šæœ¬çš„ç©å®¶
+	 *        $unshift Boolean æ˜¯å¦å°†æœ¬æ¡æ¶ˆæ¯æ’å…¥åˆ°æ¶ˆæ¯é˜Ÿåˆ—çš„ç¬¬ä¸€æ¡
 	 * return: null
 	 */
 	public function action($action, $param = false, $comet = false, $unshift = false)
@@ -34,9 +34,11 @@ class chloroajax
 		if($comet === false){
 			$this->push($data, $unshift);
 		}else{
-			//PHP5.3Èç¹û²»ÅĞ¶ÏÊı×éÀàĞÍÖ»Òª$comet²»ÊÇÊı×é»áºã·µ»Øtrue
+			//PHP5.3å¦‚æœä¸åˆ¤æ–­æ•°ç»„ç±»å‹åªè¦$cometä¸æ˜¯æ•°ç»„ä¼šæ’è¿”å›true
 			if(is_array($comet) && isset($comet['$exception'])){
 				$this->comet->add_all($data, $comet['$exception']);
+			}else if($comet === true) {
+				$this->comet->add_all($data, array());
 			}else{
 				$this->comet->add($comet, $data);
 			}

@@ -111,17 +111,17 @@ class item_thbr extends item_bra
 				break;
 			
 			case '结界解除钥匙':
-				$GLOBALS['g']->game_end('eliminate');
+				$GLOBALS['g']->game_end('eliminate', $this->player->_id);
 				return true;
 				break;
 			
 			case '虚拟结界Bug':
-				$GLOBALS['g']->game_end('destory');
+				$GLOBALS['g']->game_end('destory', $this->player->_id);
 				return true;
 				break;
 			
 			case '魔法催化剂':
-				$success = $this->apply_battery();
+				$success = $this->apply_battery($GLOBALS['param']);
 				break;
 			
 			case '结界干扰器':
@@ -130,6 +130,16 @@ class item_thbr extends item_bra
 			
 			case '凯夫拉纤维':
 				$success = $this->apply_armor_enhancer('G', 0.6);
+				break;
+			
+			case '血之精华':
+				if($success = $this->apply_blood_knife()){
+					return;
+				}
+				break;
+			
+			case '萌':
+				$success = $this->apply_moe();
 				break;
 			
 			case '境符「四重結界」':
@@ -179,7 +189,7 @@ class item_thbr extends item_bra
 				break;
 			
 			case '足軽「スーサイドスクワッド」':
-				$success = $this->apply_shield(300, 1000);
+				$success = $this->apply_shield(300, 1000, 0.5);
 				break;
 			
 			case '長視「赤月下」':
@@ -204,6 +214,10 @@ class item_thbr extends item_bra
 			
 			case '生薬「国士無双の薬」':
 				$success = $this->apply_grand_patriots_elixir();
+				break;
+			
+			case '禁薬「蓬莱の薬」':
+				$success = $this->apply_medicine_of_horai();
 				break;
 			
 			case '「夢想天生」':
@@ -353,11 +367,22 @@ class item_thbr extends item_bra
 	
 	protected function apply_armor_enhancer($kind, $effect)
 	{
-		if($this->player['equipment']['arb']['n'] == ''){
+		if($this->player->data['equipment']['arb']['n'] == ''){
 			$this->player->error('未穿着体部护具');
 			return false;
 		}
-		$this->player['equipment']['arb']['sk']['anti-'.$kind] = $effect;
+		$this->player->data['equipment']['arb']['sk']['anti-'.$kind] = $effect;
+		return true;
+	}
+	
+	protected function apply_moe()
+	{
+		foreach($this->player->proficiency as &$pro){
+			$pro += $this->data['e'];
+		}
+		$this->player->feedback('你感受到了'.$this->data['n'].'的精华，各项熟练度提高了！');
+		$this->player->ajax('proficiency', array('proficiency' => $this->player->proficiency));
+		
 		return true;
 	}
 	
@@ -418,7 +443,7 @@ class item_thbr extends item_bra
 				continue; //地图炮不打死人
 			}
 			
-			$damage = $player->damage(100, array('pid' => $this->player->_id));
+			$damage = $player->damage(100, array('pid' => $this->player->_id, 'weapon' => $this->data['n'], 'type' => 'weapon_d'));
 			$player->feedback('你被 '.$this->data['n'].' 击中，造成 '.$damage.'点伤害');
 		}
 		
@@ -442,7 +467,7 @@ class item_thbr extends item_bra
 				continue; //地图炮不打死人
 			}
 			
-			$damage = $player->damage(100, array('pid' => $this->player->_id));
+			$damage = $player->damage(100, array('pid' => $this->player->_id, 'weapon' => $this->data['n'], 'type' => 'weapon_d'));
 			$player->feedback('你被 '.$this->data['n'].' 击中，造成 '.$damage.'点伤害');
 			
 		}
@@ -454,7 +479,7 @@ class item_thbr extends item_bra
 	
 	protected function apply_shield($duration, $ettect)
 	{
-		$this->player->buff('shield', $duration, array('effect' => $ettect));
+		$this->player->buff('shield', $duration, array('amount' => $amount, 'effect' => $effect));
 		$this->player->feedback('使用 '.$this->data['n'].' 成功，如有神护');
 		return true;
 	}
@@ -551,10 +576,69 @@ class item_thbr extends item_bra
 		return true;
 	}
 	
+	protected function apply_medicine_of_horai()
+	{
+		$this->player->buff('horai');
+		$this->player->feedback('发动 '.$this->data['n'].' ，寿命的流逝停止了！');
+		return true;
+	}
+	
 	protected function apply_fantasy_nature()
 	{
 		$this->player->buff('fantasy_nature', 60, array('hits' => 0));
 		$this->player->feedback('发动 '.$this->data['n'].' ！');
+		return true;
+	}
+	
+	protected function apply_blood_knife()
+	{
+		$target_item = false;
+		
+		if($this->player->equipment['wep']['n'] == '咲夜·红魔银刃'){
+			$target_item = new_item($this->player, $this->player->equipment['wep'], 'wep');
+		}else{
+			foreach($this->player->package as $iid => &$item){
+				if($item['n'] == '咲夜·红魔银刃'){
+					$target_item = new_item($this->player, $item, $iid);
+					break;
+				}
+			}
+		}
+		
+		if(false === $target_item){
+			return false;
+		}
+		
+		$item_s = min($this->data['s'], $target_item->data['s']);
+		
+		$knife = array(
+			'n' => '咲夜·红魔血刃',
+			'k' => 'WC',
+			'e' => $target_item->data['e'] + $this->data['e'],
+			's' => $item_s,
+			'sk' => array('suit' => 'sakuya')
+			);
+		
+		if($this->data['s'] < $target_item->data['s']){
+			//新物品
+			if(isset($this->player->package[0])){
+				return $this->player->error('请先决定如何处理拾取到的物品');
+			}
+			
+			$this->player->package[0] = $knife;
+			$target_item->consume($item_s, false);
+		}else{
+			//直接替换武器
+			$target_item->data['n'] = $knife['n'];
+			$target_item->data['k'] = $knife['k'];
+			$target_item->data['e'] = $knife['e'];
+			$target_item->data['s'] = $knife['s'];
+			$target_item->data['sk'] = $knife['sk'];
+		}
+		$this->player->feedback($this->data['n'].' 使用成功， 咲夜·红魔银刃 变成了 咲夜·红魔血刃');
+		$this->consume($item_s);
+		$this->player->ajax('item', array('equipment' => $this->player->parse_equipment(), 'package' => $this->player->parse_package()));
+		
 		return true;
 	}
 	

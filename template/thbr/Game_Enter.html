@@ -1,0 +1,38 @@
+<div class="board">
+	<div id="F-enter-welcome">创建角色</div>
+	<form id="F-enter-form">
+		<img id="F-enter-avatar">
+		<?php global $icon_num; ?>
+		<div class="icon-selector">
+			<select id="F-enter-form-icon-f">
+				<?php for($i = 0; $i <= $icon_num['f']; $i ++){?>
+					<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+				<?php } ?>
+			</select>
+		</div>
+		<div class="icon-selector">
+			<select id="F-enter-form-icon-m">
+				<?php for($i = 0; $i <= $icon_num['m']; $i ++){?>
+					<option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+				<?php } ?>
+			</select>
+		</div>
+		<div id="F-enter-info">
+			<div class="info">性别：
+				<div class="gender-selector"><input type="radio" name="gender" value="m">男生</div>
+				<div class="gender-selector"><input type="radio" name="gender" value="f">女生</div>
+			</div>
+			<div class="info">社团：
+				<select id="F-enter-form-club" class="club">
+					<?php for($i = 0; $i < sizeof($GLOBALS['clubinfo']); $i ++){?>
+						<option value="<?php echo $i; ?>"><?php echo $i == 0 ? '随机' : $GLOBALS['clubinfo'][$i]; ?></option>
+					<?php } ?>
+				</select>
+			</div>
+			<div class="info">铭言：<input type="text" id="F-enter-form-motto" /></div>
+			<div class="info">击杀留言：<input type="text" id="F-enter-form-killmsg" /></div>
+			<div class="info">遗言：<input type="text" id="F-enter-form-lastword" /></div>
+		</div>
+	<input type="submit" id="F-enter-enterbtn" value="进入游戏" />
+	</form>
+</div>

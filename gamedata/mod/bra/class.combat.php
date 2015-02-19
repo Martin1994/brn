@@ -5,6 +5,17 @@ class combat_bra extends combat
 	
 	protected $counter;
 	
+	public function __construct(player $att, player $def)
+	{
+		parent::__construct($att, $def);
+		
+		if(isset($this->defender->equipment['arb']['sk']['anti-'.$this->kind])){
+			$this->feedback($this->defender->name.'的'.$this->defender->equipment['n'].'展现出了惊人的抗性');
+		}
+		
+		return;
+	}
+	
 	public function attack($counter = false)
 	{
 		$total_damage = parent::attack();
@@ -27,6 +38,9 @@ class combat_bra extends combat
 			if(determine(intval($this->get_counter_rate()))){
 				$this->feedback($this->defender->name.'发起反击');
 				$c_damage = $c_combat->attack(true);
+				
+				$GLOBALS['g']->record_battle_damage($c_damage, $this->defender, $this->attacker);
+				
 				if(false === $attacker->is_alive()){
 					if((false === isset($defender->data['action']['battle'])) && (intval($defender->type) === GAME_PLAYER_USER)){
 						$defender->found_enemy($attacker);
@@ -60,6 +74,11 @@ class combat_bra extends combat
 		if($this->kind === 'd'){
 			$damage += $this->attacker->equipment['wep']['e'];
 		}
+		
+		if(isset($this->defender->equipment['arb']['sk']['anti-'.$this->kind])){
+			$damage *= $this->defender->equipment['arb']['sk']['anti-'.$this->kind];
+		}
+		
 		return $damage;
 	}
 	
@@ -129,26 +148,22 @@ class combat_bra extends combat
 		switch($position){
 			case 'b':
 				$this->defender->buff('injured_body');
-				$this->attacker->notice($this->defender->name.'的胸部受伤了');
-				$this->defender->notice('你的胸部受伤了');
+				$this->feedback($this->defender->name.'的胸部受伤了');
 				break;
 			
 			case 'h':
 				$this->defender->buff('injured_head');
-				$this->attacker->notice($this->defender->name.'的头部受伤了');
-				$this->defender->notice('你的头部受伤了');
+				$this->feedback($this->defender->name.'的头部受伤了');
 				break;
 			
 			case 'a':
 				$this->defender->buff('injured_arm');
-				$this->attacker->notice($this->defender->name.'的臂部受伤了');
-				$this->defender->notice('你的腕部受伤了');
+				$this->feedback($this->defender->name.'的腕部受伤了');
 				break;
 			
 			case 'f':
 				$this->defender->buff('injured_foot');
-				$this->attacker->notice($this->defender->name.'的足部受伤了');
-				$this->defender->notice('你的足部受伤了');
+				$this->feedback($this->defender->name.'的足部受伤了');
 				break;
 		}
 	}
@@ -269,17 +284,6 @@ class combat_bra extends combat
 				break;
 		}
 		return;
-	}
-	
-	protected function damage_news($damage)
-	{
-		if($damage >= 100){
-			$GLOBALS['g']->insert_news('damage', array(
-				'attacker' => $this->attacker->name,
-				'defender' => $this->defender->name,
-				'damage' => $damage
-				));
-		}
 	}
 }
 

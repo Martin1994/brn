@@ -33,7 +33,26 @@ if(COMET_TYPE === 'channel_SAE'){
 		</head>
 	</html>
 	<?php
-}else{
+}else if(COMET_TYPE === 'chlorocomet') {
+	$token = $c->get_token($cuser['_id']);
+	$url = trim($COMET_CONFIG['chlorocomet']['client'], '/');
+	?>
+	<html>
+		<head>
+			<title>BR Comet Client</title>
+			<script type="text/javascript" src="js/comet.js"></script>
+			<script type="text/javascript">
+				window.addEventListener('message',function(event) {
+					eval("m([" + event.data + "])");
+				}, false);
+			</script>
+		</head>
+		<body>
+			<iframe src="<?php echo $url."/CDPortal.php?token=".$token; ?>"></iframe>
+		</body>
+	</html>
+	<?php
+}else {
 
 	$method = isset($_GET['method']) ? $_GET['method'] : 'streaming';
 	$hash = $cuser['_id'];

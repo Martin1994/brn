@@ -21,6 +21,26 @@ $(document).ready(function(){
 		}, "json");
 	});
 	
+	$("#admin-game-stop").click(function(){
+		$.post('ajax.php', {action : 'admin', admin_action : 'game_end'}, function(data, status){
+			if(data['success']){
+				alert("游戏已结束");
+			}else{
+				alert("操作失败");
+			}
+		}, "json");
+	});
+	
+	$("#admin-game-start").click(function(){
+		$.post('ajax.php', {action : 'admin', admin_action : 'game_start'}, function(data, status){
+			if(data['success']){
+				alert("游戏已开始");
+			}else{
+				alert("操作失败");
+			}
+		}, "json");
+	});
+	
 	$("#admin .blocks .enable-function").click(function(){
 		show_function($(this).attr("target"));
 		console.debug($(this));

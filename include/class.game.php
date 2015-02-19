@@ -23,7 +23,7 @@ class game
 		$this->gameinfo = $this->gameinfo_bak = $this->get_gameinfo(); //初始化并备份gameinfo，脚本结束时如果检测到没有更改就不会更新gameinfo
 		$GLOBALS['gameinfo'] = &$this->gameinfo; //兼容老代码
 		$this->players = array(); //初始化玩家池
-		$this->db = $GLOBALS['db']; //引用db类在摧毁类时有依赖
+		$this->db = $GLOBALS['db']; //引用db类，在摧毁类时有依赖（如果db类先被摧毁会导致无法更新数据库）
 		
 		return;
 	}
@@ -46,11 +46,14 @@ class game
 			}
 		}
 		
-		while($gameinfo['areatime'] <= time()){
+		while($gameinfo['areatime'] <= time() && ($gameinfo['gamestate'] & GAME_STATE_START)){
 			$areanum = $this->game_forbid_area();
 			if($areanum >= sizeof($map)){
-				$this->game_end();
-				break;
+				if($this->gameinfo['validnum'] == 0){
+					$this->game_end('noplayer');
+				}else{
+					$this->game_end('timeup');
+				}
 			}
 		}
 		
@@ -80,11 +83,10 @@ class game
 		$Darealist = $this->generate_forbidden_area($gameinfo['arealist'], $gameinfo['round'] + 1, $round_area);
 		$gameinfo['dangerouslist'] = $Darealist;
 		
-		$this->update_mapitem($gameinfo['round']);
-		$this->update_npc($gameinfo['round']);
-		$this->update_shopitem($gameinfo['round']);
-		
 		$gameinfo['weather'] = mt_rand(0, $normal_weather - 1);
+		
+		//提前更新gameinfo
+		cache_write('gameinfo.serialize', serialize($this->gameinfo));
 		
 		//连斗
 		if($gameinfo['round'] >= $combo_round){
@@ -102,6 +104,10 @@ class game
 		
 		$a->action('area_info', $this->get_areainfo(), true);
 		$a->action('weather', array('name' => $weatherinfo[$gameinfo['weather']]), true);
+		
+		$this->update_mapitem($gameinfo['round']);
+		$this->update_npc($gameinfo['round']);
+		$this->update_shopitem($gameinfo['round']);
 		
 		return sizeof($gameinfo['forbiddenlist']);
 	}
@@ -144,27 +150,11 @@ class game
 		$db->create_table('news', $column);
 		unset($column);
 		
-		/*========Generate a sequence of forbbiden regions========*/
-		$mapsize = sizeof($map);
-		$arealist = array();
-		for($i = 0; $i < $mapsize ; $i++){
-			$arealist[$i] = $i;
-		}
-		//map_0 will be forbbiden automatically
-		for($i = 1; $i < $mapsize - 1; $i++){
-			$exchange = mt_rand($i, $mapsize - 1);
-			$temp = $arealist[$i];
-			$arealist[$i] = $arealist[$exchange];
-			$arealist[$exchange] = $temp;
-		}
+		/*========Generate a sequence of forbidden regions========*/
+		$arealist = $this->generate_forbidden_sequence();
 		
 		/*==================Clean up comet pool===================*/
-		
 		$c->clear_all();
-		
-		/*======================Insert News=======================*/
-		
-		$this->insert_news('start', $gameinfo['gamenum']);
 		
 		/*=====================Save Gameinfo======================*/
 		$gameinfo['gamenum'] += 1;
@@ -178,6 +168,10 @@ class game
 		$gameinfo['gamestate'] |= GAME_STATE_START;
 		$gameinfo['hdamage'] = 0;
 		$gameinfo['hplayer'] = '';
+		
+		/*======================Insert News=======================*/
+		$this->insert_news('start', $gameinfo['gamenum']);
+		
 		return;
 	}
 	
@@ -271,6 +265,30 @@ class game
 	{
 		$this->gameinfo['hdamage'] = intval($damage * 10) / 10;
 		$this->gameinfo['hplayer'] = $hplayer->name;
+	}
+	
+	/**
+	 * 生成禁区顺序
+	 * 如果MOD中有其他需求，请继承此函数
+	 *
+	 * return array 禁区顺序
+	 */
+	protected function generate_forbidden_sequence()
+	{
+		global $map;
+		$mapsize = sizeof($map);
+		$arealist = array();
+		for($i = 0; $i < $mapsize ; $i++){
+			$arealist[$i] = $i;
+		}
+		//map_0 will be forbbiden automatically
+		for($i = 1; $i < $mapsize - 1; $i++){
+			$exchange = mt_rand($i, $mapsize - 1);
+			$temp = $arealist[$i];
+			$arealist[$i] = $arealist[$exchange];
+			$arealist[$exchange] = $temp;
+		}
+		return $arealist;
 	}
 	
 	/**
@@ -816,6 +834,8 @@ class game
 			'skill' => array(),
 			'daemontime' => time(),
 			'deathtime' => time(),
+			'killer' => array(),
+			'deathreason' => '',
 			'cooldowntime' => array(),
 			'buff' => array(),
 			'action' => array(),
@@ -1043,7 +1063,7 @@ class game
 	 */
 	protected function np_generate_club(&$user)
 	{
-		return mt_rand(1, 10);
+		return random(1, 10);
 	}
 	
 	/**
@@ -1217,6 +1237,21 @@ class game
 	}
 	
 	/**
+	 * 记录战斗伤害
+	 * 引擎中是个空函数，如果MOD中需要使用，请重载此函数
+	 *
+	 * param $damage(Float) 伤害值
+	 * param $attacker(player) 攻击者
+	 * param $defender(player) 防御者
+	 * return null
+	 */
+	
+	public function record_battle_damage($damage, player $attacker, player $defender)
+	{
+		return;
+	}
+	
+	/**
 	 * 进入游戏时提交用户偏好，并更新游戏记录
 	 * 如果MOD中保存了其他用户偏好，请重载此函数
 	 *
@@ -1262,7 +1297,7 @@ class game
 		$players = $db->select(
 			'players',
 			array('name', 'number', 'gender', 'icon', 'killnum', 'lvl', 'motto', 'type'),
-			array('type' => GAME_PLAYER_USER),
+			array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)),
 			0,
 			array('killnum' => -1, 'lvl' => -1)
 			);
@@ -1290,7 +1325,7 @@ class game
 	 * 继承函数时请建议使用switch语句，在无任何匹配时调用父函数，否则不调用父函数并写入数据库
 	 */
 	public function insert_news($type, $args = array())
-	{//TODO: 改用语言包
+	{
 		
 		$content = '';
 		switch($type){
@@ -1305,7 +1340,13 @@ class game
 			case 'end_info':
 				switch($args['type']){
 					case 'survive':
-						$content = '<span class="system">'.$args['winner'][0].' 在游戏中最后幸存，游戏结束</span>';
+						$player_data = $this->get_player_by_id($args['winner'][0]);
+						$winner = new_player($player_data);
+						$content = '<span class="system">'.$winner->name.' 在游戏中最后幸存，游戏结束</span>';
+						break;
+				
+					case 'noplayer':
+						$content = '<span class="system">无人参加，游戏结束</span>';
 						break;
 				
 					case 'timeup':
@@ -1329,7 +1370,56 @@ class game
 				break;
 			
 			case 'kill':
-				$content = '<span class="username">'.$args['killer'].'</span>杀死了<span class="username">'.$args['deceased'].'</span>';
+				$args['type'] = isset($args['type']) ? $args['type'] : 'default';
+				switch($args['type']){
+					case 'weapon_p':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>殴打致死';
+						break;
+					
+					case 'weapon_k':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>斩杀';
+						break;
+					
+					case 'weapon_g':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>射杀';
+						break;
+					
+					case 'weapon_c':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>掷死';
+						break;
+					
+					case 'weapon_d':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>炸死';
+						break;
+					
+					case 'injure':
+						$content = '<span class="username">'.$args['killer'].'导致<span class="username">'.$args['deceased'].'</span>旧伤复发致死';
+						break;
+					
+					case 'poison':
+						if(isset($args['killer']) && $arg['killer']){
+							$content = '<span class="username">'.$args['killer'].'</span>下的毒致使<span class="username">'.$args['deceased'].'</span>毒发身亡';
+						}else{
+							$content = '<span class="username">'.$args['deceased'].'</span>毒发身亡';
+						}
+						break;
+					
+					case 'trap':
+						if(isset($args['killer']) && $arg['killer']){
+							$content = '<span class="username">'.$args['killer'].'</span>的<span class="weapon">'.$args['weapon'].'</span>被<span class="username">'.$args['deceased'].'</span>触发，导致其身亡';
+						}else{
+							$content = '<span class="username">'.$args['deceased'].'</span>神秘死亡';
+						}
+						break;
+					
+					default:
+						if(isset($args['killer']) && $arg['killer']){
+							$content = '<span class="username">'.$args['killer'].'</span>导致<span class="username">'.$args['deceased'].'</span>神秘死亡';
+						}else{
+							$content = '<span class="username">'.$args['deceased'].'</span>神秘死亡';
+						}
+						break;
+				}	
 				break;
 			
 			default:
@@ -1341,6 +1431,8 @@ class game
 		$db->insert('news', array('time' => time(), 'content' => $content));
 		
 		$this->update_news_cache();
+
+		return $content;
 	}
 	
 	/**
@@ -1350,6 +1442,7 @@ class game
 	 * return string 生成的内容
 	 */
 	//TODO: 引擎与模板之间的逻辑略混乱；修改方案：缓存中只有数据格式，样式控制交给js
+	//不应把这个函数放在类中
 	public function render_news($players, $news)
 	{
 		$contents = '<div id="news_playerlist">';
@@ -1502,6 +1595,28 @@ class game
 	}
 	
 	/**
+	 * 以ID作为条件获取玩家数据
+	 * 如果该ID已存在于玩家池中则不会访问数据库
+	 * 如果MOD中有其他实现，请继承或重载此函数
+	 * 
+	 * param $pid(String) 玩家ID
+	 * return array 玩家数据
+	 */
+	public function get_player_by_id($pid)
+	{
+		if(isset($this->players[strval($pid)])){
+			$data = &$this->players[strval($pid)];
+			return $data;
+		}else{
+			$data = $this->db->select('players', '*', array('_id' => $pid));
+			if(!$data){
+				return false;
+			}
+			return $data[0];
+		}
+	}
+	
+	/**
 	 * 添加玩家到玩家池
 	 * 在player类初始化时会自动将玩家数据添加到玩家池中
 	 * 游戏结束时玩家池内的玩家数据会自动更新至数据库
@@ -1538,8 +1653,12 @@ class game
 		//处理玩家池
 		foreach($this->players as $pid => &$player){
 			$this->player_data_postprocess($player);
-			
-			$this->db->update('players', $player, array('_id' => $player['_id']));
+		}
+		if(sizeof($this->players) == 1){
+			$key = array_keys($this->players);
+			$this->db->update('players', $this->players[$key[0]], array('_id' => $this->players[$key[0]]['_id']));
+		}else{
+			$this->db->batch_update('players', $this->players);
 		}
 		
 		foreach($this->gameinfo as $key => $value){

@@ -119,6 +119,12 @@
 	float: left;
 }
 
+#frame-enter select.club{
+	float: right;
+	width: 100px;
+	margin: 0 50px;
+}
+
 #F-console-weather .noumu{
 	font-weight: bold;
 	color: #c33;
@@ -142,4 +148,10 @@
 #F-console-weather .scarlet-moon{
 	font-weight: bold;
 	color: #900;
+}
+
+#news_newslist .damage{
+	color: #f33;
+	font: bold 13px sans-serif;
+	margin: 0 3px;
 }

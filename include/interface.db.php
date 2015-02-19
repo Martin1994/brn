@@ -10,6 +10,8 @@ interface IChloroDB
 	
 	public function update($table, array $data, $where, $limit);
 	
+	public function batch_update($table, array $data);
+	
 	public function insert($table, array $data);
 	
 	public function batch_insert($table, array $data, $matrix);

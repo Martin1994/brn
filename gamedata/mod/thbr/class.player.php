@@ -19,6 +19,47 @@ class player_thbr extends player_bra
 		return $consumption;
 	}
 	
+	protected function levelup($extra_text = '')
+	{
+		if(!$this->is_alive()){
+			return;
+		}
+		
+		$extra_hp = random(10, 20);
+		$extra_att = random(0, 10);
+		$extra_def = random(10, 20);
+		
+		$this->data['baseatt'] += $extra_att;
+		$this->data['basedef'] += $extra_def;
+		$this->calculate_battle_info();
+		
+		$this->data['mhp'] += $extra_hp;
+		$this->heal('hp', $extra_hp);
+		$this->heal('sp', 50);
+		
+		$this->ajax('max_health', array('mhp' => $this->mhp, 'msp' => $this->msp));
+		
+		$extra_text .= '，生命提升了'.$extra_hp;
+		$extra_text .= '，攻击提升了'.$extra_att;
+		$extra_text .= '，防御提升了'.$extra_def;
+		
+		player::levelup($extra_text);
+	}
+	
+	protected function enemy_found_rate(player $enemy)
+	{
+		$rate = parent::enemy_found_rate($enemy);
+		
+		if($this->pose == 6){
+			if(in_array('kedama', $enemy->skill)){
+				$rate *= 0.2;
+			}else{
+				$rate *= 1.25;
+			}
+		}
+		return $rate;
+	}
+	
 	public function attack_by_weapon($weapon, $uncounterable = false, $is_extra_attack = false)
 	{
 		//换上武器
@@ -32,6 +73,9 @@ class player_thbr extends player_bra
 		//换回来
 		$this->data['equipment']['wep'] = $current_weapon;
 		$this->calculate_battle_info(false);
+		
+		//更新武器名
+		$this->ajax('item', array('equipment' => $this->parse_equipment()));
 		
 		return $success;
 	}
@@ -71,8 +115,8 @@ class player_thbr extends player_bra
 					break;
 					
 				case 'scapegoat_dummy':
-					$att_modulus *= 0.9;
-					$def_modulus *= 1.15;
+					$att_modulus *= 1;
+					$def_modulus *= 1.1;
 					break;
 				
 				case 'grand_patriots_elixir':
@@ -125,8 +169,8 @@ class player_thbr extends player_bra
 			case 'extra_hp':
 			case 'ridicule':
 				foreach($this->data['buff'] as &$buff){
-					if($buff['type'] === $name && $buff['time'] !== 0 && $param == (isset($buff['param']) ? $buff['param'] : array())){
-						if($duration == 0){
+					if($buff['type'] === $name && $param == (isset($buff['param']) ? $buff['param'] : array())){
+						if($duration == 0 || $buff['time'] == 0){
 							$buff['time'] = 0;
 						}else{
 							$buff['time'] += $duration;
@@ -191,6 +235,12 @@ class player_thbr extends player_bra
 				$this->calculate_battle_info();
 				break;
 			
+			case 'recover_hp':
+			case 'recover_sp':
+				$hr = $this->get_heal_rate();
+				$this->ajax('heal_speed', array('hpps' => $hr['hp'], 'spps' => $hr['sp']));
+				break;
+			
 			//毛玉套两件效果
 			case 'kedama_suit':
 				$this->calculate_battle_info();
@@ -217,8 +267,13 @@ class player_thbr extends player_bra
 							$this->remove_buff($bid);
 						}
 					}
-					$this->buff('extra_hp', 0, array('effect' => 700, 'origin' => 'eirin4'));
+					$this->buff('extra_hp', 0, array('effect' => 1000, 'origin' => 'eirin4'));
 				}else if($param['quantity'] >= 2){
+					foreach($this->buff as $bid => &$buff){
+						if($buff['type'] == 'extra_hp' && isset($buff['param']['origin']) && $buff['param']['origin'] == 'eirin4'){
+							$this->remove_buff($bid);
+						}
+					}
 					$this->buff('extra_hp', 0, array('effect' => 300, 'origin' => 'eirin2'));
 				}else{
 					foreach($this->buff as $bid => &$buff){
@@ -252,9 +307,13 @@ class player_thbr extends player_bra
 					//成功攻击并取消buff
 				}else{
 					//达到时限，造成伤害
-					$damage = $this->damage(500, array('pid' => $buff['param']['source']));
+					$damage = $this->damage(500, array('pid' => $buff['param']['source'], 'type' => 'ageless_land'));
 					$this->feedback('寿命「无寿国への約束手形」 发动了，造成了 '.$damage.' 点伤害');
 				}
+				break;
+			
+			case 'lunar_incense':
+				$this->sacrifice(array('killer' => $buff['param']['killer']));
 				break;
 			
 			case 'extra_package':
@@ -297,7 +356,7 @@ class player_thbr extends player_bra
 				}
 				break;
 			
-			case 'yukari_suit':
+			case 'eirin_suit':
 				//取消永琳套两件效果 取消永琳套四件效果
 				foreach($this->buff as $bid => &$buff){
 					if($buff['type'] == 'extra_hp' && isset($buff['param']['origin']) && ($buff['param']['origin'] == 'eirin2' || $buff['param']['origin'] == 'eirin4')){
@@ -408,8 +467,8 @@ class player_thbr extends player_bra
 			$hp_modulus *= 10;
 		}
 		
-		$hr['hp'] *= $hp_modulus = 1;
-		$hr['sp'] *= $sp_modulus = 1;
+		$hr['hp'] *= $hp_modulus;
+		$hr['sp'] *= $sp_modulus;
 		
 		return $hr;
 	}
@@ -418,11 +477,11 @@ class player_thbr extends player_bra
 	{
 		$modulus = parent::get_potion_effect();
 		
-		foreach($this->buff as &$buff){
+		/*foreach($this->buff as &$buff){
 			switch($buff['type']){
 				//永琳套五件效果
 				case 'eirin_suit':
-					if($buff['param']['effect'] >= 5){
+					if($buff['param']['quantity'] >= 5){
 						$modulus['hp'] *= 2;
 					}
 					break;
@@ -430,14 +489,17 @@ class player_thbr extends player_bra
 				default:
 					break;
 			}
-		}
+		}*/
 		
 		return $modulus;
 	}
 	
-	public function damage($damage, array $source = array())
+	public function damage($damage, array $source = array(), array $except_buff = array())
 	{
 		foreach($this->data['buff'] as $key => &$buff){
+			if(in_array($key, $except_buff)){
+				continue;
+			}
 			switch($buff['type']){
 				case 'invincible':
 					$this->feedback('无敌中，伤害免疫');
@@ -445,15 +507,17 @@ class player_thbr extends player_bra
 					break;
 				
 				case 'shield':
-					if($damage >= $buff['param']['effect']){
-						$offset = $buff['param']['effect'];
+					$neutralize = $damage * $buff['param']['effect'];
+					if($neutralize >= $buff['param']['amount']){
+						$offset = $buff['param']['amount'];
 						$this->remove_buff($key);
 						$this->feedback('身代抵消掉了 '.(intval($offset * 10) / 10).' 点伤害');
-						return $offset + $this->damage($damage - $offset, $source);
+						return $offset + $this->damage($damage - $offset, $source, $except_buff);
 					}else{
-						$buff['param']['effect'] -= $damage;
-						$this->feedback('身代抵消掉了 '.(intval($damage * 10) / 10).' 点伤害');
-						return $damage;
+						$buff['param']['amount'] -= $neutralize;
+						$this->feedback('身代抵消掉了 '.(intval($neutralize * 10) / 10).' 点伤害');
+						$except_buff[] = $key;
+						return $neutralize + $this->damage($damage - $neutralize, $source, $except_buff);
 					}
 					break;
 				
@@ -609,11 +673,11 @@ class player_thbr extends player_bra
 					return;
 				}
 				
-				$player_data = $GLOBALS['db']->select('players', '*', array('_id' => $item['sk']['owner']));
+				$player_data = $GLOBALS['g']->get_player_by_id($item['sk']['owner']);
 				if(!$player_data){
 					return;
 				}
-				$thief = new_player($player_data[0]);
+				$thief = new_player($player_data);
 				
 				$lost_money = intval($this->money * $item['sk']['steal']);
 				$this->data['money'] -= $lost_money;
@@ -622,6 +686,24 @@ class player_thbr extends player_bra
 				$thief->notice($item['n'].' 被触发了，你获得了'.$lost_money.$GLOBALS['currency']);
 				$this->ajax('money', array('money' => $this->money));
 				$thief->ajax('money', array('money' => $thief->money));
+			}
+			
+			//受伤
+			if(determine($GLOBALS['trap_injure_rate'])){
+				$this->buff('injured_body');
+				$this->feedback('你的胸部受伤了');
+			}
+			if(determine($GLOBALS['trap_injure_rate'])){
+				$this->buff('injured_arm');
+				$this->feedback('你的碗部受伤了');
+			}
+			if(determine($GLOBALS['trap_injure_rate'])){
+				$this->buff('injured_head');
+				$this->feedback('你的头部受伤了');
+			}
+			if(determine($GLOBALS['trap_injure_rate'])){
+				$this->buff('injured_foot');
+				$this->feedback('你的腿部受伤了');
 			}
 		}
 	}
@@ -681,7 +763,7 @@ class player_thbr extends player_bra
 				//上白泽套装四件效果
 				case 'keine_suit':
 					if($buff['param']['quantity'] >= 4){
-						$add *= 4;
+						$add *= 2;
 					}
 					break;
 				
@@ -695,14 +777,31 @@ class player_thbr extends player_bra
 	
 	public function sacrifice($source = array())
 	{
+		foreach($this->buff as $bid => $buff){
+			switch($buff['type']){
+				case 'horai':
+					$this->heal('hp', $this->mhp);
+					$this->heal('sp', $this->msp);
+					$this->remove_buff($bid);
+					$this->feedback('你死亡了');
+					$this->feedback('潜伏在体内的蓬莱之药从全身各处爆发出来，发出了耀眼的光芒，你复活了！');
+					$GLOBALS['g']->insert_news('horai', array('name' => $this->name));
+					return;
+					break;
+				
+				default:
+					break;
+			}
+		}
+		
 		if(isset($source['pid']) && false !== $source['pid']){
-			$killer_data = $GLOBALS['db']->select('players', '*', array('_id' => $source['pid']));
+			$killer_data = $GLOBALS['g']->get_player_by_id($source['pid']);
 			
 			if(!$killer_data){
 				return parent::sacrifice($source);
 			}
 			
-			$killer = new_player($killer_data[0]);
+			$killer = new_player($killer_data);
 			
 			foreach($killer->buff as &$buff){
 				switch($buff['type']){

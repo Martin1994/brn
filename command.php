@@ -33,18 +33,6 @@ if(false === isset($_POST['action'])){
 $action = $_POST['action'];
 $param = isset($_POST['param']) ? $_POST['param'] : array();
 
-if($cplayer === false && $action !== 'enter_game'){
-	$a->action('need_join', array(
-		'gender' => $cuser['gender'],
-		'icon' => $cuser['icon'],
-		'avatar' => $cuser['iconuri'],
-		'motto' => $cuser['motto'],
-		'killmsg' => $cuser['killmsg'],
-		'lastword' => $cuser['lastword']
-		));
-	$a->flush();
-}
-
 $command = new_command($cplayer);
 $command->action_handler($action, $param);
 
@@ -71,10 +59,18 @@ if(true === $show_performance){
 		));
 }
 
-unset($GLOBALS['db']);
-
+//Show error message
 foreach($error as $msg){
 	$a->action('error', array('msg' => $msg));
 }
+
+$error_data = array();
+//Store error message
+foreach($error as $msg){
+	$error_data[] = array('time' => time(), 'msg' => $msg);
+}
+$db->batch_insert('error', $error_data);
+
+unset($GLOBALS['db']);
 
 $a->flush();

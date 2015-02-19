@@ -9,11 +9,31 @@ class command
 	{
 		$this->player = $cplayer;
 	}
+
+	public function get_need_join_data(){
+		global $cuser;
+		return array(
+			'gender' => $cuser['gender'],
+			'icon' => $cuser['icon'],
+			'avatar' => $cuser['iconuri'],
+			'motto' => $cuser['motto'],
+			'killmsg' => $cuser['killmsg'],
+			'lastword' => $cuser['lastword'],
+			'avatar_dir' => $GLOBALS['avatar_dir']
+			);
+	}
 	
 	public function action_handler($action, $param)
 	{
 		global $a, $g;
 		$cplayer = $this->player;
+
+		//如果用户没有登录则弹出登录窗口
+		if($cplayer === false && $action !== 'enter_game'){
+			$a->action('need_join', $this->get_need_join_data());
+			$a->flush();
+			return;
+		}
 		
 		switch($action){
 			case 'enter_game':
@@ -44,6 +64,7 @@ class command
 				$a->action('buff_name', $GLOBALS['buff_name']);
 				$a->action('buff', array('buff' => $cplayer->parse_buff()));
 				$a->action('exp', array('current' => $cplayer->exp, 'target' => $cplayer->upexp, 'level' => $cplayer->lvl));
+				$a->action('currency', array('name' => $GLOBALS['currency']));
 				
 				if(isset($cplayer->action['battle'])){
 					//战斗状态中

@@ -157,6 +157,16 @@ function battle_action(element){
 			break;
 		
 		case 'strip':
+			//禁用丢弃按钮
+			var disable_btn = true;
+			$("F-console-package item").each(function(e){
+				if($(this).find("null").length > 0){
+					disable_btn = false;
+				}
+			});
+			if(disable_btn && element.attr("target") != 'money'){
+				UIvar['disable_drop'] = true;
+			}
 			request('strip', {iid: element.attr("target")});
 			break;
 		
@@ -189,7 +199,7 @@ function parse_goods(goods){
 		result += '<div class="k">'+item['k']+'</div>';
 		result += '<div class="e">效果：'+item['e']+'</div>';
 		result += '<div class="s">耐久：'+item['s']+'</div>';
-		result += '<div class="price">价格：'+item['price']+'软妹币</div>';
+		result += '<div class="price">价格：'+item['price']+UIconfig['currency']+'</div>';
 		result += '<div class="stock">存货：'+item['num']+'</div>';
 		result += '</div></div>';
 	}
@@ -209,11 +219,12 @@ function update_price(){
 	}else{
 		total = '<span class="affordable">'+total+"</span>";
 	}
-	$("#F-console-shop .subtotal").html("小计："+total+"软妹币");//T
+	$("#F-console-shop .subtotal").html("小计："+total+UIconfig['currency']);
 }
 
 function update_item(param){
 	if(param["equipment"] != undefined){
+		//需要更新装备物品
 		parse_item($("#F-console-wep"), param["equipment"]["wep"], '武器');
 		parse_item($("#F-console-arb"), param["equipment"]["arb"], '身体防具');
 		parse_item($("#F-console-arh"), param["equipment"]["arh"], '头部防具');
@@ -223,6 +234,7 @@ function update_item(param){
 	}
 	
 	if(param["capacity"] != undefined && param["capacity"] != UIconfig["capacity"]){
+		//需要更新背包容量
 		result = "";
 		for(i = 1; i <= param["capacity"]; i ++){
 			result += '<div class="item" iid="' + i + '"></div>';
@@ -233,6 +245,7 @@ function update_item(param){
 	}
 	
 	if(param["package"] != undefined){
+		//需要更新背包物品
 		for(i = 0; i <= UIconfig["capacity"]; i ++){
 			parse_item($("#F-console-package .item[iid='"+i+"']"), param["package"][i], '物品');
 		}
@@ -246,6 +259,12 @@ function update_item(param){
 			$("#F-console-collecting .item .k").html(param["package"][0]['k']);
 			$("#F-console-collecting .item .e").html("效果："+param["package"][0]['e']);
 			$("#F-console-collecting .item .s").html("耐久："+param["package"][0]['s']);
+			if(UIvar["disable_drop"]){
+				UIvar["disable_drop"] = false;
+				$('#F-console-collecting button[action="drop"]').attr("disabled", "disabled");
+			}else{
+				$('#F-console-collecting button[action="drop"]').prop("disabled", false);
+			}
 			
 			//判断是否可以合并
 			mergable = 0;
@@ -279,6 +298,7 @@ function update_item(param){
 			$("#F-console-panel .item .null").unbind("click");
 			$("#F-console-package .item[iid='0']").slideUp(200);
 		}
+		UIvar["disable_drop"] = false; //拾取尸体装备时若有栏位空闲则不会触发中央拾取框，不执行此条指令则会导致下次拾取的时候丢弃按钮为灰色
 	}
 
 	$("#F-console-panel .item").unbind("click");
@@ -401,7 +421,7 @@ function show_item_param(param){
 		});
 		
 		request('use', {iid: $(this).attr('iid'), param: result});
-		console.debug(result);
+		//console.debug(result);
 		
 		$("#F-console-center .wrapper[content='item_param']").fadeOut(200);
 	});
@@ -434,7 +454,7 @@ function parse_battle_action(enemy){
 					item = enemy['item'][j];
 					switch(j){
 						case 'money':
-							result += '<button action="strip" target="money">'+item+'软妹币</button>'; //TODO: 币种
+							result += '<button action="strip" target="money">'+item+UIconfig['currency']+'</button>';
 							break;
 						
 						default:
@@ -451,7 +471,7 @@ function parse_battle_action(enemy){
 					item = enemy['item'][j];
 					switch(j){
 						case 'money':
-							result += '<button action="give" target="money">'+item+'软妹币</button>'; //TODO: 币种
+							result += '<button action="give" target="money">'+item+UIconfig['currency']+'</button>';
 							break;
 						
 						default:
@@ -525,6 +545,7 @@ function show_wound_dressing(){
 function update_buff(buff){
 	var result = '';
 	var icon = '';
+	var help = '';
 	
 	var poisoned = false;
 	var injured = [];
@@ -532,8 +553,12 @@ function update_buff(buff){
 	for(var i in buff){
 		if(UIvar['buff_name'].hasOwnProperty(buff[i]['type'])){
 			icon = UIvar['buff_name'][buff[i]['type']];
+			if(UIvar['buff_help'].hasOwnProperty(buff[i]['type'])){
+				help = UIvar['buff_help'][buff[i]['type']];
+			}
 		}else{
-			icon = "神秘力量";
+			icon = '神秘力量';
+			help = '不明觉历的buff';
 		}
 		switch(buff[i]['type']){
 			case 'poison':
@@ -569,8 +594,9 @@ function update_buff(buff){
 		
 		result +=
 			'<div class="buff" time="'+buff[i]['sec']+'" type="'+buff[i]['type']+'">'+
-			'<div class="icon">'+icon+'</div>'+
-			'<div class="time">'+time+'</div>'+
+				'<table class="icon"><tr><td>'+icon+'</td></tr></table>'+
+				'<div class="time">'+time+'</div>'+
+				(help == '' ? '' : '<div class="help">'+help+'</div>')+
 			'</div>';
 	}
 	
@@ -622,39 +648,6 @@ function update_notice_time(){
 			$(this).attr("sec", sec);
 		}
 	});
-}
-
-function error_msg(msg, time){
-	$("#F-console-feedback").append('<div class="error new">'+msg+'</div>');
-	$("#F-console-feedback .error.new").slideDown(200);
-	$("#F-console-feedback .error.new").click(function(){
-		$(this).slideUp(200, function(){
-			$(this).remove();
-		});
-	})
-	$("#F-console-feedback .error.new").removeClass("new");
-}
-
-function feedback_msg(msg, time){
-	$("#F-console-feedback").append('<div class="feedback new">'+msg+'</div>');
-	$("#F-console-feedback .feedback.new").slideDown(200);
-	$("#F-console-feedback .feedback.new").click(function(){
-		$(this).slideUp(200, function(){
-			$(this).remove();
-		});
-	})
-	$("#F-console-feedback .feedback.new").removeClass("new");
-}
-
-function notice_msg(msg, time){
-	$("#F-console-notice").prepend('<div class="notice new" sec="5">'+msg+'</div>');
-	$("#F-console-notice .notice.new").slideDown(200);
-	$("#F-console-notice .notice.new").click(function(){
-		$(this).slideUp(200, function(){
-			$(this).remove();
-		});
-	})
-	$("#F-console-notice .notice.new").removeClass("new");
 }
 
 function respond(data){
@@ -913,6 +906,10 @@ function respond(data){
 				UIvar['buff_name'] = param;
 				break;
 			
+			case 'buff_help':
+				UIvar['buff_help'] = param;
+				break;
+			
 			case 'chat_msg':
 				insert_chat_msg(param['time'], param['msg']);
 				break;
@@ -955,6 +952,10 @@ function respond(data){
 				UIconfig['poison_recover'] = param['poison_recover'];
 				break;
 			
+			case 'currency':
+				UIconfig['currency'] = param['name'];
+				break;
+			
 			case 'need_login':
 				alert("请先登录");
 				break;
@@ -981,11 +982,20 @@ function respond(data){
 	}
 	
 	if(feedback.length > 0){
-		$("#F-console-feedback .feedback").slideUp(200, function(){
-			$(this).remove();
+		var current_time = Date.parse(new Date());
+		$("#F-console-feedback .feedback").each(function(){
+			if(current_time - parseInt($(this).attr("time")) >= 1500) {
+				$(this).slideUp(200, function () {
+					$(this).remove();
+				})
+			}
 		});
-		$("#F-console-feedback .error").slideUp(200, function(){
-			$(this).remove();
+		$("#F-console-feedback .error").each(function(){
+			if(current_time - parseInt($(this).attr("time")) >= 1500) {
+				$(this).slideUp(200, function () {
+					$(this).remove();
+				})
+			}
 		});
 		
 		for(var i in feedback){
@@ -1013,15 +1023,61 @@ function respond(data){
 	}
 }
 
+function error_msg(msg, time){
+	var current_time = Date.parse(new Date());
+	$("#F-console-feedback").append('<div class="error new" time="'+current_time.toString()+'">'+msg+'</div>');
+	$("#F-console-feedback .error.new").slideDown(200);
+	$("#F-console-feedback .error.new").click(function(){
+		$(this).slideUp(200, function(){
+			$(this).remove();
+		});
+	})
+	$("#F-console-feedback .error.new").removeClass("new");
+}
+
+function feedback_msg(msg, time){
+	var current_time = Date.parse(new Date());
+	$("#F-console-feedback").append('<div class="feedback new" time="'+current_time.toString()+'">'+msg+'</div>');
+	$("#F-console-feedback .feedback.new").slideDown(200);
+	$("#F-console-feedback .feedback.new").click(function(){
+		$(this).slideUp(200, function(){
+			$(this).remove();
+		});
+	})
+	$("#F-console-feedback .feedback.new").removeClass("new");
+}
+
+function notice_msg(msg, time){
+	$("#F-console-notice").prepend('<div class="notice new" sec="5">'+msg+'</div>');
+	$("#F-console-notice .notice.new").slideDown(200);
+	$("#F-console-notice .notice.new").click(function(){
+		$(this).slideUp(200, function(){
+			$(this).remove();
+		});
+	})
+	$("#F-console-notice .notice.new").removeClass("new");
+}
+
 function init_gameUI(){
 	comet_connect();
 	switch_frame('game');
 	UIvar = {'wound_dressing' : []};
 	UIconfig = { mhp : 0 , msp : 0 , hp : 0 , sp : 0 , hpps : 0 , spps : 0 , cexp : 0 , texp : 0 , capacity : 0 };
 	
-	//Shop
+	$("#nav-title").click(function(){
+		$("#F-console-feedback .feedback").slideUp(200, function(){
+			$(this).remove();
+		});
+		$("#F-console-feedback .error").slideUp(200, function(){
+			$(this).remove();
+		});
+	});
+	
 	UIvar['shop_visible'] = false;
 	UIvar['alive'] = true;
+	UIvar['disable_drop'] = false;
+	UIvar['buff_name'] = {};
+	UIvar['buff_help'] = {};
 	
 	$("#F-console-shop .submit").click(function(e){
 		cart = {};
@@ -1160,7 +1216,7 @@ function init_gameUI(){
 }
 
 function init_join(param){
-	$("#F-enter-avatar").attr("src", param["avatar"]);
+	enter_change_avatar(param["gender"], param["icon"]);
 	$("#F-enter-form-icon-f").val(0);
 	$("#F-enter-form-icon-m").val(0);
 	
@@ -1197,23 +1253,25 @@ function init_join(param){
 	
 	switch_frame('enter');
 	
-	$("#F-enter-form").submit(function(e){
-		e.preventDefault();
-		gender = $("#F-enter-form input[name='gender']:checked").val();
-		icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
-		request('enter_game', {
-			icon : icon,
-			gender : gender,
-			motto : $("#F-enter-form-motto").val(),
-			killmsg : $("#F-enter-form-killmsg").val(),
-			lastword : $("#F-enter-form-lastword").val()
-		});
-	});
+	$("#F-enter-form").submit(enter_submit);
 }
 
 function enter_change_avatar(gender, icon){
 	uri = 'img/' + gender + "_" + icon + ".gif";
 	$("#F-enter-avatar").attr("src", uri);
+}
+
+function enter_submit(e){
+	e.preventDefault();
+	gender = $("#F-enter-form input[name='gender']:checked").val();
+	icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
+	request('enter_game', {
+		icon : icon,
+		gender : gender,
+		motto : $("#F-enter-form-motto").val(),
+		killmsg : $("#F-enter-form-killmsg").val(),
+		lastword : $("#F-enter-form-lastword").val()
+	});
 }
 
 function request(action, param){

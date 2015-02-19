@@ -181,6 +181,8 @@ class player_bra extends player
 			$combat = new_combat($enemy, $this);
 			$damage = $combat->attack();
 			
+			$GLOBALS['g']->record_battle_damage($damage, $enemy, $this);
+			
 			$this->update_enemy_info($enemy, $enemy->is_alive());
 		}
 	}
@@ -284,7 +286,7 @@ class player_bra extends player
 	public function get_basic_info($show_fog = false, $show_hp = false)
 	{
 		global $gameinfo, $fog_avatar;
-		switch($show_fog ? -1 : intval($gameinfo['weather'])){
+		switch($show_fog || !$this->is_alive() ? -1 : intval($gameinfo['weather'])){
 			case 8:
 			case 9:
 				$name = '？？？？';
@@ -305,6 +307,29 @@ class player_bra extends player
 			'gender' => $gender,
 			'status' => $status
 			);
+	}
+	
+	protected function found_item($item)
+	{
+		$damage = parent::found_item($item);
+		
+		if($item['k'] === 'TO'){
+			//添加中陷阱公告
+			if(isset($item['sk']['owner'])){
+				$victimizer = $GLOBALS['g']->get_player_by_id($item['sk']['owner']);
+				$GLOBALS['g']->insert_news('trap', array('victim' => $this->name, 'victimizer' => $victimizer->name, 'item' => $item['n'], 'damage' => $damage));
+			}
+		}
+	}
+	
+	public function chat_send($msg)
+	{
+		global $a;
+		//添加地区信息
+		$content = '<span class="area">【'.$GLOBALS['map'][$this->area].'】</span>';
+		$content .= '<span class="username">'.$this->name.':</span>';
+		$content .= '<span class="chatmsg">'.$msg.'</span>';
+		$a->action('chat_msg', array('msg' => $content, 'time' => time()), true);
 	}
 }
 

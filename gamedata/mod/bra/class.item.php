@@ -213,7 +213,14 @@ class item_bra extends item
 				));
 			return false;
 		}else{
-			$this->player->feedback($param['target'].'写了上去，可是你貌似捡到了一本伪劣产品'); //TODO
+			$this->player->feedback($param['target'].' 写在了 '.$this->data['n'].' 的扉页上，烧成了灰烬');
+			$target = $GLOBALS['db']->select('players', array('name' => $param['target'], type => GAME_PLAYER_USER));
+			if(!$target){
+				return true; //使用失败也消失
+			}else{
+				$deceased = new_player($target[0]);
+				$deceased->sacrifice(array('pid' => $this->player->_id));
+			}
 			return true;
 		}
 	}
@@ -345,7 +352,7 @@ class item_bra extends item
 	protected function apply_flounder()
 	{
 		global $db, $a, $g;
-		$db->update('players', array('area' => 99), array('hp' => array('$lte' => 0)));
+		$db->update('players', array('area' => 99), array('hp' => array('$lte' => 0)), false);
 		$a->action('notice', array('msg' => '突然刮起了一阵怪风，把地上的尸体都吹走了！', 'time' => time()));
 		$g->insert_news('flounder', array('caster' => $this->player->name));
 		$this->player->feedback('凸眼鱼 使用成功');

@@ -3,6 +3,35 @@
 class game_thbr extends game_bra
 {
 	
+	protected function generate_welcome_message()
+	{
+		$message = '<div class="welcome">'.
+			'<div class="text">'.
+			'	你看到了一行剧情<br><br>'.
+			'	你也许还看到了一幅CG<br><br>'.
+			'	随便点哪儿继续'.
+			'</div>'.
+		'</div>';
+		return $message;
+	}
+	
+	protected function generate_forbidden_sequence()
+	{
+		$arealist = parent::generate_forbidden_sequence();
+		
+		//香霖堂不会一禁
+		for($i = 0; $i <= $GLOBALS['round_area']; $i++){
+			if($arealist[$i] == 14){
+				$temp = $arealist[$i];
+				$arealist[$i] = $arealist[$GLOBALS['round_area'] + 1];
+				$arealist[$GLOBALS['round_area'] + 1] = $temp;
+				break;
+			}
+		}
+		
+		return $arealist;
+	}
+	
 	protected function new_npc(&$player)
 	{
 		return array_merge(parent::new_npc($player), array(
@@ -36,6 +65,11 @@ class game_thbr extends game_bra
 		}
 	}
 	
+	protected function np_generate_club(&$user)
+	{
+		return (isset($GLOBALS['param']['club']) && $GLOBALS['param']['club'] > 0 && $GLOBALS['param']['club'] < sizeof($GLOBALS['clubinfo'])) ? $GLOBALS['param']['club'] : random(1, sizeof($GLOBALS['clubinfo']) - 1);
+	}
+	
 	public function game_forbid_area()
 	{
 		$return = game::game_forbid_area(); //不调用BRA的禁区（BRA实现了禁区死亡），直接调用BRN的禁区，然后重新实现禁区死亡
@@ -62,6 +96,8 @@ class game_thbr extends game_bra
 						case 'yukari_suit':
 							if($buff['param']['quantity'] >= 3){
 								$player->notice('八云紫的力量让你躲避了禁区死亡');
+								$player->data['area'] = $safe[array_rand($safe)];
+								$player->ajax('location', array('name' => $GLOBALS['map'][$player->data['area']], 'shop' => in_array(intval($player->data['area']), $GLOBALS['shopmap'], true)));
 								continue 2; //自动躲避禁区
 							}
 							
@@ -69,6 +105,8 @@ class game_thbr extends game_bra
 						case 'kedama_suit':
 							if($buff['param']['quantity'] >= 3){
 								$player->notice('毛玉的力量让你躲避了禁区死亡');
+								$player->data['area'] = $safe[array_rand($safe)];
+								$player->ajax('location', array('name' => $GLOBALS['map'][$player->data['area']], 'shop' => in_array(intval($player->data['area']), $GLOBALS['shopmap'], true)));
 								continue 2; //自动躲避禁区
 							}
 						
@@ -84,6 +122,11 @@ class game_thbr extends game_bra
 		//NPC换区
 		$this->moving_NPC($all, $safe);
 		
+		//飞空毛玉
+		if($this->gameinfo['round'] == 1){
+			$db->delete('players', array('name' => '飞空毛玉', 'type' => GAME_PLAYER_NPC));
+		}
+		
 		return $return;
 	}
 	
@@ -97,37 +140,51 @@ class game_thbr extends game_bra
 				$defender = '<span class="username">'.$args['defender'].'</span>';
 				switch(random(0,4)){
 					case 0:
-						$rhetoric = $defender.'惨遭重创';
+						$rhetoric = '<span class="username">'.$defender.'</span>惨遭重创';
 						break;
 					
 					case 1:
-						$rhetoric = $defender.'被'.$attacker.'打得灰头土脸';
+						$rhetoric = '<span class="username">'.$defender.'</span>被<span class="username">'.$attacker.'</span>打得灰头土脸';
 						break;
 					
 					case 2:
-						$rhetoric = $defender.'受到了'.$attacker.'的打击，吓得落荒而逃';
+						$rhetoric = '<span class="username">'.$defender.'</span>受到了<span class="username">'.$attacker.'</span>的打击，吓得落荒而逃';
 						break;
 					
 					case 3:
-						$rhetoric = $attacker.'在遭遇战中玩弄'.$defender.'于鼓掌之间';
+						$rhetoric = '<span class="username">'.$attacker.'</span>在遭遇战中玩弄<span class="username">'.$defender.'</span>于鼓掌之间';
 						break;
 					
 					default:
-						$rhetoric = '由于屡战屡败，'.$defender.'对'.$attacker.'产生了心理阴影';
+						$rhetoric = '由于屡战屡败，<span class="username">'.$defender.'</span>对<span class="username">'.$attacker.'</span>产生了心理阴影';
 						break;
 				}
 				$content = '文文·新闻：'.$rhetoric;
 				break;
 			
+			case 'horai':
+				$content = '<span class="username">'.$args['name'].'</span>体内的蓬莱之药发出了光芒，<span class="username">'.$args['name'].'</span>复活了';
+				break;
+			
 			default:
-				parent::insert_news($type, $args);
-				return;
+				$content =  parent::insert_news($type, $args);
+				if($type != 'damage'){
+					$GLOBALS['a']->action('chat_msg', array('msg' => $content, 'time' => time()), true);
+				}
+				return $content;
+				break;
 		}
 		
 		global $db;
 		$db->insert('news', array('time' => time(), 'content' => $content));
 		
+		if($type != 'damage'){
+			$GLOBALS['a']->action('chat_msg', array('msg' => $content, 'time' => time()), true);
+		}
+		
 		$this->update_news_cache();
+		
+		return $content;
 	}
 	
 	public function &summon_npc($nid){

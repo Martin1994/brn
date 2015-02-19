@@ -105,6 +105,71 @@ class chlorodb_pdo implements IChloroDB
 		return $this->query($qry, $params, $db);
 	}
 	
+	public function batch_update($table, array $data, $matrix = true)
+	{
+		if(sizeof($data) === 0){
+			return true;
+		}
+		if($matrix){
+			$db = $this->db_m;
+			
+			$params = array();
+			
+			$table = $this->parse_table($params, $table);
+			
+			if(false === is_array(reset($data))){
+				return throw_error('MySQL Class Param Error: when updating mulitiple rows, each elements of data should be an array.');
+			}
+			
+			$column = '(';
+			foreach(reset($data) as $key => $value){
+				$column .= '`'.$key.'`,';
+			}
+			$column = rtrim($column, ',').')';
+			$width = sizeof(reset($data));
+			
+			$qry = 'INSERT INTO '.$table.' '.$column.' VALUES ';
+			
+			foreach($data as $row){
+				if(false === is_array($row)){
+					return throw_error('MySQL Class Param Error: when inserting mulitiple rows, each elements of data should be an array.');
+				}
+				if(sizeof($row) !== $width){
+					return throw_error('MySQL Class Param Error: elements of martix multiple inserting should be the same size.');
+				}
+				$values = '(';
+				foreach($row as $value){
+					if($key === '_id'){
+						$values .= $value.',';
+					}else if(true === is_array($value)){
+						$params[] = json_encode($value, $this->json_flag);
+					}else{
+						$params[] = $value;
+					}
+					$values .= '?,';
+				}
+				$values = rtrim($values, ',').')';
+				$qry .= $values.',';
+			}
+			
+			$qry = rtrim($qry, ',');
+			
+			$qry .= ' ON DUPLICATE KEY UPDATE ';
+			foreach(reset($data) as $key => $value){
+				if($key !== '_id'){
+					$qry .= '`'.$key.'`=VALUES(`'.$key.'`),';
+				}
+			}
+			
+			return $this->query(rtrim($qry, ',').';', $params, $db);
+		}else{
+			foreach($data as $value){
+				$this->insert($table, $value);
+			}
+			return;
+		}
+	}
+	
 	public function insert($table, array $data)
 	{
 		$db = $this->db_m;

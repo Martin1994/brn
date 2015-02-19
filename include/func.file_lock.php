@@ -3,7 +3,7 @@
 function lock()
 {
 	if(FILE_LOCK !== false && CONNECTION_MODE !== 'comet'){
-		$GLOBALS['file_lock'] = fopen(ROOT_DIR.FILE_LOCK, 'a');
+		$GLOBALS['file_lock'] = fopen(FILE_LOCK_PATH, 'a');
 		flock($GLOBALS['file_lock'], LOCK_EX);
 	}
 }

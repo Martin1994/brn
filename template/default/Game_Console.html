@@ -4,20 +4,6 @@
 		<?php template('Game_Console_Map'); ?>
 	</td></table>
 	
-	<table class="wrapper" content="item_param"><td>
-		<div id="F-console-item_param"></div>
-	</td></table>
-	
-	<table class="wrapper" content="collecting"><td>
-		<div id="F-console-collecting">
-			<div class="text">你拾取到了物品</div>
-			<div class="item"><div class="n"></div><div class="k"></div><div class="detial"><div class="e"></div><div class="s"></div></div></div>
-			<button action="collect">拾取</button>
-			<button action="drop">丢弃</button>
-			<button action="merge">合并</button>
-		</div>
-	</td></table>
-	
 	<table class="wrapper" content="shop"><td>
 		<div id="F-console-shop">
 			<div class="counter">
@@ -52,6 +38,20 @@
 		</div>
 	</td></table>
 	
+	<table class="wrapper" content="collecting"><td>
+		<div id="F-console-collecting">
+			<div class="text">你拾取到了物品</div>
+			<div class="item"><div class="n"></div><div class="k"></div><div class="detial"><div class="e"></div><div class="s"></div></div></div>
+			<button action="collect">拾取</button>
+			<button action="drop">丢弃</button>
+			<button action="merge">合并</button>
+		</div>
+	</td></table>
+	
+	<table class="wrapper" content="item_param"><td>
+		<div id="F-console-item_param"></div>
+	</td></table>
+	
 	<table class="wrapper" content="wound_dressing"><td>
 		<div id="F-console-wound_dressing">
 			<div class="title"></div>
@@ -68,8 +68,8 @@
 	<?php template('Game_Console_Playerinfo'); ?>
 </div>
 
-<div id="F-console-buffinfo"></div>
 <div id="F-console-notice"></div>
+<div id="F-console-buffinfo"></div>
 
 <div id="F-console-right">
 	<?php template('Game_Console_Panel'); ?>
@@ -78,10 +78,27 @@
 <div id="F-console-brief">
 	<div class="brief frame"></div>
 	<div class="die frame">
-		<div class="text">
+		<!--<div class="text">
 			你掛了<br><br>
 			按下ESC鍵繼續
+		</div>-->
+		<div class="text">
+			你死亡了
 		</div>
+		<div class="title">
+			死亡时间
+		</div>
+		<div class="time">
+			<span class="h"></span>:<span class="m"></span>:<span class="s"></span>
+		</div>
+		<div class="title">
+			凶手
+		</div>
+		<div class="killers"></div>
+		<div class="title">
+			死因
+		</div>
+		<div class="reason"></div>
 	</div>
 	<div class="end frame">
 		<div class="text">

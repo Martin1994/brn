@@ -39,12 +39,9 @@ class player
 			$this->calculate_target_experience();
 		}
 		
-		if($this->is_alive()){
-			//执行每秒持续动作
-			do{
-				$this->daemon();
-			}while($this->daemontime < time());
-			
+		//执行每秒持续动作
+		while($this->is_alive() && $this->daemontime < time()){
+			$this->daemon();
 		}
 		
 		return;
@@ -1006,7 +1003,7 @@ class player
 		//获取套装穿着数量
 		$suits = array();
 		foreach($this->equipment as $item){
-			if(isset($item['sk']['suit'])){
+			if($item['n'] != '' && isset($item['sk']['suit'])){
 				if(isset($suits[$item['sk']['suit']])){
 					$suits[$item['sk']['suit']] ++;
 				}else{
@@ -1148,27 +1145,56 @@ class player
 		return $damage;
 	}
 	
-	public function sacrifice($source = array()) //TODO: 死因
+	public function sacrifice($source = array())
 	{
 		//死亡
-		$this->hp = 0;
-		//显示死亡信息
-		$this->show_death_info();
+		$this->data['hp'] = 0;
 		//发送遗言
 		$this->chat_send('<span class="lastword">'.$this->lastword.'</span>');
 		
+		//更新死亡信息
+		$this->data['deathtime'] = time();
+		$this->data['deathreason'] = isset($source['type']) ? $source['type'] : '神秘死亡';
+		$this->data['killer'] = array();
+		
+		//处理凶手及显示消息
 		if(isset($source['pid']) && false !== $source['pid']){
-			global $db, $a;
-			$killer = $db->select('players', '*', array('_id' => $source['pid']));
-			if(isset($killer[0])){
-				$killer = new_player($killer[0]);
-				$a->action('notice', array('msg' => $this->name.'被你杀死了', 'time' => time()), $killer->uid);
-				$killer->data['killnum'] = intval($killer->killnum) + 1;
-				$GLOBALS['g']->insert_news('kill', array('killer' => $killer->name, 'deceased' => $this->name));
-			}else{
-				$GLOBALS['g']->insert_news('kill', array('deceased' => $this->name));
+			$pids = is_array($source['pid']) ? $source['pid'] : array($source['pid']);
+			$this->data['killer'] = $pids;
+			$killers_data = array();
+			foreach($pids as $pid){
+				$data = $GLOBALS['g']->get_player_by_id($pid);
+				if($data){
+					$killers_data[] = $data;
+				}
 			}
+			if(sizeof($killers_data) > 0){
+				$killer_name = array();
+				foreach($killers_data as $killer_data){
+					$killer = new_player($killer_data);
+					$killer->ajax('notice', array('msg' => $this->name.'被你杀死了', 'time' => time()));
+					$killer->data['killnum'] = intval($killer->killnum) + 1;
+					$killer_name[] = $killer->name;
+				}
+				$killer_name = implode('、', $killer_name);
+				
+				$kill_type = isset($source['type']) ? $source['type'] : 'unknown';
+				$kill_item = isset($source['weapon']) ? $source['weapon'] : '神秘力量';
+				$GLOBALS['g']->insert_news('kill', array('killer' => $killer_name, 'deceased' => $this->name, 'type' => $kill_type, 'weapon' => $kill_item));
+			}else{
+				$kill_type = isset($source['type']) ? $source['type'] : 'unknown';
+				$kill_item = isset($source['weapon']) ? $source['weapon'] : '神秘力量';
+				$GLOBALS['g']->insert_news('kill', array('deceased' => $this->name, 'type' => $kill_type, 'weapon' => $kill_item));
+			}
+		}else{
+			$kill_type = isset($source['type']) ? $source['type'] : 'unknown';
+			$kill_item = isset($source['weapon']) ? $source['weapon'] : '神秘力量';
+			$GLOBALS['g']->insert_news('kill', array('deceased' => $this->name, 'type' => $kill_type, 'weapon' => $kill_item));
 		}
+		
+		//显示死亡信息
+		$this->show_death_info();
+		$this->feedback($this->hp);
 		
 		if(intval($this->type) === GAME_PLAYER_USER){
 			//处理游戏幸存与击杀人数
@@ -1182,24 +1208,28 @@ class player
 				$this->chat_send($GLOBALS['g']->gameinfo['gamestate']);
 				if($alive_num == 1){
 					$survivor = $GLOBALS['db']->select('players', array('_id'), array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
-					foreach($survivor as $player){
-						if($player['hp'] > 0){
-							$survivor_id = $player['_id'];
-							break;
-						}
-					}
+					$survivor_id = $survivor[0]['_id'];
 					$GLOBALS['g']->game_end('survive', $survivor_id, 'individual');
 				}else if($alive_num == 0){
 					$GLOBALS['g']->game_end('timeup');
 				}
 			}
-			
 		}
 	}
 	
 	public function show_death_info()
 	{
-		$this->ajax('die'); //TODO: 死因 凶手
+		$killers_name = array();
+		$killers_avatar = array();
+		foreach($this->killer as $pid){
+			$data = $GLOBALS['g']->get_player_by_id($pid);
+			if($data){
+				$killers_name[] = $data['name'];
+				$killers_avatar[] = $data['icon'];
+			}
+		}
+		$reason = strpos($this->deathreason, 'custom:') === 0 ? substr($this->deathreason, 7): isset($GLOBALS['deathreasoninfo'][$this->deathreason]) ? $GLOBALS['deathreasoninfo'][$this->deathreason] : $GLOBALS['deathreasoninfo']['default'];
+		$this->ajax('die', array('reason' => $reason, 'time' => $this->deathtime, 'killer' => $killers_name, 'avatar' => $killers_avatar));
 	}
 	
 	public function chat_send($msg)
@@ -1512,8 +1542,8 @@ class player
 			return $this->error('目前尚未碰到敌人', false);
 		}
 		
-		$enemy = get_player(array('_id' => $this->action['battle']['pid']));
-		$enemy = new_player($enemy[0]);
+		$enemy_data = $GLOBALS['g']->get_player_by_id($this->action['battle']['pid']);
+		$enemy = new_player($enemy_data);
 		
 		if(false === $enemy->is_alive()){
 			$this->update_enemy_info($enemy, $end);
@@ -1522,6 +1552,8 @@ class player
 		
 		$combat = new_combat($this, $enemy);
 		$damage = $combat->attack();
+		
+		$GLOBALS['g']->record_battle_damage($damage, $this, $enemy);
 		
 		$this->ajax('battle', array(
 			'enemy' => $this->get_enemy_info($enemy, true),
@@ -1844,6 +1876,26 @@ class player
 		return $threshold;
 	}
 	
+	protected function enemy_found_rate(player $enemy)
+	{
+		if($enemy->is_alive()){
+			if($enemy->_id == $this->_id){
+				//自己
+				return 0;
+			}else{
+				return $this->get_enemy_found_rate() - $enemy->get_hide_rate();
+			}
+		}else{
+			if(sizeof($enemy->package) === 0 && $enemy->equipment['wep']['n'] === '' && $enemy->equipment['arb']['n'] === '' && $enemy->equipment['arh']['n'] === '' &&
+			 $enemy->equipment['ara']['n'] === '' && $enemy->equipment['arf']['n'] === '' && $enemy->equipment['art']['n'] === '' && $enemy->money == 0){
+				//空尸
+				return 0;
+			}else{
+				return $this->get_corpse_found_rate();
+			}
+		}
+	}
+	
 	protected function discover($mode = 'search'){
 		global $db;
 		
@@ -1858,38 +1910,19 @@ class player
 			}
 			shuffle($players);
 			
-			$enemy_threshold = $this->get_enemy_found_rate();
-			$corpse_threshold = $this->get_corpse_found_rate();
 			foreach($players as &$player){
 				$enemy = new_player($player);
 				
-				if($enemy->is_alive()){
-					$hide_rate = $enemy->get_hide_rate();
-					if(determine($enemy_threshold - $hide_rate) && $player['_id'] != $this->_id){
-						//遇敌成功，进入战斗状态
-						$this->found_enemy($enemy);
-						//跳出循环，停止遇敌
-						break;
-					}else{
-						//遇敌失败，垃圾回收
-						unset($enemy);
-					}
-					
+				if(determine($this->enemy_found_rate($enemy))){
+					//遇敌成功，进入战斗状态
+					$this->found_enemy($enemy);
+					//跳出循环，停止遇敌
+					break;
 				}else{
-					if(sizeof($enemy->package) === 0 && $enemy->equipment['wep']['n'] === '' && $enemy->equipment['arb']['n'] === '' && $enemy->equipment['arh']['n'] === '' &&
-					 $enemy->equipment['ara']['n'] === '' && $enemy->equipment['arf']['n'] === '' && $enemy->equipment['art']['n'] === '' && $enemy->money == 0){
-						//空尸
-						unset($enemy);
-					}else if(determine($corpse_threshold)){
-						//准备摸尸
-						$this->found_enemy($enemy);
-						//跳出循环，停止遇敌
-						break;
-					}else{
-						//遇尸失败，垃圾回收
-						unset($enemy);
-					}
+					//遇敌失败，垃圾回收
+					unset($enemy);
 				}
+				
 				//继续寻找下一个敌人
 			}
 		}else{
@@ -1924,7 +1957,7 @@ class player
 			//中陷阱
 			$pid = isset($item['sk']['owner']) ? $item['sk']['owner'] : false;
 			$damage = $this->calculate_trap_damage($item);
-			$damage = $this->damage($damage, array('pid' => $pid));
+			$damage = $this->damage($damage, array('pid' => $pid, 'weapon' => $item['n'], 'type' => 'trap'));
 			global $healthinfo;
 			$this->feedback('糟糕，你中了'.$item['n'].'，失去了'.$damage.'点'.$healthinfo['hp']);
 		}else{

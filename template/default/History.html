@@ -24,4 +24,36 @@
 			echo '</div>';
 		}
 	?>
+	<div class="pages">
+		<?php
+		if($GLOBALS['current_page'] > 1){
+			echo '<a class="prev" href="'.$GLOBALS['pages'][$GLOBALS['current_page'] - 1].'">上一页</a> ';
+		}
+		
+		if($GLOBALS['current_page'] > 6){
+			echo '<a class="page" href="history.php?start=0&show="'.$GLOBALS['show'].'>1</a> ';
+			echo '... ';
+		}
+		
+		foreach($GLOBALS['pages'] as $p => $url){
+			echo '<a class="page'.(($p == $GLOBALS['current_page']) ? ' current' : '').'" href="'.$url.'">'.$p.'</a> ';
+		}
+		
+		if($GLOBALS['current_page'] < $GLOBALS['total_pages'] - 5){
+			echo '... ';
+			echo '<a class="page" href="history.php?start='.$GLOBALS['total_items'].'&show="'.$GLOBALS['show'].'>'.$GLOBALS['total_pages'].'</a> ';
+		}
+		
+		if($GLOBALS['current_page'] < $GLOBALS['total_pages']){
+			echo '<a class="next" href="'.$GLOBALS['pages'][$GLOBALS['current_page'] + 1].'">下一页</a>';
+		}
+		?>
+	</div>
 </div>
+
+<script type="text/javascript">
+	$("#history .game").click(function(e){
+		var gamenum = $(this).children(".num").children(".gamenum").html();
+		window.open("history.php?detial="+gamenum, undefined, "directories=no,location=yes,menubar=no,status=no,toolbar=no");
+	});
+</script>

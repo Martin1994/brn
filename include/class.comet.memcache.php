@@ -39,22 +39,6 @@ class chlorocomet_memcache implements IChloroComet
 		$this->ajax = $ajax;
 	}
 	
-	public function set($hash, array $value)
-	{
-		$mc = $this->mc;
-		
-		if(true === is_array($hash)){
-			foreach($hash as $subhash){
-				$this->set(strval($subhash), $value);
-			}
-			return;
-		}
-		
-		$hash = $this->hash($hash);
-		
-		return $mc->set($hash, json_encode($value, JSON_FORCE_OBJECT).',');
-	}
-	
 	public function add($hash, array $value)
 	{
 		$mc = $this->mc;
@@ -111,7 +95,7 @@ class chlorocomet_memcache implements IChloroComet
 		
 		if(true === is_array($hash)){
 			foreach($hash as $subhash){
-				$this->clear(strval($subhash), $value);
+				$this->clear(strval($subhash));
 			}
 			return;
 		}
@@ -130,7 +114,7 @@ class chlorocomet_memcache implements IChloroComet
 		
 		if(true === is_array($hash)){
 			foreach($hash as $subhash){
-				$this->create(strval($subhash), $value);
+				$this->create(strval($subhash));
 			}
 			return;
 		}

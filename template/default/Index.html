@@ -37,6 +37,7 @@
 					<div
 						class="time-indicator"
 						time=<?php $time_diff = abs(time() - $GLOBALS['starttime']); echo $time_diff; ?>
+						start=<?php echo $GLOBALS['starttime'] <= time() ? 'true' : 'false'; ?>
 						count="<?php echo ($GLOBALS['starttime'] > time()) ? 'down' : 'up'; ?>">
 						<?php
 						$h = time_number_format(floor($time_diff / 3600));

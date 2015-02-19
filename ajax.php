@@ -61,6 +61,7 @@ switch($action){
 		
 		switch($_POST['admin_action']){
 			case 'game_start':
+				$g->gameinfo['starttime'] = time();
 				$g->game_start();
 				$data['success'] = true;
 				break;
@@ -72,6 +73,7 @@ switch($action){
 				
 			case 'game_restart':
 				$g->game_end('restart');
+				$g->gameinfo['starttime'] = time();
 				$g->game_start();
 				$data['success'] = true;
 				break;

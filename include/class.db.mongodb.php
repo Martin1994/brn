@@ -1,5 +1,5 @@
 <?php
-//TODO: ¸ÉµôMongoID
+
 class chlorodb_mongodb implements IChloroDB
 {
 	
@@ -10,13 +10,13 @@ class chlorodb_mongodb implements IChloroDB
 	
 	public function __construct($user, $pass, $name, $host_m, $host_s = false, $persistent = false)
 	{
-		$m = new Mongo('mongodb://'.$user.':'.$pass.'@'.$host_m);
+		$m = new MongoClient('mongodb://'.$user.':'.$pass.'@'.$host_m);
 		$this->db_m = $m->selectDB($name);
 		
 		if(false === $host_s){
 			$this->db_s = $this->db_m;
 		}else{
-			$m = new Mongo('mongodb://'.$user.':'.$pass.'@'.$host_s);
+			$m = new MongoClient('mongodb://'.$user.':'.$pass.'@'.$host_s);
 			$this->db_s = $m->selectDB($name);
 		}
 		
@@ -74,6 +74,25 @@ class chlorodb_mongodb implements IChloroDB
 		$result = $db->selectCollection($table)->update($where, array('$set' => $data), array('multi' => !$limit));
 		$this->query_time ++;
 		
+		return $result;
+	}
+	
+	public function batch_update($table, array $data, $matrix = true)
+	{
+		if(sizeof($data) === 0){
+			return false;
+		}
+		$db = $this->db_m;
+		$table = $this->parse_table($table);
+		$ids = array();
+		foreach($data as &$row){
+			$row['_id'] = new MongoId($row['_id']);
+			array_push($ids, $row['_id']);
+		}
+		$collection = $db->selectCollection($table);
+		$collection->remove(array('_id' => array('$in' => $ids)));
+		$result = $collection->batchInsert($data);
+		$this->query_time ++;
 		return $result;
 	}
 	

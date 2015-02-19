@@ -55,6 +55,9 @@ $db->insert('gamesettings', array('name' => 'default', 'settings' => array()));
 $column = file_get_contents(ROOT_DIR.'/gamedata/sql/history.sql');
 $db->create_table('history', $column);
 
+$column = file_get_contents(ROOT_DIR.'/gamedata/sql/error.sql');
+$db->create_table('error', $column);
+
 cache_destroy('localsettings.default.serialize');
 cache_destroy('gameinfo.serialize');
 

@@ -6,9 +6,9 @@
 		<div class="tabs">
 			<div class="tab" target="intro">新手入门</div>
 			<div class="tab" target="special">特殊物品</div>
-			<div class="tab" target="suit">套装</div>
+			<div class="tab" target="suit">套装效果</div>
 			<div class="tab" target="mix">合成列表</div>
-			<div class="tab" target="weather">天气</div>
+			<div class="tab" target="weather">天气效果</div>
 			<div class="clear"></div>
 		</div>
 		<div class="blocks">
@@ -30,7 +30,7 @@
 				
 				<h3>游戏如何胜利</h3>
 				<p>干掉所有玩家即可获得胜利。</p>
-				<p>杀死<b>幽香</b>后获取并使用某样物品也可获得胜利。</p>
+				<p>杀死 <b>某 NPC</b> 后获取并使用某样物品也可获得胜利。</p>
 				<p>有些结局是可以团队共同胜利的</p>
 				
 				<h3>如何操作物品</h3>
@@ -67,18 +67,27 @@
 				<p>在自身属性还不够高的时候，多找找「小毛玉」锻炼熟练度吧。</p>
 				
 				<h3>如何使用 Spell Card</h3>
-				<p>特效类的 SC 直接使用即可</p>
-				<p>进攻类的 SC 在遇到敌人时使用</p>
+				<p>特效类的 SC 直接使用即可。</p>
+				<p>进攻类的 SC 在遇到敌人时使用。</p>
+				
+				<h3>哪里有卖装备和补给品</h3>
+				<p>装备在香霖堂有商店，补给品和药物在永远亭有商店。</p>
 			</div>
 			<div class="block" block="special">
-				<div class="title">毒药</div><div class="value">可以对补给品下毒，使用有毒的补给品会造成一次性伤害及一段时间的持续伤害。</div><div class="clear"></div>
+				<h3>特殊道具</h3>
+				<div class="title">毒药</div><div class="value">可以对补给品下毒，使用有毒的补给品会造成一次性伤害及一段时间的持续伤害。如果是烹饪社的话还能对武器进行淬毒，被淬毒武器击中的敌人会变成中毒状态，可以叠加。</div><div class="clear"></div>
 				<div class="title">解毒剂</div><div class="value">使用后可以解除毒状态，避免持续伤害。</div><div class="clear"></div>
 				<div class="title">御神签</div><div class="value">有可能永久提升攻击防御与生命也有可能永久降低的道具，谨慎使用。</div><div class="clear"></div>
 				<div class="title">结界解除钥匙</div><div class="value">使用它便可直接获胜。</div><div class="clear"></div>
-				<div class="title">虚拟结界Bug</div><div class="value">使用它便可直接获胜。</div><div class="clear"></div>
+				<div class="title">雷达</div><div class="value">显示所有玩家的所在位置。</div><div class="clear"></div>
+				<div class="title">移动PC</div><div class="value">使用后有几率解除禁区。</div><div class="clear"></div>
+				<div class="title">电池</div><div class="value">可以给移动PC及雷达充电。</div><div class="clear"></div>
+				<div class="title">结界干扰器</div><div class="value">使用后可以解除禁区。</div><div class="clear"></div>
+				<div class="title">魔法催化剂</div><div class="value">可以给结界干扰器补充能量。</div><div class="clear"></div>
+				<div class="title">鲜血精华</div><div class="value">强化咲夜·红魔银刃。</div><div class="clear"></div>
 				<div class="title">黑历史史册残页</div><div class="value">召唤某些特殊的NPC。</div><div class="clear"></div>
 				<div class="title">凯夫拉纤维</div><div class="value">使用后你的身体防具会带有防弹属性，对枪械攻击有一定免疫力。</div><div class="clear"></div>
-				<div class="title">怪力药丸</div><div class="value">使用后段时间内可以提升攻击力。</div><div class="clear"></div>
+				<div class="title">怪力药丸</div><div class="value">使用后短时间内可以提升攻击力。</div><div class="clear"></div>
 				<div class="title">忍耐药丸</div><div class="value">使用后短时间内可以提升防御力。</div><div class="clear"></div>
 				<div class="title">「スペル増幅」</div><div class="value">使用后在 100 秒内可以快速回复体力，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
 				<div class="title">伊吹瓢</div><div class="value">使用后可以不限时地快速回复体力，不过当收到伤害时效果就会消失。</div><div class="clear"></div>
@@ -89,19 +98,41 @@
 				<div class="title">龍星</div><div class="value">持续 60 秒的无敌药水，谁用谁知道。</div><div class="clear"></div>
 				<div class="title">日符「ロイヤルフレア」</div><div class="value">传说中的地图炮，不过只能打玩家，收人头你懂的。</div><div class="clear"></div>
 				<div class="title">月符「サイレントセレナ」</div><div class="value">小范围的地图炮，只能打到当前地区，不过可以打到NPC。</div><div class="clear"></div>
-				<div class="title">足軽「スーサイドスクワッド」</div><div class="value">使用后在 300 秒内受到身代人偶的保护，人偶可以抵消 1000 点伤害，超过伤害之后人偶便会消失。</div><div class="clear"></div>
+				<div class="title">毒煙幕「瓦斯織物の玉」</div><div class="value">全图中毒！</div><div class="clear"></div>
+				<div class="title">足軽「スーサイドスクワッド」</div><div class="value">出现一只身代人偶，在 300 秒内可以抵消 1000 点伤害，超过伤害后效果自动消失。</div><div class="clear"></div>
 				<div class="title">長視「赤月下」</div><div class="value">使用后在 120 秒内将不受到任何远程攻击。</div><div class="clear"></div>
 				<div class="title">短視「超短脳波」</div><div class="value">使用后产生 2 个幻影，在 120 秒内你的任何攻击幻影都会参与，时间结束后幻影消失。</div><div class="clear"></div>
-				<div class="title">身代わり人形</div><div class="value">能永久提升防御并降低的攻击的道具，谨慎使用。</div><div class="clear"></div>
+				<div class="title">身代わり人形</div><div class="value">能永久提升防御的道具。</div><div class="clear"></div>
 				<div class="title">制御棒</div><div class="value">能永久提升攻击并降低的防御的道具，谨慎使用。</div><div class="clear"></div>
 				<div class="title">生薬「国士無双の薬」</div><div class="value">使用后永久提升 15% 攻防，不过据说不能多吃。</div><div class="clear"></div>
+				<div class="title">禁薬「蓬莱の薬」</div><div class="value">使用后获得不死的能力，一旦死亡便会回满生命复活，不过只能使用一次。</div><div class="clear"></div>
 				<div class="title">「夢想天生」</div><div class="value">使用后在 60 秒内如果能成功造成 7 次打击，会在最后一次打击时释放「夢想天生」。</div><div class="clear"></div>
-				<div class="title">狸猫的枫叶</div><div class="value">佩戴后套装激活所需要装备的数量 - 1。</div><div class="clear"></div>
 				<div class="title">御札「神社繁榮祈願札」</div><div class="value">布下陷阱后，如果有人踩到，会窃取该角色身上 25% 的现金。</div><div class="clear"></div>
+				<h3>特殊装备</h3>
+				<div class="title">伏特加（补给品）</div><div class="value">短时间内提升攻击但降低防御。</div><div class="clear"></div>
+				<div class="title">梦蝶·II型（补给品）</div><div class="value">短时间内降低攻击并降低防御。</div><div class="clear"></div>
+				<div class="title">狸猫的枫叶（饰品）</div><div class="value">佩戴后套装激活所需要装备的数量 - 1。</div><div class="clear"></div>
+				<div class="title">气枪（射系武器）</div><div class="value">只能填充六发子弹。</div><div class="clear"></div>
+				<div class="title">密集型弹幕发生器（射系武器）</div><div class="value">无需填充子弹。</div><div class="clear"></div>
+				<div class="title">氷符「アイシクルフォール」</div><div class="value">无法击中近战敌人，但一定会打中持有远程武器的敌人。</div><div class="clear"></div>
+				<div class="title">空观剑「六根清净斩」</div><div class="value">无法主动攻击，不过一旦对方发起进攻，会首先无效化本次攻击，并发起反击，且一定会击中。</div><div class="clear"></div>
+				<div class="title">秘薬「仙香玉兎」</div><div class="value">击中后敌人会在半小时内过度致幻而死。</div><div class="clear"></div>
+				<div class="title">带有「盾」字样的腕部防具</div><div class="value">能够抵消一定数额的战斗伤害。</div><div class="clear"></div>
+				<div class="title">形如「角色名·装备名」的 NPC 装备</div><div class="value">NPC 套装，装备多件以后会触发特效，详细作用请参考「套装效果」选项卡。</div><div class="clear"></div>
+				<div class="title">装备后名称为紫色的武器</div><div class="value">带有淬毒效果的武器，击中敌人后会造成持续伤害，可叠加。</div><div class="clear"></div>
 			</div>
 			<div class="block" block="suit">
 				<table class="suit">
 					<tr><td class="name">套装名</td><td class="quantity">激活数量</td><td class="effect">效果</td></tr>
+					<tr>
+					<td rowspan=2>毛玉</td>
+					<td>2</td>
+					<td>防御提升10%</td>
+					</tr>
+					<tr>
+					<td>3</td>
+					<td>自动躲避禁区</td>
+					</tr>
 					<tr>
 					<td rowspan=3>铃仙</td>
 					<td>2</td>
@@ -261,7 +292,7 @@
 					</tr>
 					<tr>
 					<td>4</td>
-					<td>经验获得率提升300%</td>
+					<td>经验获得率提升100%</td>
 					</tr>
 					<tr>
 					<td rowspan=3>幽幽子</td>
@@ -297,14 +328,13 @@
 					<tr>
 					<td>5</td>
 					<td>上海人形释放几率提升为100%，武器伤害提升为50；上海人形攻击后将变为待机状态，10秒内可抵消100点伤害</td>
-					</tr><tr>
 					</tr>
 				</table>
 			</div>
 			<div class="block" block="mix">
 				<?php
 				foreach($GLOBALS['mixinfo'] as $info){
-					echo '<div class="mix-result"><span class="name">',$info['result'][0],'</span>　<span class="kind">',isset($GLOBALS['iteminfo'][$info['result'][1]])?$GLOBALS['iteminfo'][$info['result'][1]]:$GLOBALS['iteminfo']['default'],'</span>　效:',$info['result'][2],'　耐:',$info['result'][3],'</div>';
+					echo '<div class="mix-result"><span class="name">',$info['result'][0],'</span>　<span class="kind">',isset($GLOBALS['iteminfo'][$info['result'][1]])?$GLOBALS['iteminfo'][$info['result'][1]]:$GLOBALS['iteminfo']['default'],'</span>　效:',$info['result'][2],'　耐:',($info['result'][3] == 0 ? '∞' : $info['result'][3]),'</div>';
 					echo '<div class="mix-equal"> = </div><div class="mix-stuff">';
 					$first = true;
 					foreach($info['stuff'] as $name){

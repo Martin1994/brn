@@ -3,6 +3,8 @@
 class combat_thbr extends combat_bra
 {
 	
+	protected $extra_attack = false;
+	
 	public function __construct(player $att, player $def)
 	{
 		parent::__construct($att, $def);
@@ -14,6 +16,7 @@ class combat_thbr extends combat_bra
 	
 	public function attack($counter = false, $extra = false)
 	{
+		$this->extra_attack = $extra;
 		$this->attacker->data['proficiency']['sc'] = floor(($this->attacker->data['proficiency']['d'] + max($this->attacker->data['proficiency']['p'], $this->attacker->data['proficiency']['k'], $this->attacker->data['proficiency']['g'], $this->attacker->data['proficiency']['c'], $this->attacker->data['proficiency']['d'])) / 2);
 		
 		$damage = 0;
@@ -38,6 +41,21 @@ class combat_thbr extends combat_bra
 		$damage += parent::attack(true);
 		
 		if(!$extra && $this->defender->is_alive()){
+			foreach($this->attacker->equipment['wep']['sk'] as $key => $value){
+				switch($key){
+					case 'lunar-incense':
+						if($damage > 0){
+							//仙香玉兔效果
+							$this->defender->buff('lunar_incense', 1800, array('killer' => $this->attacker->_id)); //半小时后死亡
+							$this->feedback($this->defender->name.'被 秘薬「仙香玉兎」 击中了，出现了幻觉，意志力正在慢慢被消耗');
+						}
+						break;
+					
+					default:
+						break;
+				}
+			}
+			
 			foreach($this->defender->data['buff'] as $key => &$buff){
 				switch($buff['type']){
 					//打断回复
@@ -140,7 +158,7 @@ class combat_thbr extends combat_bra
 								'k' => $this->attacker->equipment['wep']['k'],
 								'e' => 25,
 								's' => 2,
-								'sk' => array()
+								'sk' => array('multistage' => array(0.5))
 								);
 							$this->feedback($this->attacker->name.' 释放了「上海人形」');
 							$damage += $this->bonus_attack($weapon);
@@ -155,7 +173,7 @@ class combat_thbr extends combat_bra
 									'k' => $this->attacker->equipment['wep']['k'],
 									'e' => 25,
 									's' => 2,
-									'sk' => array()
+									'sk' => array('multistage' => array(0.5))
 									);
 								$this->feedback($this->attacker->name.' 释放了「上海人形」');
 								$damage += $this->bonus_attack($weapon);
@@ -178,6 +196,9 @@ class combat_thbr extends combat_bra
 			if(determine(intval($this->get_counter_rate()))){
 				$this->feedback($this->defender->name.'发起反击');
 				$c_damage = $c_combat->attack(true);
+				
+				$GLOBALS['g']->record_battle_damage($c_damage, $this->defender, $this->attacker);
+				
 				if(false === $this->attacker->is_alive()){
 					if((false === isset($this->defender->data['action']['battle'])) && (intval($this->defender->type) === GAME_PLAYER_USER)){
 						$this->defender->found_enemy($this->attacker);
@@ -189,8 +210,6 @@ class combat_thbr extends combat_bra
 			}
 			$this->feedback('战斗结束');
 		}
-		
-		unset($this->attacker->data['proficiency']['sc']);
 		
 		return $damage;
 	}
@@ -243,7 +262,7 @@ class combat_thbr extends combat_bra
 					if($buff['param']['quantity'] >= 2){
 						if(determine(($buff['param']['quantity'] >= 5) ? 10 : 5)){
 							$this->feedback($this->defender->name.' 发动了「反射下界斩」，对 '.$this->attacker->name.' 反弹了 '.(intval($effect * 10) / 10).' 点伤害');
-							$this->attacker->damage($effect , array('pid' => $this->defender->_id));
+							$this->attacker->damage($effect , array('pid' => $this->defender->_id, 'weapon' => $this->attacker->equipment['wep']['n'].'（反射下界斩）', 'type' => 'weapon_'.$this->type));
 							
 							//处理死亡
 							if(false === $this->attacker->is_alive()){
@@ -261,7 +280,7 @@ class combat_thbr extends combat_bra
 		
 		if(in_array('Thron', $this->defender->skill)){
 			//荆棘光环
-			$this->attacker->damage($effect / 10 , array('pid' => $this->defender->_id));
+			$this->attacker->damage($effect / 10 , array('pid' => $this->defender->_id, 'type' => 'thron'));
 			$this->feedback($this->defender->name.' 对 '.$this->attacker->name.' 造成了 '.(intval($effect) / 10).' 点荆棘伤害');
 			//处理死亡
 			if(false === $this->attacker->is_alive()){
@@ -290,9 +309,9 @@ class combat_thbr extends combat_bra
 			switch($buff['type']){
 				case 'scarlet_suit':
 					//斯卡雷特套四件效果
-					if($buff['param']['type'] >= 4){
+					if($buff['param']['quantity'] >= 4){
 						$heal = $this->attacker->heal('hp', $damage * 0.1);
-						$this->attacker->feedback('偷取了 '.$heal.' 点生命');						
+						$this->attacker->feedback('偷取了 '.(intval($heal * 10) / 10).' 点生命');						
 					}
 					break;
 				
@@ -318,7 +337,7 @@ class combat_thbr extends combat_bra
 				case 'ultrashort_EEG':
 					$sub_multiple = $multiple;
 					foreach($sub_multiple as &$attack_coefficient){
-						$attack_coefficient *= 0.8;
+						$attack_coefficient *= 0.4;
 					}
 					$multiple = array_merge($multiple, $sub_multiple, $sub_multiple);
 					
@@ -353,11 +372,11 @@ class combat_thbr extends combat_bra
 				case 'konpaku_suit':
 					if($buff['param']['quantity'] >= 5){
 						if($this->attacker->equipment['wep']['n'] == '魂魄对剑「白楼观」'){
-							$sub_multiple = $multiple;
-							foreach($sub_multiple as &$attack_coefficient){
-								$attack_coefficient *= 0.5;
+							$sub_multiple = array();
+							for($i = 0; $i < sizeof($multiple) / 2; $i ++){
+								$sub_multiple[] = ($multiple[$i * 2] + $multiple[$i * 2 + 1]) * 0.25;
 							}
-							$multiple = array_merge($multiple, $sub_multiple, $sub_multiple);
+							$multiple = array_merge($multiple, $sub_multiple);
 						}
 					}
 					break;
@@ -388,6 +407,17 @@ class combat_thbr extends combat_bra
 						}
 					}
 					break;
+					
+				//斯卡雷特套血月效果
+				case 'scarlet_suit':
+					if($GLOBALS['g']->gameinfo['weather'] == 13){
+						$ori_multiple = $multiple;
+						while(determine(100 - 100 / sqrt($buff['param']['quantity']))){
+							$this->feedback($this->attacker->name.' 连击！');
+							$multiple = array_merge($multiple, $ori_multiple);
+						}
+					}
+					break;
 				
 				default:
 					break;
@@ -401,6 +431,20 @@ class combat_thbr extends combat_bra
 	{
 		if(isset($this->attacker->equipment['wep']['sk']['accurate'])){
 			return 100;
+		}
+		
+		if(isset($this->attacker->equipment['wep']['sk']['range-missile'])){
+			switch($this->defender->equipment['wep']['k']){
+				case 'WC':
+				case 'WG':
+				case 'WD':
+					return 100;
+					break;
+					
+				default:
+					return 0;
+					break;
+			}
 		}
 		
 		$hitrate = parent::get_hitrate();
@@ -418,7 +462,9 @@ class combat_thbr extends combat_bra
 				
 				//斯卡雷特套血月效果
 				case 'scarlet_suit':
-					$hitrate *= sqrt($buff['param']['quantity']);
+					if($GLOBALS['g']->gameinfo['weather'] == 13){
+						$hitrate *= sqrt($buff['param']['quantity']);
+					}
 					break;
 				
 				default:
@@ -585,11 +631,6 @@ class combat_thbr extends combat_bra
 						$modulus *= 1.3;
 					}
 					break;
-					
-				//斯卡雷特套血月效果
-				case 'scarlet_suit':
-					$modulus *= sqrt($buff['param']['quantity']);
-					break;
 				
 				default:
 					break;
@@ -652,11 +693,13 @@ class combat_thbr extends combat_bra
 	
 	protected function gain_proficiency()
 	{
-		if($this->kind == 'sc'){
-			$this->attacker->data['proficiency']['d'] += 1;
-			$this->attacker->ajax('proficiency', array('proficiency' => $this->attacker->proficiency));
-		}else{
-			parent::gain_proficiency();
+		if(!$this->extra_attack){ //额外攻击不增加熟练（如灵梦套的阴阳玉）
+			if($this->kind == 'sc'){
+				$this->attacker->data['proficiency']['d'] += 1;
+				$this->attacker->ajax('proficiency', array('proficiency' => $this->attacker->proficiency));
+			}else{
+				parent::gain_proficiency();
+			}
 		}
 	}
 	
@@ -666,7 +709,7 @@ class combat_thbr extends combat_bra
 		
 		//钻石星辰
 		if($GLOBALS['g']->gameinfo['weather'] == 12){
-			$this->defender->damage(125);
+			$this->defender->damage(125, array('type' => 'diamond'));
 		}
 	}
 	
@@ -676,7 +719,7 @@ class combat_thbr extends combat_bra
 		
 		//钻石星辰
 		if($GLOBALS['g']->gameinfo['weather'] == 12){
-			$this->defender->damage(175);
+			$this->defender->damage(175, array('type' => 'diamond'));
 		}
 	}
 	

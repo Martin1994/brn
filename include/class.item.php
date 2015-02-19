@@ -110,12 +110,18 @@ class item
 				$item = &$this->player->data['equipment']['wep'];
 			}else{
 				$item = &$this->player->data['package'][intval($target)];
-			}
-			if(false === isset($item['sk']['poison'])){
-				$item['sk']['poison'] = 0;
+				if(false === isset($item['sk']['poison-applier'])){
+					$item['sk']['poison-applier'] = array();
+				}
+				$item['sk']['poison-applier'][] = $this->player->_id;
 			}
 			$effect = intval($this->player->get_poison_power($item['k'], $item['e']));
-			$item['sk']['poison'] = $item['sk']['poison'] == 0 ? 0 : $item['sk']['poison'] + $effect;
+			if(false === isset($item['sk']['poison'])){
+				$item['sk']['poison'] = $effect;
+			}else{
+				$item['sk']['poison'] = $item['sk']['poison'] == 0 ? 0 : $item['sk']['poison'] + $effect;
+			}
+			
 			switch(substr($item['k'], 0, 1)){
 				case 'W':
 					$this->player->feedback($item['n'].'淬毒成功，持续'.$effect.'回合');
@@ -192,7 +198,11 @@ class item
 				}else{
 					if(isset($this->data['sk']['poison'])){
 						//毒
-						$damage = $this->player->damage($this->data['e']); //TODO: 下毒者信息
+						$damage_source = array('type' => 'poison');
+						if(isset($this->data['sk']['poison-applier'])){
+							$damage_source['pid'] = $this->data['sk']['poison-applier'];
+						}
+						$damage = $this->player->damage($this->data['e'], $damage_source); //TODO: 下毒者信息
 						$this->player->buff('poison', $this->data['sk']['poison']);
 						$this->player->feedback('糟糕，'.$this->data['n'].'有毒，你中毒了，并失去了'.$damage.'点'.$healthinfo['hp']);
 					}else{
@@ -208,7 +218,11 @@ class item
 				}else{
 					if(isset($this->data['sk']['poison'])){
 						//毒
-						$damage = $this->player->damage($this->data['e']); //TODO: 下毒者信息
+						$damage_source = array('type' => 'poison');
+						if(isset($this->data['sk']['poison-applier'])){
+							$damage_source['pid'] = $this->data['sk']['poison-applier'];
+						}
+						$damage = $this->player->damage($this->data['e'], $damage_source); //TODO: 下毒者信息
 						$this->player->buff('poison', $this->data['sk']['poison']);
 						$this->player->feedback('糟糕，'.$this->data['n'].'有毒，你中毒了，并失去了'.$damage.'点'.$healthinfo['hp']);
 					}else{

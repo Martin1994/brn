@@ -23,6 +23,9 @@ $bulletin = '欢迎使用 BRN 引擎';
 //模板文件夹
 $template_dir = ROOT_DIR.'/template';
 
+//地图图像
+$map_image_url = 'img/map.png';
+
 //模板名
 $template_name = 'default';
 
@@ -109,7 +112,7 @@ $healthinfo = array(
 	'sp' => '体力'
 	);
 
-//地方生命状态（仅用于显示）
+//敌方生命状态（仅用于显示）
 $hp_status = array(
 	'normal' => '通常',
 	'attention' => '注意',
@@ -133,6 +136,19 @@ $actioninfo = array(
 	'search' => '搜索',
 	'create_team' => '创建队伍',
 	'join_team' => '加入队伍'
+	);
+
+//致死原因（仅用于显示）
+$deathreasoninfo = array(
+	'weapon_p' => '殴打致死',
+	'weapon_k' => '利器击杀',
+	'weapon_g' => '远程射杀',
+	'weapon_c' => '致命投掷',
+	'weapon_d' => '剧烈爆炸',
+	'poison' => '中毒身亡',
+	'injure' => '旧伤复发',
+	'trap' => '触发陷阱',
+	'default' => '神秘死亡'
 	);
 
 //柜台名
@@ -254,6 +270,11 @@ $buff_name = array(
 	'poison' => '中毒'
 	);
 
+//buff说明
+$buff_help = array(
+	'poison' => '生命持续流失'
+	);
+
 //空物品
 $null_item = array('n' => '', 'k' => '', 'e' => 0, 's' => 0, 'sk' => array());
 
@@ -360,7 +381,8 @@ $modulus_hide = array(
 //结局
 $ending_type = array(
 	'error' => '<span class="error">游戏故障</span>',
-	'timeup' => '<span class="dieout">全灭</span>',
+	'noplayer' => '<span class="dieout">无人参加</span>',
+	'timeup' => '<span class="dieout">无人生还</span>',
 	'survive' => '<span class="survive">最后幸存</span>',
 	'restart' => '<span class="restart">游戏重设</span>'
 	);

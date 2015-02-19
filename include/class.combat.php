@@ -156,7 +156,7 @@ class combat
 	
 	protected function damage($effect)
 	{
-		return $this->defender->damage($effect , array('pid' => $this->attacker->_id));
+		return $this->defender->damage($effect , array('pid' => $this->attacker->_id, 'weapon' => $this->attacker->equipment['wep']['n'], 'type' => 'weapon_'.$this->kind));
 	}
 	
 	protected function hurt()
@@ -198,7 +198,7 @@ class combat
 	
 	protected function injure($position)
 	{
-		$this->defender->damage(25);
+		$this->defender->damage(25, array('pid' => $this->attacker->_id, 'type' => 'injure'));
 	}
 	
 	protected function attrit($position)

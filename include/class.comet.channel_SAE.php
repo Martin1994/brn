@@ -131,13 +131,13 @@ class chlorocomet_channel_SAE implements IChloroComet
 		$userlist = cache_read($this->cache_prefix.'userlist');
 		if(false === $userlist){
 			$this->rebuild();
-			$list = cache_read($this->cache_prefix.'userlist');
+			$userlist = cache_read($this->cache_prefix.'userlist');
 		}
 		
 		$userlist = json_decode($userlist, true);
 		if(false === isset($userlist[$hash])){
 			$this->rebuild();
-			$list = json_decode(cache_read($this->cache_prefix.'userlist'), true);
+			$userlist = json_decode(cache_read($this->cache_prefix.'userlist'), true);
 		}
 		
 		

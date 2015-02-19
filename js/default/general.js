@@ -51,7 +51,11 @@ function debug(data){
 
 function daemon_time_indicator(){
 	$(".time-indicator").each(function(){
-		var ts = parseInt($(this).attr("time")) + 1;
+		var ts = parseInt($(this).attr("time")) + ($(".time-indicator").attr("start") == "true" ? 1 : -1);
+		if(ts == 0 && $(".time-indicator").attr("start") != "true"){
+			$(".time-indicator").attr("start", "true");
+			$("#index-enter-btn").prop("disabled", false);
+		}
 		$(this).attr("time", ts);
 		var h = time_number_format(Math.floor(ts / 3600));
 		var m = time_number_format(Math.floor(ts / 60) - h * 60);

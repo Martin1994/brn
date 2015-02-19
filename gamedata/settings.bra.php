@@ -29,6 +29,9 @@ $page_header = '生 存 游 戏';
 //禁区时间（秒）
 $round_time = 3600;
 
+//地图图像
+$map_image_url = 'img/bra/map.png';
+
 //币种
 $currency = '元';
 
@@ -54,6 +57,14 @@ $buff_name = array_merge($buff_name, array(
 	'injured_head' => '头部受伤',
 	'injured_arm' => '腕部受伤',
 	'injured_foot' => '足部受伤'
+	));
+
+//buff说明
+$buff_help = array_merge($buff_help, array(
+	'injured_body' => '防御力下降，治疗速度减半，再次受伤会撕裂伤口',
+	'injured_head' => '准确率下降，再次受伤会撕裂伤口',
+	'injured_arm' => '攻击力下降，探索体力消耗增加，再次受伤会撕裂伤口',
+	'injured_foot' => '移动体力消耗增加，再次受伤会撕裂伤口'
 	));
 
 //NPC自动回血
@@ -133,6 +144,11 @@ $actioninfo = array(
 	'join_team' => '加入队伍',
 	'wound_dressing' => '包扎伤口'
 	);
+
+//致死原因（仅用于显示）
+$deathreasoninfo = array_merge($deathreasoninfo, array(
+	'forbid' => '滞留禁区'
+	));
 
 //柜台名
 $shopinfo = array(

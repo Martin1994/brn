@@ -4,7 +4,7 @@
 $mod_name = 'Touhou Battle Royale';
 
 //MOD版本
-$mod_version = '0.2 beta';
+$mod_version = '0.35 beta';
 
 //MOD作者
 $mod_author = array(
@@ -18,10 +18,16 @@ $mod_license = array('name' => 'CC-BY-SA 协议', 'url' => 'http://creativecommo
 $mod_extra_info = '';
 	
 //公告
-$bulletin = '<p>内测中，如发现任何bug请及时反馈<br />QQ群：30173786</p><p>第一次游玩前请阅读帮助</p>';
+$bulletin = '<p>内测中，如发现任何bug请及时反馈<br />QQ群：30173786</p><p>第一次游玩前请阅读帮助</p><p>讨论板：<a href="http://thbr.sinaapp.com/bbs">http://thbr.sinaapp.com/bbs</a></p>';
 
 //模板名
 $template_name = 'thbr';
+
+//地图图像
+$map_image_url = 'img/thbr/map.png';
+
+//头像文件夹
+$avatar_dir = 'thbr';
 
 //网页标题
 $page_title = '东方大逃杀';
@@ -33,7 +39,7 @@ $page_header = 'Touhou Battle Royale';
 $round_time = 1800;
 
 //币种
-$currency = '博丽神社的饮茶券';
+$currency = '饮茶券';
 
 //治疗速度
 $heal_rate = array(
@@ -73,6 +79,8 @@ $buff_name = array_merge($buff_name, array(
 	'wandering_soul' => '彷徨幽灵',
 	'ageless_dream' => '无寿の夢',
 	'ageless_land' => '无寿国への約束手形',
+	'horai' => '蓬莱之药',
+	'lunar_incense' => '仙香玉兔',
 	//套装
 	'kedama_suit' => '毛玉套装',
 	'reisen_suit' => '铃仙套装',
@@ -92,6 +100,26 @@ $buff_name = array_merge($buff_name, array(
 	'komeiji_suit' => '古名地套装',
 	'alice_suit' => '玛格特罗依德套装'
 	));
+	
+//buff说明
+$buff_help = array_merge($buff_help, array(
+	'shield' => '代替自身受到伤害',
+	'infrared_moon' => '无法被远程攻击及 SpellCard 击中',
+	'ultrashort_EEG' => '出现多个分身与本体共同攻击',
+	'scapegoat_dummy' => '永久降低攻击并提升防御',
+	'control_rod' => '永久提升攻击并降低防御',
+	'grand_patriots_elixir' => '永久提升攻击并提升防御',
+	'fantasy_nature' => '击中敌人一定次数后会释放「夢想天生」',
+	'ridicule' => '暂时降低防御',
+	'wandering_soul' => '暂时提升防御',
+	'ageless_dream' => '生命持续流失，击中敌人后效果会消失',
+	'ageless_land' => '击中敌人后会消失，若到时限仍未击中敌人则会造成大量伤害',
+	'horai' => '死后原地满状态复活',
+	'lunar_incense' => '时限到之后直接死亡'
+	));
+
+//陷阱致伤率（各部位单独计算）
+$trap_injure_rate = 25;
 
 //NPC自动回血
 $npc_recover = true;
@@ -162,7 +190,7 @@ $weapon_types = array(
 	'g' => '射',
 	'c' => '投',
 	'd' => '爆',
-	'sc' => '附卡',
+	'sc' => '符卡',
 	);
 	
 //数值名（仅用于显示）
@@ -187,7 +215,7 @@ $clubinfo = Array(
 	5 => '化学社',
 	6 => '足球社',
 	7 => '电脑社',
-	8 => '烹饪社',
+	8 => '生物社',
 	9 => '动漫社',
 	10 => '侦探社'
 	);
@@ -246,12 +274,29 @@ $weatherinfo = array(
 $iteminfo = array_merge($iteminfo, array(
 	'YS' => '召唤',
 	'SW' => 'SpellCard(进攻)',
-	'SY' => 'SpellCard(特效)'
+	'SY' => 'SpellCard(特效)',
+	'M' => '合成素材'
+	));
+
+//基础姿态名
+$poseinfo = Array(
+	'通常',
+	'攻击',
+	'防守',
+	'探索',
+	'隐藏',
+	'治疗',
+	'狙击'
+	);
+
+//致死原因（仅用于显示）
+$deathreasoninfo = array_merge($deathreasoninfo, array(
+	'ageless_land' => 'Ageless Land'
 	));
 
 //每点熟练度所增加的攻击系数
 $proficiency_modulus = array(
-	'p' => 0.45,
+	'p' => 0.5,
 	'k' => 0.5,
 	'g' => 0.6,
 	'c' => 0.4,
@@ -261,9 +306,9 @@ $proficiency_modulus = array(
 
 //每种熟练度的基础攻击系数
 $proficiency_intercept = array(
-	'p' => 3,
-	'k' => 3,
-	'g' => 10,
+	'p' => 0,
+	'k' => 10,
+	'g' => 20,
 	'c' => 2,
 	'd' => 6,
 	'sc' => 100
@@ -312,311 +357,260 @@ $mixinfo = array
 (
 	array(
 		'stuff' => array('手机','笔记本电脑'),
-		'result' => array('移动PC','Y',1,1,array('immortal'=>true)),
-		'intro' => array('通讯','比较低级的 <span class="red" >笔记本电脑</span> 是不配备无线网卡的。但是随着 <span class="red" >手机</span> 网络的日益发达，只需将 <span class="red" >手机</span> 与 <span class="red" >笔记本电脑</span> 连接，稍加调整即可有无线信号收发功能。',),),
+		'result' => array('移动PC','Y',1,1,array('immortal'=>true))),
 	array(
 		'stuff' => array('杂炊','松茸'),
-		'result' => array('松茸御饭','HS',200,3,),
-		'intro' => array('烹饪','<span class="red b">杂炊</span> 和 <span class="red b">松茸</span> 都是很有营养的东西，因此这道菜能让你精力充沛。',),),
+		'result' => array('松茸御饭','HS',200,3,)),
 	array(
 		'stuff' => array('咖喱','面包'),
-		'result' => array('咖喱面包','HB',400,1,),
-		'intro' => array('烹饪','如果将 <span class="red b">咖喱</span> 涂抹在 <span class="red b">面包</span> 上味道会更好。',),),
+		'result' => array('咖喱面包','HB',400,1,)),
 	array(
 		'stuff' => array('牛奶','立顿茶包','糯米丸子'),
-		'result' => array('珍珠奶茶','HB',500,4,),
-		'intro' => array('经营','小的食品店成本并不高。打个比方，一杯 <span class="yellow b">珍珠奶茶</span> 仅需 <span class="red b">牛奶</span> 、 <span class="red b">立顿茶包</span> 和 <span class="red b">糯米丸子</span> 即可。',),),
+		'result' => array('珍珠奶茶','HB',500,4,)),
 	array(
 		'stuff' => array('酒精','水'),
-		'result' => array('伏特加','HS',700,1,),
-		'intro' => array('百科',' <span class="yellow" >伏特加</span> 的酒精浓度非常高，分明就是 <span class="red" >酒精</span> 兑 <span class="red" >水</span> 嘛！',),),
+		'result' => array('伏特加','HS',700,1,array('side-effect' => array('att' => 50, 'def' => -25, 'duration' => 180)))),
 	array(
 		'stuff' => array('肥料','金坷垃'),
-		'result' => array('「とある科學の超肥料砲」','SW',221,10,),
-		'intro' => array('百科',' <span class="red" >肥料</span> 馋了 <span class="red" >金坷拉</span> ，一袋能顶两袋撒。',),),
+		'result' => array('「とある科學の超肥料砲」','SW',221,10,)),
 	array(
 		'stuff' => array('魔理沙·迷你八卦炉','霖之助·迷你八卦炉强化图'),
-		'result' => array('霖之助·迷你八卦炉','WD',200,20,array('suit' => 'rinnosuke')),
-		'intro' => array('历史',' <span class="green" >霖之助</span> 曾经送给 <span class="green" >魔理沙</span> 过一个 <span class="red" >迷你八卦炉</span> ，若是你能搞到 <span class="red" >强化图</span> ，那 <span class="yellow" >迷你八卦炉</span> 的威力会提高很多。问题是，你搞得到么？',),),
+		'result' => array('霖之助·迷你八卦炉×强袭','WD',200,20,array('suit' => 'rinnosuke'))),
+	array(
+		'stuff' => array('绯色金属','陶土','霖之助·迷你八卦炉设计图','The Grimoire of Marisa'),
+		'result' => array('魔理沙·迷你八卦炉×永续','WD',50,0,array('suit' => 'marisa', 'immortal' => true))),
 	array(
 		'stuff' => array('绯色金属','陶土','霖之助·迷你八卦炉设计图'),
-		'result' => array('魔理沙·迷你八卦炉','WD',50,20,array('suit' => 'marisa')),
-		'intro' => array('历史',' <span class="green" >霖之助</span> 曾经送给 <span class="green" >魔理沙</span> 过一个 <span class="red" >迷你八卦炉</span> ，若是你能搞到 <span class="red" >设计图</span> 和原料 <span class="red" >绯色金属</span> 、 <span class="red" >陶土</span> ，那你也能拥有一个 <span class="yellow" >迷你八卦炉</span> 。问题是，你搞得到么？',),),
-	array(
-		'stuff' => array('咲夜·红魔银刃','鲜血'),
-		'result' => array('「红魔血刃」','WC',85,10,array('alt' => array('k' => 'k', 'e' => '50'))),
-		'intro' => array('时政',' <span class="green" >咲夜</span> 的 <span class="red" >餐刀</span> 是给红魔馆里 <span class="green" >斯卡雷特姐妹</span> 用的。因此，少不了沾满 <span class="red" >鲜血</span> 。',),),
+		'result' => array('魔理沙·迷你八卦炉','WD',50,20,array('suit' => 'marisa'))),
 	array(
 		'stuff' => array('魂魄·楼观剑','魂魄·白楼剑'),
-		'result' => array('魂魄对剑「白楼观」','WK',125,65,array('multistage' => array(0.6, 0.7), 'suit' => 'konpaku', 'single-buff' => true)),
-		'intro' => array('历史',' <span class="green" >妖梦</span> 和她的爷爷  <span class="green" >妖忌</span> 都是二刀流的使用者。那两把刀分别是 <span class="red" >楼观剑</span> 和 <span class="red" >白楼剑</span> 。不要问我为什么读着觉得像 <span class="yellow" >白楼观剑</span> 。',),),
+		'result' => array('魂魄对剑「白楼观」','WK',125,65,array('multistage' => array(0.6, 0.7), 'suit' => 'konpaku', 'single-buff' => true))),
 	array(
 		'stuff' => array('笔记本电脑','Linux Live CD'),
-		'result' => array('码符「Matrix的苏醒」','SW',65,18,),
-		'intro' => array('百科','TODO',),),
+		'result' => array('码符「Matrix的苏醒」','SW',65,18,)),
 	array(
 		'stuff' => array('移动PC','Linux Live CD'),
-		'result' => array('码符「Matrix的复生」','SW',125,15,),
-		'intro' => array('百科','TODO',),),
+		'result' => array('码符「Matrix的复生」','SW',125,15,)),
 	array(
 		'stuff' => array('大冰块','轻油'),
-		'result' => array('火焰轻油冰块','WD',20,5,),
-		'intro' => array('理化','其实 <span class="red" >大冰块</span> 也会变成危险品，比方说混入 <span class="red" >轻油</span> 的时候。',),),
+		'result' => array('火焰轻油冰块','WD',20,5,)),
 	array(
 		'stuff' => array('大冰块','汽油'),
-		'result' => array('火焰汽油冰块','WD',50,2,),
-		'intro' => array('理化','其实 <span class="red" >大冰块</span> 也会变成危险品，比方说混入 <span class="red" >汽油</span> 的时候。',),),
+		'result' => array('火焰汽油冰块','WD',50,2,)),
 	array(
 		'stuff' => array('大冰块','水'),
-		'result' => array('纯净水冰块','HS',250,2,),
-		'intro' => array('理化','其实 <span class="red" >大冰块</span> 也可以用来提高身体对水分的吸收率。例如你可以将其放入 <span class="red" >水</span> 中。',),),
+		'result' => array('纯净水冰块','HS',250,2,)),
 	array(
 		'stuff' => array('冰精的微型冰块','水'),
-		'result' => array('矿泉水冰块','HH',275,2,),
-		'intro' => array('理化','<span class="red" >冰精的微型冰块</span> 可以用来提高身体对水分的吸收率。一般人们比较倾向于将其放入 <span class="red" >水</span> 中。',),),
+		'result' => array('矿泉水冰块','HH',275,2,)),
 	array(
 		'stuff' => array('大冰块','冰精的微型冰块','水'),
-		'result' => array('有顶天之酒冰块','HB',500,2,),
-		'intro' => array('理化','其实 <span class="red" >大冰块</span> 与 <span class="red" >冰精的微型冰块</span> 也可以用来提高身体对水分的吸收率。例如你可以将其放入 <span class="red" >水</span> 中。',),),
+		'result' => array('有顶天之酒冰块','HB',300,2,)),
 	array(
 		'stuff' => array('大冰块','冰刃'),
-		'result' => array('易碎冰块','WD',40,15,),
-		'intro' => array('理化',' <span class="yellow" >易碎冰块</span> 是具有伤害性的，很容易<span class="b">炸</span>开。因此千万不要将 <span class="red" >大冰块</span> 与 <span class="red" >冰刃</span> 一起存放。',),),
+		'result' => array('易碎冰块','WD',40,15,)),
 	array(
 		'stuff' => array('八云紫结界原理图纸','博丽大结界作用说明书'),
-		'result' => array('结界干扰器','Y',1,1,),
-		'intro' => array('历史','幻想乡一直被博丽大结界所笼罩着，成为孤立的一片乐土；要说幻想乡中另一种举足轻重的结界，便是八云紫的结界。传说能得知两者的作用原理将会引发不小的异变',),),
+		'result' => array('结界干扰器','Y',1,1,array('immortal'=>true))),
 	array(
-		'stuff' => array('调教证明书','魔法蘑菇料理','魔法催化剂','盐','蘑菇'),
-		'result' => array('码符「终极BUG·拉电闸」','SW',1000,1,),
-		'intro' => array('百科',' <span class="yellow" >终极BUG·拉电闸</span> 十分危险！一旦使用对手将处于黑屏状态，而且未保存的工作都将丢失！制作方法：将 <span class="red" >调教证明书</span> 挂在 <span class="red" >史前章鱼</span> 的所有触手上，会有很卡怕的事情发生，千万不要尝试！',),),
+		'stuff' => array('触手证明书','触手','魔法催化剂','盐','蘑菇'),
+		'result' => array('码符「终极BUG·拉电闸」','SW',1000,1,)),
 	array(
 		'stuff' => array('水','空白的SpellCard'),
-		'result' => array('「スペル増幅」','SY',100,1,),
-		'intro' => array('符卡','',),),
+		'result' => array('「スペル増幅」','SY',100,1,)),
 	array(
 		'stuff' => array('矿泉水','空白的SpellCard'),
-		'result' => array('伊吹瓢','SY',1000,1,),
-		'intro' => array('符卡','',),),
+		'result' => array('伊吹瓢','SY',1000,1,)),
 	array(
 		'stuff' => array('面包','空白的SpellCard'),
-		'result' => array('「体力回復」','SY',100,1,),
-		'intro' => array('符卡','',),),
+		'result' => array('「体力回復」','SY',100,1,)),
 	array(
 		'stuff' => array('咖喱面包','空白的SpellCard'),
-		'result' => array('病気平癒守','SY',1000,1,),
-		'intro' => array('符卡','',),),
+		'result' => array('病気平癒守','SY',1000,1,)),
 	array(
 		'stuff' => array('红色水笔','空白的SpellCard'),
-		'result' => array('红符「不夜城レッド」','SW',80,5,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >红色水笔</span> 这样就能画出 <span class="red" >红符「不夜城レッド」</span>拥有爆炸般的魔法效果。',),),
+		'result' => array('红符「不夜城レッド」','SW',80,5,)),
 	array(
 		'stuff' => array('红色水笔','红色水笔','空白的SpellCard'),
-		'result' => array('長視「赤月下」','SY',120,1,),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('長視「赤月下」','SY',120,1,)),
 	array(
 		'stuff' => array('红色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('短視「超短脳波」','SY',120,1,),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('短視「超短脳波」','SY',120,1,)),
 	array(
 		'stuff' => array('红色水笔','红色水笔','红色水笔','红色水笔','空白的SpellCard'),
-		'result' => array('日符「ロイヤルフレア」','SY',1,1,),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('日符「ロイヤルフレア」','SY',1,1,)),
 	array(
 		'stuff' => array('蓝色水笔','蓝色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('月符「サイレントセレナ」','SY',1,1,),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('月符「サイレントセレナ」','SY',1,1,)),
 	array(
 		'stuff' => array('绿色水笔','竹子','年糕','空白的SpellCard'),
-		'result' => array('生薬「国士無双の薬」','SY',10,1,),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('生薬「国士無双の薬」','SY',30,1,)),
 	array(
-		'stuff' => array('黄色水笔','空白的SpellCard'),
-		'result' => array('制御棒','SY',15,1,),
-		'intro' => array('符卡','',),),
+		'stuff' => array('黄色水笔','怪力药丸','空白的SpellCard'),
+		'result' => array('制御棒','SY',15,1,)),
 	array(
-		'stuff' => array('蓝色水笔','空白的SpellCard'),
-		'result' => array('身代わり人形','SY',15,1,),
-		'intro' => array('符卡','',),),
+		'stuff' => array('蓝色水笔','忍耐药丸','空白的SpellCard'),
+		'result' => array('身代わり人形','SY',15,1,)),
 	array(
 		'stuff' => array('橙色水笔','空白的SpellCard'),
-		'result' => array('龙星','SY',60,1,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,用 <span class="red" >橙色水笔</span> 描绘出 <span class="red" >天霸風神脚</span>的动作就可以使用这个神技',),),
+		'result' => array('龍星','SY',60,1,)),
 	array(
 		'stuff' => array('黑色水笔','空白的SpellCard'),
-		'result' => array('足軽「スーサイドスクワッド」','SY',100,2,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >黑色水笔</span> 这样就能画出 <span class="red" >鬼神「ミッシングパープルパワー」</span>并获得强大的打击技能。',),),
+		'result' => array('足軽「スーサイドスクワッド」','SY',100,2,)),
+	array(
+		'stuff' => array('绿色水笔','空白的SpellCard'),
+		'result' => array('断命剑「冥想斩」','SW',125,1,)),
+	array(
+		'stuff' => array('蓝色水笔','空白的SpellCard'),
+		'result' => array('人符「现世斩」','SW',100,1,)),
+	array(
+		'stuff' => array('蓝色水笔','水','空白的SpellCard'),
+		'result' => array('氷符「アイシクルフォール」','SW',300,1,array('range-missile' => true))),
+	array(
+		'stuff' => array('蓝色水笔','冰晶核','空白的SpellCard'),
+		'result' => array('雪符「ダイアモンドブリザード」','SW',400,1,)),
 	array(
 		'stuff' => array('绿色水笔','毒药','空白的SpellCard'),
-		'result' => array('毒煙幕「瓦斯織物の玉」','SY',300,1,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,使用 <span class="red" >绿色水笔</span> 能画出 <span class="red" >断命剑「冥想斩」</span>的轨迹,闭上眼睛静下心灵,斩断心中迷惘的一击。',),),
+		'result' => array('毒煙幕「瓦斯織物の玉」','SY',300,1,)),
 	array(
 		'stuff' => array('红色水笔','橙色水笔','空白的SpellCard'),
-		'result' => array('伤魂「ソウルスカルプチュア」','SW',175,2,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >橙色水笔</span>以及<span class="red" >红色水笔</span> 这样就能画出 <span class="red" >伤魂「ソウルスカルプチュア」</span>消磨他人灵魂的强大的切割术',),),
+		'result' => array('伤魂「ソウルスカルプチュア」','SW',175,2,)),
 	array(
 		'stuff' => array('红色水笔','黄色水笔','空白的SpellCard'),
-		'result' => array('禁忌「恋の迷宫」','SW',175,3,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >黄色水笔</span>以及<span class="red" >红色水笔</span> 这样就能画出 <span class="red" >禁忌「恋の迷宫」</span>强大的灵力斩击对方心魄',),),
+		'result' => array('禁忌「恋の迷宫」','SW',175,3,)),
 	array(
 		'stuff' => array('红色水笔','黑色水笔','空白的SpellCard'),
-		'result' => array('幻爆「近眼花火」','SW',100,6,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >黑色水笔</span>以及<span class="red" >红色水笔</span> 这样就能画出 <span class="red" >幻爆「近眼花火」</span>月兔的幻觉兵器之一,拥有强大的破坏力',),),
+		'result' => array('幻爆「近眼花火」','SW',100,6,)),
 	array(
 		'stuff' => array('红色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('神灵「梦想封印」','SW',180,4,),
-		'intro' => array('符卡',' <span class="red" >红</span>  <span class="red" >白</span>的巫女所拥有的强力技能附在了<span class="red" >空白的SC</span> 上,形成了 <span class="red" >神灵「梦想封印」</span>',),),
+		'result' => array('霊符「夢想封印」','SW',180,4,)),
 	array(
-		'stuff' => array('黑色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('霊符「夢想妙珠」','SW',180,4,),
-		'intro' => array('符卡',' <span class="red" >红</span>  <span class="red" >白</span>的巫女所拥有的强力技能附在了<span class="red" >空白的SC</span> 上,形成了 <span class="red" >神灵「梦想封印」</span>',),),
+		'stuff' => array('红色水笔','蓝色水笔','空白的SpellCard'),
+		'result' => array('霊符「夢想封印」','SW',180,4,)),
+	array(
+		'stuff' => array('霊符「夢想封印」','塞钱'),
+		'result' => array('神霊「夢想封印瞬」','SW',450,1,)),
 	array(
 		'stuff' => array('红色水笔','绿色水笔','空白的SpellCard'),
-		'result' => array('花符「幻想郷の开花」','SW',200,3,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,用 <span class="red" >绿色水笔</span> 加<span class="red" >红色水笔</span>据说能得到 <span class="red" >花符「幻想郷の开花」</span>。六十年一轮回的异变,你能阻止得了吗？',),),
+		'result' => array('花符「幻想郷の開花」','SW',200,3,)),
 	array(
 		'stuff' => array('绿色水笔','橙色水笔','空白的SpellCard'),
-		'result' => array('运命「ミゼラブルフェイト」','SW',150,8,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,用 <span class="red" >绿色水笔</span> 加<span class="red" >橙色水笔</span>这样就能画出 <span class="red" >运命</span>的轨迹。为敌人带来悲惨的命运...',),),
+		'result' => array('运命「ミゼラブルフェイト」','SW',150,8,)),
 	array(
 		'stuff' => array('绿色水笔','黄色水笔','空白的SpellCard'),
-		'result' => array('境符「二次元与三次元的境界」','TN',188,2,),
-		'intro' => array('符卡','据说<span class="green" >紫妈</span>用 <span class="red" >绿色水笔</span> 加<span class="red" >黄色水笔</span>在 <span class="red" >空白的符卡</span> 上画出 <span class="red" >境符「二次元与三次元的境界」</span>,来往于幻想乡与现世。',),),
+		'result' => array('境符「二次元と三次元の境界」','TN',188,2,)),
 	array(
 		'stuff' => array('绿色水笔','黑色水笔','空白的SpellCard'),
-		'result' => array('结界「魅力的な四重结界」','TN',288,1,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,用 <span class="red" >绿色水笔</span> 加<span class="red" >黑色水笔</span>能画出 <span class="red" >結界「魅力的な四重結界」</span>,不过这岛上的结界你觉得有魅力吗?',),),
+		'result' => array('结界「魅力的な四重结界」','TN',288,1,)),
 	array(
 		'stuff' => array('绿色水笔','白色水笔','空白的SpellCard'),
-		'result' => array('「反魂蝶 八分咲」','SW',140,12,),
-		'intro' => array('符卡','用 <span class="red" >绿色与白色水笔</span> 在 <span class="red" >空白的SC</span> 上使用,可以获得幽幽子的符卡 <span  class="red" >「反魂蝶 八分咲」</span>',),),
+		'result' => array('「反魂蝶 八分咲」','SW',140,12,)),
 	array(
 		'stuff' => array('橙色水笔','黑色水笔','空白的SpellCard'),
-		'result' => array('爆符「メガフレア」','SW',150,3,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >黑色水笔</span>和<span class="red" >橙色水笔</span> 这样就能画出太阳黑子 <span class="red" >爆符「メガフレア」</span>。就形成了',),),
+		'result' => array('風符「風神一扇」','SW',150,3,)),
+	array(
+		'stuff' => array('風符「風神一扇」','天狗之羽'),
+		'result' => array('疾風「風神少女」','SW',450,1,array('multistage' => array(0.1,0.35,0.1,0.35,0.1)))),
 	array(
 		'stuff' => array('橙色水笔','黄色水笔','空白的SpellCard'),
-		'result' => array('御札「神社繁榮祈願札」','TN',100,1,array('steal' => 0.25)),
-		'intro' => array('符卡','TODO',),),
+		'result' => array('御札「神社繁榮祈願札」','TN',100,1,array('steal' => 0.25))),
 	array(
 		'stuff' => array('橙色水笔','白色水笔','空白的SpellCard'),
-		'result' => array('禁弾「过去を刻む时计」','SW',185,6,),
-		'intro' => array('符卡','在 <span class="red" >空白SC</span> 上,用 <span class="red" >白色水笔</span> 和<span class="red" >橙色水笔</span> 画出固定的图案,空白SC就会变成 <span class="red" >禁弹</span>走在过去的时钟,记录的是芙兰对蕾米的眷恋',),),
+		'result' => array('禁弾「过去を刻む时计」','SW',185,6,)),
 	array(
 		'stuff' => array('橙色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('月金符「サンシャインリフレクター」','SW',150,3,),
-		'intro' => array('符卡','蓝色与 <span class="red" >白色</span>在 <span class="red" >空白SC</span> 上画的风景画,没有蓝色了？<span  class="red" >橙色</span> 代替好了, <span  class="red" >月神</span>的舞蹈可是美丽而且致命的',),),
+		'result' => array('月金符「サンシャインリフレクター」','SW',100,3,)),
 	array(
 		'stuff' => array('黄色水笔','黑色水笔','空白的SpellCard'),
-		'result' => array('三华「崩山彩极炮」','SW',130,2,),
-		'intro' => array('符卡','不知道为什么,中国的 <span class="red" >三华</span> 在 <span class="red" >空白 SC</span> 上是<span class="red" >黄色</span>和  <span  class="red" >黑色</span>... 这完全不符合中国的颜色嘛..',),),
- 	array(
+		'result' => array('三華「崩山彩極砲」','SW',130,2,)),
+	array(
 		'stuff' => array('黄色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('土着神「ケロちゃん风雨に负け ず」','SW',100,8,),
-		'intro' => array('符卡','在 <span class="red " >空白SC</span> 上,用 <span class="red" >黄色水笔</span> 和 <span class="red" >蓝色水笔</span> 画出青蛙的图案,空白SC就会 变成 <span class="red" >青蛙子</span>,小青蛙无畏风雨~ ',),),
+		'result' => array('土着神「ケロちゃん风雨に负け ず」','SW',320,1,)),
 	array(
 		'stuff' => array('黄色水笔','白色水笔','空白的SpellCard'),
-		'result' => array('恋符「双重火花」','SW',215,2,),
-		'intro' => array('符卡',' <span class="red " >黄色</span>和 <span class="red" >白色</span> 在<span  class="red" >空白的SC</span> 融合, <span class="red" >魔炮</span>就是这么来的,一发威力不够？这个是双倍的。',),),
+		'result' => array('恋心「ダブルスパーク」','SW',255,2,)),
 	array(
 		'stuff' => array('黑色水笔','黑色水笔','空白的SpellCard'),
-		'result' => array('難題「仏の御石の鉢　-砕けぬ意思-」','SW',100,8,),
-		'intro' => array('符卡','在 <span class="red" >空白的符卡</span> 上,可以使用 <span class="red" >黑色水笔</span>以及<span class="red" >蓝色水笔</span> 这样就能画出 <span class="red" >難題「仏の御石の鉢　-砕けぬ意思-」</span>辉夜的5个难题之一,你有信心破解么？',),),
+		'result' => array('難題「仏の御石の鉢　-砕けぬ意思-」','SW',70,5,)),
 	array(
 		'stuff' => array('蓝色水笔','白色水笔','空白的SpellCard'),
-		'result' => array('大奇迹「八坂の神风」','SW',120,12,),
-		'intro' => array('符卡',' <span class="red" >蓝</span> <span class="red" >白</span> 的巫女附在<span class="red" >空白SC</span> 上面的力量足以引发 <span class="red" >大奇迹</span>如果做出来会发现,风,真的很大....',),),
+		'result' => array('大奇迹「八坂の神风」','SW',120,12,)),
 	array(
 		'stuff' => array('蓝色水笔','蓝色水笔','空白的SpellCard'),
-		'result' => array('恋符「极限火花」','SW',220,2,),
-		'intro' => array('符卡',' <span class="red" >黑</span> <span class="red" >白</span>色的少女把心中的不快通通附在了<span class="red" >空白的SC</span> 上,然后一口气放出去 <span class="red" >恋符「极限火花」</span>在此形成',),),
+		'result' => array(' 恋符「マスタースパーク」','SW',220,2,)),
 	array(
-		'stuff' => array('恋符「极限火花」','恋符「双重火花」'),
-		'result' => array('邪恋「超·究级火花」','SW',350,2,),
-		'intro' => array('符卡',' <span class="red" >极限火花</span>与 <span class="red" >双重火花</span> 分开来使用实在太麻烦了,准备,瞄准,把魔力一口气全部释放出去,<span  class="red" >邪恋！「超·究级火花」！</span> ',),),
+		'stuff' => array('恋符「マスタースパーク」','恋心「ダブルスパーク」'),
+		'result' => array(' 恋符「マスタースパーク」·改','SW',350,2,array('multiple' => array(0.5, 0.5)))),
 	array(
-		'stuff' => array('霊符「夢想妙珠」','神灵「梦想封印」'),
-		'result' => array('「梦想天生」','SY',1000,1,),
-		'intro' => array('符卡',' 博丽巫女的绝技有<span class="red" >梦想妙珠</span>还有 <span class="red" >梦想封印</span> 话说另一个是叫什么来着？对了对了,是 <span  class="red" >梦想天生</span>',),),
+		'stuff' => array('霊符「夢想妙珠」','神灵「梦想封印」','塞钱'),
+		'result' => array('「夢想天生」','SY',1200,1,)),
 	array(
 		'stuff' => array('魔符「アーティフルサクリファス」','上海人形'),
-		'result' => array('魔操「归于虚无」','SW',235,15,),
-		'intro' => array('高级符卡','以 <span class="red" >上海人形</span>加强<span class="red" >魔符「アーティフルサクリファス</span>,就可以获得<span class="red" >魔操「归于虚无」</span>。',),),
+		'result' => array('魔操「归于虚无」','SW',500,1,)),
 	array(
-		'stuff' => array('難題「仏の御石の鉢　-砕けぬ意思-」','蓬莱玉枝'),
-		'result' => array('神宝「蓬莱の玉の枝　-夢色の郷-」','SW',250,15,),
-		'intro' => array('高级符卡',' <span class="red" >辉夜的五个难题中的一个</span>加之<span class="red" >蓬莱的树枝</span>就可以获得<span class="red" >神宝「蓬莱の玉の枝　-夢色の郷-」</span>。',),),
+		'stuff' => array('生薬「国士無双の薬」','蓬莱玉枝'),
+		'result' => array('禁薬「蓬莱の薬」','SY',1,1,)),
+	array(
+		'stuff' => array('优昙钵华','蓬莱玉枝','空白的SpellCard'),
+		'result' => array('秘薬「仙香玉兎」','SW',750,1,array('lunar-incense' => true))),
 	array(
 		'stuff' => array('花符「幻想郷の开花」','阳伞'),
-		'result' => array('幻想「花鸟风月、啸风弄月」','SW',400,2,),
-		'intro' => array('高级符卡','以 <span class="red" >风见幽香的SC</span>加上他的<span class="red" >阳伞</span>获得最强SC之一的<span class="red" >幻想「花鸟风月、啸风弄月」</span>',),),
+		'result' => array('幻想「花鳥風月、嘯風弄月」','SW',800,2,)),
 	array(
 		'stuff' => array('伤魂「ソウルスカルプチュア」','月时计'),
-		'result' => array('幻葬「夜雾の幻影杀人鬼」','SW',225,5,),
-		'intro' => array('高级符卡','以 <span class="red" >在咲夜的SC中</span>以<span class="red" >月时计</span>加强对时间的控制力,就可以获得<span class="red" >幻葬「夜雾の幻影杀人鬼」</span>',),),
-	array(
-		'stuff' => array('爆符「メガフレア」','八沢鸦'),
-		'result' => array('「アビスノヴァ」','SW',275,4,),
-		'intro' => array('符卡','在 <span class="red" >爆符「メガフレア」</span>上,再附加上 <span class="red" >八沢鸦</span>的力量,就可以制作出强大的核能武器<span class="red" >「アビスノヴァ」</span>。',),),
+		'result' => array('幻葬「夜雾の幻影杀人鬼」','SW',225,5,array('multistage' => array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)))),
 	array(
 		'stuff' => array('红符「不夜城レッド」','运命「ミゼラブルフェイト」'),
-		'result' => array('红魔「スカーレットデビル」','SW',250,3,),
-		'intro' => array('符卡','以 <span class="red" >大小姐的两张SC</span>融合而成 ,便是更为强大的<span class="red" >红魔「スカーレットデビル」</span>。',),),
+		'result' => array('红魔「スカーレットデビル」','SW',250,3,)),
 	array(
 		'stuff' => array('禁忌「恋の迷宫」','禁弾「过去を刻む时计」'),
-		'result' => array('QED「495年の波纹」','SW',350,3,),
-		'intro' => array('符卡',' <span class="red" >禁忌「恋の迷宫」</span>, <span class="red" >禁弾「过去を刻む时计」</span> 无时无刻不在表现着芙兰对蕾米的眷恋.. <span  class="red" >495年</span>...依旧存活的证明....',),),
+		'result' => array('QED「495年の波纹」','SW',350,3,)),
 	array(
 		'stuff' => array('华符「彩光莲华掌」','三华「崩山彩极炮」'),
-		'result' => array('星气「星脉地转弹」','SW',320,2,),
-		'intro' => array('符卡','以 <span class="red" >中国的两张SC</span>融合而成 ,最为强大的格斗系技能<span class="red" >星气「星脉地转弹」</span>。',),),
+		'result' => array('星气「星脉地转弹」','SW',320,2,)),
 	array(
 		'stuff' => array('境符「二次元与三次元的境界」','结界「魅力的な四重结界」'),
-		'result' => array('「深弾幕結界　-夢幻泡影-」','TN',400,1,),
-		'intro' => array('符卡','以 <span class="red" >紫的两张境界SC</span>融合而成 ,可以控制<span class="red" >更为强大的境界</span>谨防掉入间隙。',),),
+		'result' => array('「深弾幕結界　-夢幻泡影-」','TN',400,1,array('multistage' => array(0.2,0.3,0.5)))),
 	array(
 		'stuff' => array('断命剑「冥想斩」','人符「现世斩」'),
-		'result' => array('人鬼「未来永劫斩」','SW',280,2,array('multistage' => array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1))),
-		'intro' => array('符卡',' 生命二刀流<span class="red" >断命剑「冥想斩」</span>, <span class="red" >人符「现世斩」</span> 以及.... <span  class="red" >人鬼</span>,...情未了？',),),
+		'result' => array('断迷剣「迷津慈航斬」','SW',400,1,array('multistage' => array(0.25, 0.25, 0.5)))),
+	array(
+		'stuff' => array('断命剑「冥想斩」','人符「现世斩」','半灵碎片'),
+		'result' => array('人鬼「未来永劫斩」','SW',400,1,array('multistage' => array(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1)))),
 	array(
 		'stuff' => array('土着神「ケロちゃん风雨に负けず」','大奇迹「八坂の神风」'),
-		'result' => array('「风神様の神徳」','WD',275,3,'s'),
-		'intro' => array('符卡','以 <span class="red" >早苗和青蛙子的两张</span>融合而成 ,可以出现<span class="red" >神奈子的高级SC</span>。',),),
+		'result' => array('「风神様の神徳」','WD',555,1,)),
 	array(
 		'stuff' => array('「反魂蝶 八分咲」','幽灵印花折扇'),
-		'result' => array('「西行寺无余涅盘」','SW',480,1,),
-		'intro' => array('符卡','以 <span class="red" >反魂蝶</span>以<span class="red" >扇子</span>加强灵力,就可以获得拥有控制死亡力量的<span class="red" >「西行寺无余涅盘」</span>。',),),
+		'result' => array('「西行寺无余涅盘」','SW',480,1,)),
 	array(
 		'stuff' => array('黑色水笔','白色水笔','空白的SpellCard'),
-		'result' => array('无敌连段「AAAA-ESC」','SW',500,1,),
-		'intro' => array('弹幕','传说一部分 <span class="green" >SkillCard</span> 能够自行制作的。比如用 <span class="red" >黑色水笔</span> 和 <span class="red" >白色水笔</span> 涂在 <span class="red" >空白的SpellCard</span> 上，图案会自行变化。变化完毕后这张 <span class="green" >SpellCard</span> 就能使用了。',),),
+		'result' => array('无敌连段「AAAA-ESC」','SW',400,1,)),
 	array(
 		'stuff' => array('盐','大冰块'),
-		'result' => array('盐水','HB',50,6,),
-		'intro' => array('理化',' <span class="red" >盐</span> 可以加速 <span class="red" >大冰块</span> 的融化，但是..所融化出来的只可能是 <span class="yellow" >盐水</span> ..',),),
+		'result' => array('盐水','HB',50,6,)),
 	array(
 		'stuff' => array('黑历史全系列光盘A','黑历史全系列光盘B','黑历史全系列光盘C'),
-		'result' => array('黑历史史册残页','YS',1,1,array('id' => 109)),
-		'intro' => array('百科',' <span class="red" >黑历史全系列光盘A</span> 、 <span class="red" >黑历史全系列光盘B</span> 和 <span class="red" >黑历史全系列光盘C</span> 都安装好后便可以通过模拟器开始游戏',),),
+		'result' => array('黑历史史册残页','YS',1,1,array('id' => 109))),
 	array(
 		'stuff' => array('云南白药','邦迪创可贴'),
-		'result' => array('云南白药创可贴','HH',400,1,),
-		'intro' => array('百科',' <span class="red" >云南白药</span> <span class="red" >邦迪创可贴</span> 伤口好得快， <span class="yellow" >云南白药创可贴</span> 伤口好得快……',),),
+		'result' => array('云南白药创可贴','HH',400,1,)),
 	array(
-		'stuff' => array('剪刀','巫女服','裹胸布'),
-		'result' => array('仿制的灵梦巫女服','DB',120,60,),
-		'intro' => array('缝纫','可以将 裹胸布 和 巫女服 用 剪刀 加工，得到灵梦的巫女服（cosplay限定）',),),
+		'stuff' => array('巫女服','裹胸布'),
+		'result' => array('仿制的灵梦巫女服','DB',35,60,)),
+	array(
+		'stuff' => array('巫女服','裹胸布','塞钱'),
+		'result' => array('定制的灵梦巫女服','DB',120,60,)),
 	array(
 		'stuff' => array('国符「三种の神器 剣」','国符「三种の神器 玉」','国符「三种の神器 鏡」','国体「三种の神器 郷」'),
-		'result' => array('终符「幻想天皇」','SW',2000,1,),
-		'intro' => array('历史','武烈天皇、平将门、足利义满、盟军总部',),),
+		'result' => array('终符「幻想天皇」','SW',2000,1,)),
 	);
 
 //攻击系数
 $modulus_attack = array(
 	'weather' => array(1.5, 1.2, 1, 0.9, 0.8, 0.73, 0.75, 0.93, 1, 1.05, 1, 1.2, 1, 0.95),
 	'area' => array(6 => 1.1, 9 => 0.9, 14 => 0.9, 18 => 1.1),
-	'pose' => array(1, 1.2, 0.8, 0.95, 0.8, 0.7),
+	'pose' => array(1, 1.2, 0.8, 0.95, 0.8, 0.7, 1),
 	'tactic' => array(1, 0.8, 1.05, 0.9, 0.7)
 	);
 
@@ -624,7 +618,7 @@ $modulus_attack = array(
 $modulus_defend = array(
 	'weather' => array(1.1, 1.1, 1, 1.5, 0.8, 0.73, 0.8, 1, 0.8, 0.8, 1, 1.1, 0.5, 0.97),
 	'area' => array(1 => 0.9, 2 => 1.1, 11 => 0.9, 12 => 1.1, 20 => 1.1),
-	'pose' => array(1, 0.8, 1.2, 0.9, 0.95, 0.85),
+	'pose' => array(1, 0.8, 1.2, 0.9, 0.95, 0.85, 1),
 	'tactic' => array(1, 1.2, 0.9, 1.1, 0.95)
 	);
 
@@ -640,7 +634,7 @@ $modulus_hit_rate = array(
 $modulus_find = array(
 	'weather' => array(1.1, 1.2, 1, 0.98, 0.97, 0.85, 0.94, 0.88, 0.9, 0.9, 1, 1.05, 0.95, 0.8),
 	'area' => array(1.1, 1, 1, 1.1, 0.9, 1.1, 1, 1.1, 0.9, 1, 1.1, 1, 1, 0.9, 1, 0.9, 0.9, 0.9, 1, 1.1, 1, 1.1),
-	'pose' => array(3 => 1.2, 4 => 0.9, 5 => 0.8),
+	'pose' => array(3 => 1.2, 4 => 0.9, 5 => 0.8, 6 => 1.2),
 	'tactic' => array()
 	);
 
@@ -648,15 +642,15 @@ $modulus_find = array(
 $modulus_hide = array(
 	'weather' => array(),
 	'area' => array(),
-	'pose' => array(),
-	'tactic' => array(1 => 1.05, 3 => 1.2, 4=> 0.9)
+	'pose' => array(6 => 0.8),
+	'tactic' => array(1 => 1.05, 3 => 1.2, 4 => 0.9)
 	);
 
 //先发系数
 $modulus_emptive = array(
 	'weather' => array(1.3, 1.1, 1, 0.95, 1, 1, 1, 1.05, 0.88, 0.85, 0.95, 1.1, 1.1, 1.2),
 	'area' => array(),
-	'pose' => array(2 => 0.9, 3 => 1.1, 4 => 1.2, 5 => 0.8),
+	'pose' => array(2 => 0.9, 3 => 1.1, 4 => 1.2, 5 => 0.8, 6 => 0.7),
 	'tactic' => array()
 	);
 
@@ -664,7 +658,7 @@ $modulus_emptive = array(
 $modulus_counter = array(
 	'weather' => array(),
 	'area' => array(),
-	'pose' => array(),
+	'pose' => array(6 => 1.1),
 	'tactic' => array(2 => 1.2, 3 => 0)
 	);
 
