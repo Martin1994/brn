@@ -47,7 +47,7 @@ switch($action){
 		$data['success'] = logout();
 		break;
 	
-	//管理操作
+	//绠＄悊鍛戒护
 	case 'admin':
 		if($cuser['groupid'] <= 1){
 			$data['success'] = false;
@@ -82,18 +82,79 @@ switch($action){
 				if(!isset($_POST['settings'])){
 					$_POST['settings'] = array();
 				}
+				
+				$_POST['settings'] = htmlspecialchars_decode($_POST['settings']);
+				$settings = json_decode($_POST['settings'], true);
+				
 				if(!is_array($_POST['settings'])){
 					$data['success'] = false;
 					break;
 				}
 				
-				foreach($_POST['settings'] as &$value){
+				foreach($settings as &$value){
 					$value = htmlspecialchars_decode($value);
 				}
 				
 				$settings_name = $g->gameinfo['settings'];
-				$db->update('gamesettings', array('settings' => $_POST['settings']), array('name' => $settings_name));
+				$db->update('gamesettings', array('settings' => $settings), array('name' => $settings_name));
 				cache_destroy('localsettings.'.$g->gameinfo['settings'].'.serialize');
+				$data['success'] = true;
+				break;
+			
+			case 'edit_playerdata':
+				if(!isset($_POST['data'])){
+					return false;
+				}
+				
+				$_POST['data'] = htmlspecialchars_decode($_POST['data']);
+				$playerdata = json_decode($_POST['data'], true);
+				
+				if(!is_array($playerdata)){
+					$data['success'] = false;
+					break;
+				}
+				
+				$id = "";
+				
+				foreach($playerdata as $key => &$value){
+					if($key == '_id'){
+						$id = strval($value);
+					}
+				}
+				
+				if($id == ""){
+					$data['success'] = false;
+					break;
+				}
+				
+				unset($playerdata['_id']);
+				
+				$query_success = $db->update('players', $playerdata, array('_id' => $id));
+				$data['success'] = $query_success;
+				break;
+				
+			case 'get_playerdata':
+				if(!isset($_POST['query'])){
+					$data['success'] = false;
+					break;
+				}
+				if(!is_array($_POST['query'])){
+					$data['success'] = false;
+					break;
+				}
+				
+				foreach($_POST['query'] as &$value){
+					$value = htmlspecialchars_decode($value);
+				}
+				
+				$players = $db->select('players', '*', $_POST['query']);
+				
+				if($players === false || sizeof($players) != 1){
+					$data['success'] = false;
+					break;
+				}
+				
+				$data['playerdata'] = $players[0];
 				$data['success'] = true;
 				break;
 			

@@ -332,6 +332,13 @@ class chlorodb_pdo implements IChloroDB
 			throw_error($e->getMessage().' | Query string: '.$query_string);
 		}
 		
+		if(strtoupper(substr($query_string, 0, 6)) != 'SELECT'){
+			return true;
+		}
+		
+		if(sizeof($result) == 0){
+			return false;
+		}
 		$data = $result;
 		foreach($data as &$record){
 			foreach($record as $key => $value){
@@ -339,9 +346,6 @@ class chlorodb_pdo implements IChloroDB
 					$record[$key] = json_decode($value, true);
 				}
 			}
-		}
-		if(sizeof($data) === 0){
-			$data = false;
 		}
 		return $data;
 	}

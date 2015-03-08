@@ -12,13 +12,24 @@
 			?>
 			<div class="title">游戏数据</div>
 			<div class="button enable-function" target="settings">编辑游戏设置</div>
+			<div class="button enable-function" target="playerdata">编辑玩家数据</div>
 		</div>
 		<div class="functions">
-			<div class=" function settings">
+			<div class="function settings">
 				<div class="title">编辑游戏设置</div>
 				<div class="intro">设置的格式为json，可修改的内容请参考 gamedata/settings.*.php 的内容<br />键名即变量名，键值即变量值</div>
 				<textarea id="admin-setting-text"><?php echo json_encode($GLOBALS['game_settings'][0]['settings']); ?></textarea>
 				<button id="admin-setting-submit">修改</button>
+				<button class="back">返回</button>
+			</div>
+			<div class="function playerdata">
+				<div class="title">编辑玩家数据</div>
+				<div class="intro">数据的格式为json，与数据库中的结构相同<br />键名即栏位名，键值即栏位数据<br />查询格式为json，键名与键值为栏位的匹配条件</div>
+				<text></text>
+				<input type="text" id="admin-playerdata-query" value="{&quot;name&quot;:&quot;玩家名&quot;}"></input>
+				<button id="admin-playerdata-querysubmit">查询</button>
+				<textarea id="admin-playerdata-text">{}</textarea>
+				<button id="admin-playerdata-submit">修改</button>
 				<button class="back">返回</button>
 			</div>
 		</div>

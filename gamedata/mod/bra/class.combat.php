@@ -2,8 +2,7 @@
 
 class combat_bra extends combat
 {
-	
-	protected $counter;
+	public $counter = false;
 	
 	public function __construct(player $att, player $def)
 	{
@@ -16,11 +15,9 @@ class combat_bra extends combat
 		return;
 	}
 	
-	public function attack($counter = false)
+	public function attack_without_counter()
 	{
-		$total_damage = parent::attack();
-		
-		$this->counter = $counter;
+		$damage = parent::attack();
 		
 		$attacker = $this->attacker;
 		$defender = $this->defender;
@@ -33,14 +30,28 @@ class combat_bra extends combat
 		$defender->rage += $rage;
 		$defender->ajax('rage', array('rage' => $defender->rage));
 		
+		return $damage;
+	}
+	
+	public function attack()
+	{
+		$total_damage = $this->attack_without_counter(false);
+		
+		$counter = $this->counter;
+		
+		$attacker = $this->attacker;
+		$defender = $this->defender;
+		
 		if(false === $counter){
 			$c_combat = new_combat($this->defender, $this->attacker);
+			$c_combat->counter = true;
 			if(determine(intval($this->get_counter_rate()))){
 				$this->feedback($this->defender->name.'发起反击');
-				$c_damage = $c_combat->attack(true);
+				$c_damage = $c_combat->attack();
 				
 				$GLOBALS['g']->record_battle_damage($c_damage, $this->defender, $this->attacker);
 				
+				//反击致死
 				if(false === $attacker->is_alive()){
 					if((false === isset($defender->data['action']['battle'])) && (intval($defender->type) === GAME_PLAYER_USER)){
 						$defender->found_enemy($attacker);

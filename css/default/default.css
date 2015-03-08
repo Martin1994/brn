@@ -1278,12 +1278,41 @@ body{
 	background: rgba(0, 0, 0, 0.9);
 }
 
-#F-console-brief .die .text{
-	margin: 200px auto;
+#F-console-brief .die div{
 	width: 800px;
+	text-align: center;
+}
+
+#F-console-brief .die .text{
+	margin: 75px auto 0;
 	font: bold 35px 黑体, Helvetica, sans-serif;
 	color: #911;
-	text-align: center;
+}
+
+#F-console-brief .die .title{
+	margin: 50px auto 0;
+	font: bold 25px 黑体, Helvetica, sans-serif;
+	color: #911;
+}
+
+#F-console-brief .die .killers,
+#F-console-brief .die .time,
+#F-console-brief .die .reason{
+	margin: 10px auto 0;
+	font: bold 21px 黑体, Helvetica, sans-serif;
+	color: #ccc;
+}
+
+#F-console-brief .die .killer-avatar img{
+	padding: 3px;
+	margin: 0 0 10px;
+	background: #000;
+	border: 1px solid #777;
+}
+
+#F-console-brief .die .killer-name img{
+	padding: 3px;
+	margin: 0 0 10px;
 }
 
 #F-console-brief .end{
@@ -2163,8 +2192,16 @@ body{
 }
 
 #admin .function textarea{
-	width: 490px;
+	width: 474px;
 	height: 300px;
+	background: #555;
+	color: #ccc;
+	border: 1px solid #999;
+	margin: 10px;
+}
+
+#admin .function input{
+	width: 412px;
 	background: #555;
 	color: #ccc;
 	border: 1px solid #999;
@@ -2176,6 +2213,7 @@ body{
 	color: #ccc;
 	border: 1px solid #999;
 	margin: 10px;
+	width: 43px;
 }
 
 /*----------------About Page----------------*/
