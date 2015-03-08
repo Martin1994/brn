@@ -250,14 +250,14 @@ class game_bra extends game
 						
 					default:
 						$content = parent::insert_news($type, $args);
-						return;
+						return $content;
 						break;
 				}
 				break;
 			
 			default:
 				$content = parent::insert_news($type, $args);
-				return;
+				return $content;
 				break;
 		}
 		

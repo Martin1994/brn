@@ -242,13 +242,13 @@ class game
 			$winner_name[] = $info['name'];
 		}
 		
-		$this->insert_news('end_info', array('type' => $type, 'winner' => $winner));
+		$this->insert_news('end_info', array('type' => $type, 'winner' => $winner_name));
 		
 		$gameinfo['gamestate'] = 0;
 		$gameinfo['winner'] = $winner_name;
 		$gameinfo['winmode'] = $type;
 		
-		$gameinfo['starttime'] = time(); //TODO 后台
+		$gameinfo['starttime'] = $this->get_next_game_time();
 		
 		$this->insert_news('end');
 		
@@ -259,6 +259,13 @@ class game
 		$db->insert('history', array('gamenum' => $this->gameinfo['gamenum'], 'type' => $type, 'time' => time(), 'winners' => $winners, 'winner_info' => $winner_info, 'news' => $news));
 		
 		return $winner;
+	}
+	
+	private function get_next_game_time()
+	{
+		//return time();
+		//return $this->gameinfo['areatime'] - $this->gameinfo['areatime'] % $GLOBALS['round_time']; //整点
+		return time() - time() % $GLOBALS['round_time'] + $GLOBALS['round_time'];
 	}
 	
 	public function renew_top_player(player $hplayer, $damage)
@@ -1408,7 +1415,7 @@ class game
 						if(isset($args['killer']) && $arg['killer']){
 							$content = '<span class="username">'.$args['killer'].'</span>的<span class="weapon">'.$args['weapon'].'</span>被<span class="username">'.$args['deceased'].'</span>触发，导致其身亡';
 						}else{
-							$content = '<span class="username">'.$args['deceased'].'</span>神秘死亡';
+							$content = '<span class="username">'.$args['deceased'].'</span>成为了陷阱下的冤魂';
 						}
 						break;
 					
@@ -1431,7 +1438,7 @@ class game
 		$db->insert('news', array('time' => time(), 'content' => $content));
 		
 		$this->update_news_cache();
-
+		
 		return $content;
 	}
 	
