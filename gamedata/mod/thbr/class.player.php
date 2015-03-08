@@ -407,7 +407,7 @@ class player_thbr extends player_bra
 					break;
 				
 				case 'ageless_dream':
-					$damager += $this->lvl;
+					$damager += intval($this->lvl);
 					$hpr = 0;
 					break;
 				

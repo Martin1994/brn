@@ -20,6 +20,26 @@ $(document).ready(function(){
 			}
 		}, "json");
 	});
+
+	$("#admin-game-start").click(function(){
+		$.post('ajax.php', {action : 'admin', admin_action : 'game_start'}, function(data, status){
+			if(data['success']){
+				alert("游戏已开始");
+			}else{
+				alert("操作失败");
+			}
+		}, "json");
+	});
+
+	$("#admin-game-stop").click(function(){
+		$.post('ajax.php', {action : 'admin', admin_action : 'game_end'}, function(data, status){
+			if(data['success']){
+				alert("游戏已结束");
+			}else{
+				alert("操作失败");
+			}
+		}, "json");
+	});
 	
 	$("#admin .blocks .enable-function").click(function(){
 		show_function($(this).attr("target"));
@@ -31,7 +51,7 @@ $(document).ready(function(){
 	});
 	
 	var game_settings = eval("("+$("#admin-setting-text").val()+")");
-	$("#admin-setting-text").val(JSON.stringify(game_settings, undefined, 2));
+	$("#admin-setting-text").val(JSON.stringify(game_settings, undefined, 4));
 	
 	$("#admin-setting-submit").click(function(){
 		var new_settings;
@@ -89,7 +109,7 @@ $(document).ready(function(){
 		}
 		$.post('ajax.php', {"action" : 'admin', "admin_action" : 'get_playerdata', "query" : query}, function(data, status){
 			if(data['success']){
-				$("#admin-playerdata-text").val(JSON.stringify(data['playerdata'], undefined, 2));
+				$("#admin-playerdata-text").val(JSON.stringify(data['playerdata'], undefined, 4));
 			}else{
 				alert('查询失败');
 			}
