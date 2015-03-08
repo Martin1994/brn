@@ -86,13 +86,9 @@ switch($action){
 				$_POST['settings'] = htmlspecialchars_decode($_POST['settings']);
 				$settings = json_decode($_POST['settings'], true);
 				
-				if(!is_array($_POST['settings'])){
+				if(!is_array($settings)){
 					$data['success'] = false;
 					break;
-				}
-				
-				foreach($settings as &$value){
-					$value = htmlspecialchars_decode($value);
 				}
 				
 				$settings_name = $g->gameinfo['settings'];
