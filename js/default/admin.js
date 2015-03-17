@@ -31,6 +31,16 @@ $(document).ready(function(){
 		}, "json");
 	});
 
+	$("#admin-game-forbid").click(function(){
+		$.post('ajax.php', {action : 'admin', admin_action : 'game_forbid'}, function(data, status){
+			if(data['success']){
+				alert("已进入下一次禁区");
+			}else{
+				alert("操作失败");
+			}
+		}, "json");
+	});
+
 	$("#admin-game-stop").click(function(){
 		$.post('ajax.php', {action : 'admin', admin_action : 'game_end'}, function(data, status){
 			if(data['success']){

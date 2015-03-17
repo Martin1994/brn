@@ -65,6 +65,11 @@ switch($action){
 				$g->game_start();
 				$data['success'] = true;
 				break;
+
+			case 'game_forbid':
+				$g->game_forbid_area();
+				$data['success'] = true;
+				break;
 				
 			case 'game_end':
 				$g->game_end('error');
