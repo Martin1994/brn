@@ -7,7 +7,9 @@ class command_bra extends command
 	{
 		switch($action){
 			case 'init':
-				$GLOBALS['a']->action('rage', array('rage' => $this->player->rage));
+				if($this->player) {
+					$GLOBALS['a']->action('rage', array('rage' => $this->player->rage));
+				}
 				parent::action_handler($action, $param);
 				break;
 			
