@@ -6,6 +6,7 @@
 			if($GLOBALS['game_state'] === 'start'){
 				echo '<div class="button" id="admin-game-start">开始游戏</div>';
 			}else{
+				echo '<div class="button" id="admin-game-forbid" disabled>进入下一次禁区</div>';
 				echo '<div class="button" id="admin-game-stop" disabled>结束游戏</div>';
 				echo '<div class="button" id="admin-game-restart">重新开始游戏</div>';
 			}
