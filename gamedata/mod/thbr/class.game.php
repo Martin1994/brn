@@ -114,7 +114,7 @@ class game_thbr extends game_bra
 							break;
 					}
 				}
-				$player->sacrifice(); //TODO: 死因
+				$player->sacrifice(array('type' => 'forbid'));
 			}
 		}
 		unset($players_dying);

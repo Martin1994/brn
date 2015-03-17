@@ -111,12 +111,12 @@ class item_thbr extends item_bra
 				break;
 			
 			case '结界解除钥匙':
-				$GLOBALS['g']->game_end('eliminate', $this->player->_id);
+				$GLOBALS['g']->game_end('eliminate', $this->player);
 				return true;
 				break;
 			
 			case '虚拟结界Bug':
-				$GLOBALS['g']->game_end('destory', $this->player->_id);
+				$GLOBALS['g']->game_end('destory', $this->player);
 				return true;
 				break;
 			

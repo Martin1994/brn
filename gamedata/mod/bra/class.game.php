@@ -4,7 +4,7 @@ class game_bra extends game
 {
 	public function game_end($type = 'timeup', $winner = array(), $mode = 'team')
 	{
-		$winner = parent::game_end($type, $winner, $mode);
+		$winners = parent::game_end($type, $winner, $mode);
 		
 		return;
 	}
@@ -29,6 +29,9 @@ class game_bra extends game
 		if(is_array($players_dying)){
 			foreach($players_dying as $pdata){
 				$player = new_player($pdata);
+				if(!in_array($player->area, $forbidden) || $player->tactic == 3){
+					continue; //数据库中的数据有可能未更新，因此要在与缓存合并后再次检查
+				}
 				$player->sacrifice(array('type' => 'forbid'));
 			}
 		}

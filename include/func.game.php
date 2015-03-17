@@ -10,11 +10,13 @@ function new_command($cplayer)
 	return new $GLOBALS['COMMAND_CLASS']($cplayer);
 }
 
+/* @return player */
 function new_player(&$data)
 {
 	return new $GLOBALS['PLAYER_CLASS']($data);
 }
 
+/* @return item */
 function new_item(player $player, array &$data, $id)
 {
 	return new $GLOBALS['ITEM_CLASS']($player, $data, $id); //TODO: id塞在data里，于player_console处理

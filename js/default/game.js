@@ -927,6 +927,18 @@ function respond(data){
 				break;
 			
 			case 'die':
+				var dtime = new Date(param['time'] * 1000);
+				$("#F-console-brief .die .time .h").html((dtime.getHours() + 100).toString().substr(1));
+				$("#F-console-brief .die .time .m").html((dtime.getMinutes() + 100).toString().substr(1));
+				$("#F-console-brief .die .time .s").html((dtime.getSeconds() + 100).toString().substr(1));
+				var killers_html = "";
+				for(var kindex in param['killer']){
+					killers_html += '<div class="killer-avatar"><img src="'+param['avatar'][kindex]+'"></div>';
+					killers_html += '<div class="killer-name">'+param['killer'][kindex]+'</div>';
+				}
+				$("#F-console-brief .die .killers").html(killers_html);
+				$("#F-console-brief .die .reason").html(param["reason"]);
+				
 				show_brief('die');
 				UIvar['alive'] = false;
 				break;

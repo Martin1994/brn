@@ -14,8 +14,7 @@ class player
 	 * 在执行命令前，会先执行上次操作至今的每秒动作（回血 buff等）
 	 * 如果MOD中有其他需要执行的功能，请继承此函数
 	 *
-	 * param $data(array) 玩家数据
-	 * return null
+	 * @param array 玩家数据
 	 */
 	public function __construct(&$data)
 	{
@@ -153,8 +152,8 @@ class player
 	 * 会自动更新进行状况的缓存
 	 * 如果MOD中有其他设定（例如属性提升），请继承或重载此函数
 	 *
-	 * param $extra_text(string) 如果MOD中需要显示额外的内容而又不想重载函数，可以传入此参数
-	 * return null
+	 * @param $extra_text(string) 如果MOD中需要显示额外的内容而又不想重载函数，可以传入此参数
+	 * @return null
 	 */
 	protected function levelup($extra_text = '')
 	{
@@ -167,7 +166,7 @@ class player
 	 * 计算达到下一等级需要多少经验
 	 * 如果MOD中有其他设定，请继承或重载此函数
 	 *
-	 * return int 需要的经验值
+	 * @return int 需要的经验值
 	 */
 	public function calculate_target_experience()
 	{
@@ -179,8 +178,8 @@ class player
 	 * 如果目的地相同会自动转换为探索
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * param $destination(int) 目的地的地图编号
-	 * return null
+	 * @param $destination(int) 目的地的地图编号
+	 * @return null
 	 */
 	public function move($destination)
 	{
@@ -1129,8 +1128,8 @@ class player
 	 * 造成伤害
 	 * 如果MOD中有其他设定，请继承或重载此函数
 	 *
-	 * param 
-	 * return null
+	 * @param float $damage 伤害值
+	 * @param array $source 伤害来源 //TODO: 来源文档说明
 	 */
 	public function damage($damage, array $source = array())
 	{
@@ -1154,7 +1153,7 @@ class player
 		
 		//更新死亡信息
 		$this->data['deathtime'] = time();
-		$this->data['deathreason'] = isset($source['type']) ? $source['type'] : '神秘死亡';
+		$this->data['deathreason'] = isset($source['type']) ? $source['type'] : 'custom:神秘死亡';
 		$this->data['killer'] = array();
 		
 		//处理凶手及显示消息
@@ -1202,14 +1201,19 @@ class player
 			$GLOBALS['g']->gameinfo['deathnum'] ++;
 			
 			$alive_num = $GLOBALS['g']->gameinfo['alivenum'];
-			
+
 			//检查游戏是否结束
 			if(($GLOBALS['g']->gameinfo['gamestate'] & GAME_STATE_COMBO) === GAME_STATE_COMBO){
 				$this->chat_send($GLOBALS['g']->gameinfo['gamestate']);
 				if($alive_num == 1){
-					$survivor = $GLOBALS['db']->select('players', array('_id'), array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
-					$survivor_id = $survivor[0]['_id'];
-					$GLOBALS['g']->game_end('survive', $survivor_id, 'individual');
+					$survivor = $GLOBALS['db']->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
+					foreach($survivor as $player_data){
+						$player = new_player($player_data);
+						if(intval($player->hp) > 0){
+							break;
+						}
+					}
+					$GLOBALS['g']->game_end('survive', $player, 'individual');
 				}else if($alive_num == 0){
 					$GLOBALS['g']->game_end('timeup');
 				}

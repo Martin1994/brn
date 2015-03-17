@@ -45,7 +45,7 @@ class game
 				return;
 			}
 		}
-		
+
 		while($gameinfo['areatime'] <= time() && ($gameinfo['gamestate'] & GAME_STATE_START)){
 			$areanum = $this->game_forbid_area();
 			if($areanum >= sizeof($map)){
@@ -64,7 +64,7 @@ class game
 	 * 游戏进入下一禁时会调用的函数
 	 * 注意开局也会调用这个函数，并将禁数由-1提升至0
 	 *
-	 * return int 禁区数量
+	 * @return int 禁区数量
 	 */
 	public function game_forbid_area()
 	{
@@ -87,17 +87,20 @@ class game
 		
 		//提前更新gameinfo
 		cache_write('gameinfo.serialize', serialize($this->gameinfo));
-		
+
 		//连斗
 		if($gameinfo['round'] >= $combo_round){
 			$gameinfo['gamestate'] |= GAME_STATE_COMBO;
-			
-			if($gameinfo['alivenum'] === 1){
-				
-				$survivor = $GLOBALS['db']->select('players', array('_id'), array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
-				$survivor_id = $survivor[0]['_id'];
-				$this->game_end('survive', $survivor_id, 'individual');
-			}else if($gameinfo['alivenum'] === 0){
+			$survivor = $GLOBALS['db']->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
+			if($survivor !== false){
+				foreach($survivor as $player_data){
+					$player = new_player($player_data);
+					if(intval($player->hp) > 0){
+						break;
+					}
+				}
+				$this->game_end('survive', $player, 'individual');
+			}else if($survivor == false){
 				$this->game_end('timeup');
 			}
 		}
@@ -116,8 +119,6 @@ class game
 	 * 游戏开始时会调用的函数
 	 * 进行各种初始化动作，为新一局的游戏创建全新的数据库，清空缓存与推送池
 	 * 如果MOD中有新的数据库存储，请务必继承此函数并做出相应处理
-	 *
-	 * return null
 	 */
 	public function game_start()
 	{
@@ -180,48 +181,49 @@ class game
 	 * 进行各种初始化动作，为新一局的游戏创建全新的数据库，清空缓存与推送池
 	 * 如果MOD中有对游戏结果的进一步处理（比如玩家积分），请务必继承此函数
 	 *
-	 * param $type(int) 游戏结局
-	 * param $winner(mixed) 胜利者id
-	 * param $mode(string) 胜利方式（团队或个人）
-	 * return array 胜利玩家的id
+	 * @param string 游戏结局
+	 * @param mixed $winner 胜利者player对象（可以是数组也可以是单个对象）
+	 * @param string $mode 胜利方式（团队或个人）
+	 * @return array 胜利玩家的id
 	 */
-	public function game_end($type = 'timeup', $winner = array(), $mode = 'team') //TODO: 发送推送消息（剧情）
+	public function game_end($type = 'timeup', $winners = array(), $mode = 'team') //TODO: 发送推送消息（剧情）
 	{
 		global $gameinfo, $db, $p;
 		
-		if(is_array($winner) === false){
-			$winner = array($winner);
+		if(is_array($winners) === false){
+			$winners = array($winners);
 		}
-		
-		$winners = $db->select('players', '*', array('_id' => array('$in' => $winner)));
-		if(!$winners){
-			$winners = array();
+
+		$winner_ids = array();
+		foreach($winners as $winner){
+			$winner_ids[] = $winner->_id;
 		}
+
 		//将队伍玩家全部加入胜利者名单中 TODO: 分离各函数
 		if($mode === 'team'){
 			foreach($winners as $player){
-				if($player['teamID'] != -1){
-					$teammates = $db->select('players', '*', array('teamID' => $player['teamID']));
+				if($player->teamID != -1){
+					$teammates = $db->select('players', '*', array('teamID' => $player->teamID));
 					foreach($teammates as $teammate){
-						if(false === in_array($teammate['_id'], $winner)){
-							$winner[] = $teammate['_id'];
-							$winners[] = $teammate;
+						if(false === in_array($teammate['_id'], $winner_ids)){
+							$winners[] = new_player($teammate);
 						}
 					}
 				}
 			}
 		}
-		
+
+		$team_names = array();
 		//获取队伍名字
-		foreach($winners as &$player){
-			if($player['teamID'] == -1){
-				$player['team'] = '无队伍';
+		foreach($winners as $player){
+			if($player->teamID == -1){
+				$team_names[$player->_id] = '无队伍';
 			}else{
 				$team = $db->select('team', array('name'), array('_id' => $player['teamID']));
 				if($team){
-					$player['team'] = $team[0]['name'];
+					$team_names[$player->_id] = $team[0]['name'];
 				}else{
-					$player['team'] = '无队伍'; //存储异常
+					$team_names[$player->_id] = '无队伍'; //存储异常
 				}
 			}
 		}
@@ -230,9 +232,9 @@ class game
 		$winner_info = array();
 		foreach($winners as &$player){ //此处不用引用会将所有胜利者都变成下标为0的玩家
 			$winner_info[] = array(
-				'name' => ($player['teamID'] == -1 ? '' : '['.$player['team'].']').$player['name'],
-				'icon' => $player['icon'],
-				'motto' => $player['motto']
+				'name' => ($player->teamID == -1 ? '' : '['.$team_names[$player->_id].']').$player->name,
+				'icon' => $player->icon,
+				'motto' => $player->motto
 				);
 		}
 		
@@ -241,31 +243,42 @@ class game
 		foreach($winner_info as $info){
 			$winner_name[] = $info['name'];
 		}
-		
-		$this->insert_news('end_info', array('type' => $type, 'winner' => $winner_name));
-		
+
+		$this->insert_news('end_info', array('type' => $type, 'winner' => $winners));
+
 		$gameinfo['gamestate'] = 0;
 		$gameinfo['winner'] = $winner_name;
 		$gameinfo['winmode'] = $type;
 		
 		$gameinfo['starttime'] = $this->get_next_game_time();
-		
+
 		$this->insert_news('end');
 		
 		$GLOBALS['a']->action('end', array(), true);
 		
 		$news = $db->select('news', array('time', 'content'));
+
+		$winner_data = array();
+		foreach($winners as $winner){
+			$winner_data[] = $winner->data;
+		}
 		
-		$db->insert('history', array('gamenum' => $this->gameinfo['gamenum'], 'type' => $type, 'time' => time(), 'winners' => $winners, 'winner_info' => $winner_info, 'news' => $news));
-		
-		return $winner;
+		$db->insert('history', array('gamenum' => $this->gameinfo['gamenum'], 'type' => $type, 'time' => time(), 'winners' => $winner_data, 'winner_info' => $winner_info, 'news' => $news));
+
+		return $winners;
 	}
-	
+
+	/**
+	 * 返回下次禁区的时间
+	 * 如果MOD中有其他需求，请继承或重载此函数
+	 *
+	 * @return int 下次禁区的时间戳
+	 */
 	private function get_next_game_time()
 	{
-		//return time();
-		//return $this->gameinfo['areatime'] - $this->gameinfo['areatime'] % $GLOBALS['round_time']; //整点
-		return time() - time() % $GLOBALS['round_time'] + $GLOBALS['round_time'];
+		//return time(); //当前时间
+		//return $this->gameinfo['areatime'] - $this->gameinfo['areatime'] % $GLOBALS['round_time']; //下个整点
+		return time() - time() % $GLOBALS['round_time'] + $GLOBALS['round_time']; //下个整秒数（如3600=一小时，可在设置中调整）
 	}
 	
 	public function renew_top_player(player $hplayer, $damage)
@@ -278,7 +291,7 @@ class game
 	 * 生成禁区顺序
 	 * 如果MOD中有其他需求，请继承此函数
 	 *
-	 * return array 禁区顺序
+	 * @return array 禁区顺序
 	 */
 	protected function generate_forbidden_sequence()
 	{
@@ -302,7 +315,7 @@ class game
 	 * 根据回合数生成禁区列表
 	 * 如果MOD中使用其它方式生成禁区，请重载此函数，但务必保证相同输入会得到相同输出，因为危险区域也会通过此函数生成
 	 *
-	 * return 禁区列表
+	 * @return array 禁区列表
 	 */
 	protected function generate_forbidden_area($area_list, $round, $round_area)
 	{
@@ -320,8 +333,6 @@ class game
 	 * 旧引擎的物品数据可以通过此函数不经修改而直接使用在新引擎中，自动添加、转换特性
 	 * 如果MOD中有其他对于旧数据的处理，请继承此函数
 	 * 由于这是个兼容性函数，并不推荐在做MOD时过度依赖此函数，仅建议用作兼容用途
-	 *
-	 * return null
 	 */
 	public function convert_item(array &$item)
 	{
@@ -388,8 +399,8 @@ class game
 	/**
 	 * 添加N禁时新增的地图物品
 	 *
-	 * param $round(int) 禁区次数（开局是0）
-	 * return null
+	 * @param int 禁区次数（开局是0）
+	 * @return boolean
 	 */
 	protected function update_mapitem($round)
 	{
@@ -456,7 +467,7 @@ class game
 	 * 由NPC的原始数据创建一个完整的NPC数组
 	 * 如果MOD中添加了新的玩家数据并需要自定义NPC的该数据，请在npc.php中添加一个键并在此添加进数组
 	 *
-	 * return array
+	 * @return array
 	 */
 	protected function new_npc(&$player)
 	{
@@ -501,8 +512,8 @@ class game
 	/**
 	 * 创建第N禁的NPC
 	 *
-	 * param $round(int) 禁区次数（开局是0）
-	 * return null
+	 * @param int 禁区次数（开局是0）
+	 * @return boolean
 	 */
 	protected function update_npc($round){
 		global $db, $health_accuracy;
@@ -543,8 +554,8 @@ class game
 	/**
 	 * 添加第N禁时的商店物品
 	 *
-	 * param $round(int) 禁区次数（开局是0）
-	 * return null
+	 * @param int 禁区次数（开局是0）
+	 * @return boolean
 	 */
 	protected function update_shopitem($round){
 		global $db, $shopmap;
@@ -622,8 +633,8 @@ class game
 	 * 确定NPC的性别
 	 * 如果MOD中有有其他性别设定，请务必重载此函数
 	 *
-	 * param &$player(array) NPC的数据数组
-	 * return null
+	 * @param array NPC的数据数组
+	 * @return string
 	 */
 	protected function npc_gender(&$player){
 		if(false === isset($player['gd'])){
@@ -640,15 +651,14 @@ class game
 			default:
 				return (mt_rand(0, 1) === 0) ? 'f' : 'm';
 		}
-		return false;
 	}
 	
 	/**
 	 * 确定NPC的位置
 	 * 如果MOD有特殊的地图设定（比如某编号的地图不会被随机到），请务必重载此函数
 	 *
-	 * param &$player(array) NPC的数据数组
-	 * return null
+	 * @param &$player(array) NPC的数据数组
+	 * @return int
 	 */
 	protected function npc_area(&$player)
 	{
@@ -663,7 +673,6 @@ class game
 			default:
 				return intval($player['pls']);
 		}
-		return false;
 	}
 	
 	/**
@@ -671,7 +680,7 @@ class game
 	 * 这是对旧引擎数据格式的一个兼容函数
 	 * 如果MOD中对NPC背包的数据格式有改变，请务必重载此函数
 	 *
-	 * return null
+	 * @return array
 	 */
 	protected function npc_package(&$player)
 	{
@@ -691,7 +700,7 @@ class game
 	 * 这是对旧引擎数据格式的一个兼容函数
 	 * 如果MOD中对NPC装备的数据格式有改变，请务必重载此函数
 	 *
-	 * return null
+	 * @return array
 	 */
 	protected function npc_equipment(&$player)
 	{
@@ -764,7 +773,7 @@ class game
 	 * 获得下一个禁区的时间
 	 * 如果MOD中对禁区时间的算法有改变，请重载此函数
 	 *
-	 * return null
+	 * @return int 禁区时间戳
 	 */
 	public function get_next_areatime()
 	{
@@ -777,8 +786,8 @@ class game
 	 * 格式化物品子属性
 	 * 兼容旧格式数据，也同时接受直接设定子属性
 	 *
-	 * param $itmsk(mixed) 物品子属性
-	 * return string 格式化后的子属性
+	 * @param mixed 物品子属性
+	 * @return string 格式化后的子属性
 	 */
 	protected function parse_itmsk($itmsk)
 	{
@@ -801,7 +810,7 @@ class game
 	/**
 	 * 获取当前玩家的数据
 	 *
-	 * return mixed
+	 * @return mixed
 	 */
 	public function current_player()
 	{
@@ -823,7 +832,7 @@ class game
 	 * 生成一个空白玩家的数组并设置初始值
 	 * 如果MOD中需要存储新的数据，可以在此设置一个初始值，如果同时需要使用mysql数据库，请一并修改相关sql文件
 	 * 
-	 * return array
+	 * @return array
 	 */
 	protected function blank_player()
 	{
@@ -879,8 +888,9 @@ class game
 	/**
 	 * 创建新玩家
 	 * 如果MOD中有其他玩家初始化的设定，请继承此函数
+	 * TODO: 改名，该名字作用不明显
 	 *
-	 * return array
+	 * @return array
 	 */
 	protected function new_player()
 	{
@@ -936,8 +946,6 @@ class game
 	 * 玩家进入游戏
 	 * 增加游戏激活与生存人数；发布新激活玩家消息；向新玩家发布初始化界面命令；初始化新玩家的推送数据
 	 * 如果MOD中对新玩家有其他设定，请继承此函数
-	 *
-	 * return null
 	 */
 	public function enter_game()
 	{
@@ -986,7 +994,7 @@ class game
 	 * 首先会判定玩家名是否合法
 	 * 如果MOD中有其他对玩家名字的设定（如战队、自动称号等），请继承此函数
 	 *
-	 * return string
+	 * @return string
 	 */
 	protected function np_generate_name(&$user)
 	{
@@ -1006,7 +1014,7 @@ class game
 	 * 格式化玩家性别
 	 * 如果MOD中有其他性别设定，请重载此函数
 	 *
-	 * return string
+	 * @return string
 	 */
 	protected function np_generate_gender(&$user)
 	{
@@ -1034,7 +1042,7 @@ class game
 	 * 生成玩家头像地址
 	 * 如果MOD中更改了头像地址的存储方式，请重载或继承此函数
 	 *
-	 * return string
+	 * @return string
 	 */
 	protected function np_generate_icon(&$user, $gender)
 	{
@@ -1066,7 +1074,7 @@ class game
 	 * 生成玩家社团
 	 * 如果MOD中有其他社团设定，请重载此函数
 	 *
-	 * return int
+	 * @return int
 	 */
 	protected function np_generate_club(&$user)
 	{
@@ -1077,7 +1085,7 @@ class game
 	 * 生成玩家技能
 	 * 每个社团都可以有对应的附属技能，在资源文件中修改
 	 *
-	 * return array
+	 * @return array
 	 */
 	protected function np_generate_skill(&$user, $club)
 	{
@@ -1102,7 +1110,7 @@ class game
 	 * 生成玩家属性点
 	 * 如果MOD中有新的生成方式，请重载此函数
 	 *
-	 * return array
+	 * @return array
 	 */
 	protected function np_generate_health($skill)
 	{
@@ -1119,7 +1127,7 @@ class game
 	 * 会将所有熟练全部设置为proficiency键的值，并根据部分被动技能增加初始值
 	 * 如果MOD中有新的生成方式，请重载此函数
 	 *
-	 * return array
+	 * @return array
 	 */
 	protected function np_generate_combat_index($skills)
 	{
@@ -1139,7 +1147,7 @@ class game
 	 * 生成玩家出生地点
 	 * 如果MOD中有新的设定，请重载此函数
 	 *
-	 * return int
+	 * @return int
 	 */
 	protected function np_generate_area($skill)
 	{
@@ -1152,7 +1160,7 @@ class game
 	 * 生成玩家包裹与装备
 	 * 如果MOD中有新的设定，请重载此函数
 	 *
-	 * return array('equipment' => array 装备, 'package' => array 包裹)
+	 * @return array array('equipment' => array 装备, 'package' => array 包裹)
 	 */
 	protected function np_generate_item($club, $gender)
 	{
@@ -1190,7 +1198,7 @@ class game
 	}
 	
 	/**
-	 * 根据条件获取玩家数据（已弃用，请直接使用数据库查询）
+	 * 根据条件获取玩家数据（已弃用，请直接使用数据库查询）TODO: delete
 	 */
 	public function &get_player($condition)
 	{
@@ -1205,8 +1213,8 @@ class game
 	/**
 	 * 自动填充新NPC身上没有的装备
 	 * 
-	 * param $equipment(array) 自动填充前的装备数组
-	 * return array 自动填充后的装备数组
+	 * @param array 自动填充前的装备数组
+	 * @return array 自动填充后的装备数组
 	 */
 	protected function parse_equipment($equipment)
 	{
@@ -1247,12 +1255,10 @@ class game
 	 * 记录战斗伤害
 	 * 引擎中是个空函数，如果MOD中需要使用，请重载此函数
 	 *
-	 * param $damage(Float) 伤害值
-	 * param $attacker(player) 攻击者
-	 * param $defender(player) 防御者
-	 * return null
+	 * @param float 伤害值
+	 * @param player 攻击者
+	 * @param player 防御者
 	 */
-	
 	public function record_battle_damage($damage, player $attacker, player $defender)
 	{
 		return;
@@ -1262,7 +1268,7 @@ class game
 	 * 进入游戏时提交用户偏好，并更新游戏记录
 	 * 如果MOD中保存了其他用户偏好，请重载此函数
 	 *
-	 * return boolean 数据库操作结果
+	 * @return boolean 数据库操作结果
 	 */
 	protected function update_user_game_settings($userparam)
 	{
@@ -1290,8 +1296,6 @@ class game
 	 * 根据进行状况数据库与当前存活信息生成进行状况页面并写入缓存（进行状况只会在修改的时候才会生成页面，玩家看到的都是缓存）
 	 * 此函数会在生存人数各消息变化以及有新进行状况的时候自动调用，注意此函数不负责生成页面，而是会调用render_news()函数生成页面
 	 * 如果MOD中有在进行状况页面有其他需要显示的数据，请重载此函数
-	 *
-	 * return null
 	 */
 	public function update_news_cache($render = false)
 	{
@@ -1347,8 +1351,7 @@ class game
 			case 'end_info':
 				switch($args['type']){
 					case 'survive':
-						$player_data = $this->get_player_by_id($args['winner'][0]);
-						$winner = new_player($player_data);
+						$winner = $args['winner'][0];
 						$content = '<span class="system">'.$winner->name.' 在游戏中最后幸存，游戏结束</span>';
 						break;
 				
@@ -1446,7 +1449,7 @@ class game
 	 * 生成进行状况页面
 	 * 如果MOD中对进行状况页面有修改，请继承或重载此函数
 	 *
-	 * return string 生成的内容
+	 * @return string 生成的内容
 	 */
 	//TODO: 引擎与模板之间的逻辑略混乱；修改方案：缓存中只有数据格式，样式控制交给js
 	//不应把这个函数放在类中
@@ -1485,7 +1488,7 @@ class game
 	 * 判定（xx几率发生xx）
 	 * 如果MOD中对判定有其他要求，请继承或重载此函数
 	 *
-	 * return boolean 判定结果
+	 * @return boolean 判定结果
 	 */
 	public function determine($threshold, $max = 100)
 	{
@@ -1496,7 +1499,7 @@ class game
 	 * 生成随机数
 	 * 如果MOD中对随机数有其他要求，请继承或重载此函数
 	 *
-	 * return int 生成的随机数
+	 * @return int 生成的随机数
 	 */
 	public function random($min = 0, $max = 99)
 	{
@@ -1508,8 +1511,7 @@ class game
 	 * 将生命与体力的数值从存储值调整为显示值；将拾取中的物品移至包裹的0偏移位置
 	 * 非常好用的函数，请在MOD中善加使用
 	 *
-	 * param &$data(array) 处理前的玩家数据数组
-	 * return null
+	 * @param array 处理前的玩家数据数组（引用）
 	 */
 	public function player_data_preprocess(&$data)
 	{
@@ -1536,8 +1538,7 @@ class game
 	 * 将生命与体力的数值从显示值调整为存储值；将拾取中的物品从包裹的0偏移位置移至单独的键；清空空的包裹物品
 	 * 非常好用的函数，请在MOD中善加使用
 	 *
-	 * param &$data(array) 处理前的玩家数据数组
-	 * return null
+	 * @param array 处理前的玩家数据数组（引用）
 	 */
 	public function player_data_postprocess(&$player)
 	{
@@ -1566,7 +1567,7 @@ class game
 	 * 获取当前的禁区状况
 	 * 如果MOD中对禁区状况的存储或判定方式有所改变，请继承或重载此函数
 	 *
-	 * return array('forbidden' => array 禁区, 'dangerous' => array 即将成为禁区)
+	 * @return array array('forbidden' => array 禁区, 'dangerous' => array 即将成为禁区)
 	 */
 	public function get_areainfo()
 	{
@@ -1581,7 +1582,7 @@ class game
 	 * 获取游戏信息（即老引擎的gameinfo.php）
 	 * 如果MOD中游戏信息的存储方式有所改变，请继承或重载此函数
 	 *
-	 * return array 游戏信息
+	 * @return array 游戏信息
 	 */
 	protected function get_gameinfo()
 	{
@@ -1606,8 +1607,8 @@ class game
 	 * 如果该ID已存在于玩家池中则不会访问数据库
 	 * 如果MOD中有其他实现，请继承或重载此函数
 	 * 
-	 * param $pid(String) 玩家ID
-	 * return array 玩家数据
+	 * @param string 玩家ID
+	 * @return array 玩家数据
 	 */
 	public function get_player_by_id($pid)
 	{
@@ -1631,7 +1632,7 @@ class game
 	 * 如果添加至游戏池时检测到该玩家已经在玩家池中，那么传来的玩家数据将会变成玩家池中已存在的数据
 	 * 如果MOD中有其他动作，请继承此函数
 	 * 
-	 * return &array 处理后的玩家数据
+	 * @return array 处理后的玩家数据（引用）
 	 */
 	public function &push_player_pool(array &$data)
 	{
@@ -1653,7 +1654,7 @@ class game
 	 * 将玩家池中的所有数据更新至数据库，更新前会自动转换玩家数据（调用game::player_data_postprocess）
 	 * 如果MOD中有其他在类销毁时需要处理的内容，请继承此函数
 	 * 
-	 * return boolean 常为true
+	 * @return boolean 常为true
 	 */
 	public function __destruct()
 	{

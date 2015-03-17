@@ -49,7 +49,7 @@ class item_bra extends item
 			
 			case '游戏解除钥匙':
 				//TODO: 插入news
-				$GLOBALS['g']->game_end('eliminate', $this->player->_id);
+				$GLOBALS['g']->game_end('eliminate', $this->player);
 				break;
 			
 			default:
@@ -194,7 +194,7 @@ class item_bra extends item
 		
 		if(determine(3)){
 			$this->player->error('滴滴滴……警报的声响！？', false);
-			$this->player->sacrifice();
+			$this->player->sacrifice(array('source' => 'hack'));
 		}
 		
 		return true;
@@ -219,7 +219,7 @@ class item_bra extends item
 				return true; //使用失败也消失
 			}else{
 				$deceased = new_player($target[0]);
-				$deceased->sacrifice(array('pid' => $this->player->_id));
+				$deceased->sacrifice(array('pid' => $this->player->_id, 'source' => 'custom:死亡笔记')); //TODO
 			}
 			return true;
 		}
