@@ -2198,6 +2198,7 @@ body{
 	color: #ccc;
 	border: 1px solid #999;
 	margin: 10px;
+	font-family: monospace;
 }
 
 #admin .function input{
@@ -2206,6 +2207,7 @@ body{
 	color: #ccc;
 	border: 1px solid #999;
 	margin: 10px;
+	font-family: monospace;
 }
 
 #admin .function button{
