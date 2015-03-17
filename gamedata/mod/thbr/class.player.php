@@ -313,7 +313,7 @@ class player_thbr extends player_bra
 				break;
 			
 			case 'lunar_incense':
-				$this->sacrifice(array('killer' => $buff['param']['killer']));
+				$this->sacrifice(array('pid' => $buff['param']['killer']));
 				break;
 			
 			case 'extra_package':
