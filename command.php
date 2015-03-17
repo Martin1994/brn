@@ -66,7 +66,7 @@ foreach($error as $msg){
 
 $error_data = array();
 //Store error message
-foreach($error as $msg){
+foreach($error_stack as $msg){
 	$error_data[] = array('time' => time(), 'msg' => $msg);
 }
 $db->batch_insert('error', $error_data);

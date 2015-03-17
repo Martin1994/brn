@@ -3,8 +3,10 @@
 header('Content-type: text/html; charset=utf-8');
 
 $error = array();
+$error_stack = array();
 
 function catch_error($errno, $errstr, $errfile, $errline){
+	$error_stack[] = debug_backtrace();
 	$GLOBALS['error'][] = '#'.$errno.': '.$errstr.' (Line'.$errline.' in '.$errfile.')';
 }
 
@@ -68,7 +70,7 @@ $cuser = current_user();
 
 lock();
 
-if(CONNECTION_MODE === 'ajax' && $in_game_ajax){
+if(CONNECTION_MODE === 'ajax' && isset($in_game_ajax) && $in_game_ajax){
 	$c->set_self($cuser['_id'], $a);
 }
 
