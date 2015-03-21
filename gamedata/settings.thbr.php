@@ -665,9 +665,9 @@ $modulus_counter = array(
 //结局
 $ending_type = array(
 	'error' => '<span class="error">游戏故障</span>',
-	'timeup' => '<span class="dieout">全灭</span>',
+	'timeup' => '<span class="dieout">无人参加</span>',
 	'survive' => '<span class="survive">最后幸存</span>',
-	'eliminate' => '<span class="eliminate">游戏紧急结束</span>',
+	'eliminate' => '<span class="eliminate">紧急结束</span>',
 	'restart' => '<span class="restart">游戏重设</span>'
 	);
 
