@@ -9,7 +9,7 @@ class player_bra extends player
 			//龙卷风
 			$areainfo = $GLOBALS['g']->get_areainfo();
 			do{
-				$destination = random(0, sizeof($GLOBALS['weatherinfo']) - 1);
+				$destination = $GLOBALS['g']->random(0, sizeof($GLOBALS['weatherinfo']) - 1);
 			}while(in_array($destination, $areainfo['forbidden']));
 		}
 		$area = $this->area;
@@ -19,7 +19,7 @@ class player_bra extends player
 		if(intval($GLOBALS['g']->gameinfo['weather']) === 11){
 			$this->notice('一阵龙卷风把你刮到了'.$GLOBALS['map'][$destination]);
 		}else if(intval($area) !== intval($destination) && intval($GLOBALS['g']->gameinfo['weather']) === 13){
-			$damage = random(1, 4);
+			$damage = $GLOBALS['g']->random(1, 4);
 			$this->damage($damage);
 			$this->notice('冰雹砸中了你，造成了'.$damage.'点伤害');
 		}
@@ -147,9 +147,9 @@ class player_bra extends player
 	
 	protected function levelup($extra_text = '')
 	{
-		$extra_hp = random(8, 10);
-		$extra_att = random(2, 4);
-		$extra_def = random(3, 5);
+		$extra_hp = $GLOBALS['g']->random(8, 10);
+		$extra_att = $GLOBALS['g']->random(2, 4);
+		$extra_def = $GLOBALS['g']->random(3, 5);
 		
 		$this->data['baseatt'] += $extra_att;
 		$this->data['basedef'] += $extra_def;
@@ -174,7 +174,7 @@ class player_bra extends player
 			parent::found_enemy($enemy);
 		}else if(strval($enemy->teamID) !== '-1' && $enemy->teamID === $this->teamID){
 			parent::found_enemy($enemy);
-		}else if(determine($this->get_emptive_rate($enemy))){
+		}else if($GLOBALS['g']->determine($this->get_emptive_rate($enemy))){
 			parent::found_enemy($enemy);
 		}else{
 			$this->feedback($enemy->name.'突然向你袭来');

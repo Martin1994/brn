@@ -2,7 +2,7 @@
 
 $engine_name = 'Battle Royale Next-gen';
 
-$engine_version = '0.3 beta';
+$engine_version = '0.4 beta';
 
 $engine_author = array(
 	array('name' => 'Martin Chloride', 'url' => 'http://martincl2.me')

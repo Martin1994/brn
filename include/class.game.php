@@ -182,7 +182,7 @@ class game
 	 * 如果MOD中有对游戏结果的进一步处理（比如玩家积分），请务必继承此函数
 	 *
 	 * @param string 游戏结局
-	 * @param mixed $winner 胜利者player对象（可以是数组也可以是单个对象）
+	 * @param player|array $winner 胜利者player对象（可以是数组也可以是单个对象）
 	 * @param string $mode 胜利方式（团队或个人）
 	 * @return array 胜利玩家的id
 	 */
@@ -786,7 +786,7 @@ class game
 	 * 格式化物品子属性
 	 * 兼容旧格式数据，也同时接受直接设定子属性
 	 *
-	 * @param mixed 物品子属性
+	 * @param string|array 物品子属性
 	 * @return string 格式化后的子属性
 	 */
 	protected function parse_itmsk($itmsk)
@@ -810,13 +810,13 @@ class game
 	/**
 	 * 获取当前玩家的数据
 	 *
-	 * @return mixed
+	 * @return boolean|player
 	 */
 	public function current_player()
 	{
-		global $cuser;
-		
-		$data = &get_player(array(
+		global $cuser, $db;
+
+		$data = $db->select('players', '*', array(
 			'uid' => $cuser['_id'],
 			'type' => GAME_PLAYER_USER
 			));
@@ -886,13 +886,13 @@ class game
 	}
 	
 	/**
-	 * 创建新玩家
+	 * 创建新加入游戏的玩家
 	 * 如果MOD中有其他玩家初始化的设定，请继承此函数
 	 * TODO: 改名，该名字作用不明显
 	 *
 	 * @return array
 	 */
-	protected function new_player()
+	protected function new_joined_player()
 	{
 		global $cuser, $health_accuracy, $gameinfo, $param;
 		
@@ -962,7 +962,7 @@ class game
 		$gameinfo['validnum'] ++;
 		$gameinfo['alivenum'] ++;
 		
-		$player = $this->new_player();
+		$player = $this->new_joined_player();
 		
 		$db->insert('players', $player);
 		
@@ -1078,7 +1078,7 @@ class game
 	 */
 	protected function np_generate_club(&$user)
 	{
-		return random(1, 10);
+		return $this->random(1, 10);
 	}
 	
 	/**
@@ -1195,19 +1195,6 @@ class game
 		$item['package'] = array_merge($item0, $item1, $item2);
 	
 		return $item;
-	}
-	
-	/**
-	 * 根据条件获取玩家数据（已弃用，请直接使用数据库查询）TODO: delete
-	 */
-	public function &get_player($condition)
-	{
-		/* DEPRECATED */
-		global $db;
-		
-		$player = $db->select('players', '*', $condition);
-		
-		return $player;
 	}
 	
 	/**

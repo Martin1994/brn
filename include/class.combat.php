@@ -36,7 +36,7 @@ class combat
 		
 		foreach($multiple_attack as $m1_modulus){
 			$hitrate = intval($this->get_hitrate());
-			if(determine($hitrate)){
+			if($GLOBALS['g']->determine($hitrate)){
 				$hitted = true;
 				foreach($multistage_attack as $m2_modulus){
 					$multistage_total_damage = 0;
@@ -165,8 +165,8 @@ class combat
 		
 		$threshold = $this->get_hurt_rate();
 		
-		if(determine($threshold)){
-			$position = random(0, 3);
+		if($GLOBALS['g']->determine($threshold)){
+			$position = $GLOBALS['g']->random(0, 3);
 			switch($position){
 				case 0:
 					$position = 'b';

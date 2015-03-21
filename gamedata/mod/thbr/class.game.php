@@ -67,7 +67,7 @@ class game_thbr extends game_bra
 	
 	protected function np_generate_club(&$user)
 	{
-		return (isset($GLOBALS['param']['club']) && $GLOBALS['param']['club'] > 0 && $GLOBALS['param']['club'] < sizeof($GLOBALS['clubinfo'])) ? $GLOBALS['param']['club'] : random(1, sizeof($GLOBALS['clubinfo']) - 1);
+		return (isset($GLOBALS['param']['club']) && $GLOBALS['param']['club'] > 0 && $GLOBALS['param']['club'] < sizeof($GLOBALS['clubinfo'])) ? $GLOBALS['param']['club'] : $GLOBALS['g']->random(1, sizeof($GLOBALS['clubinfo']) - 1);
 	}
 	
 	public function game_forbid_area()
@@ -138,7 +138,7 @@ class game_thbr extends game_bra
 			case 'aya_ridicule':
 				$attacker = '<span class="username">'.$args['attacker'].'</span>';
 				$defender = '<span class="username">'.$args['defender'].'</span>';
-				switch(random(0,4)){
+				switch($GLOBALS['g']->random(0,4)){
 					case 0:
 						$rhetoric = '<span class="username">'.$defender.'</span>惨遭重创';
 						break;

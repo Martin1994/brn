@@ -25,9 +25,9 @@ class player_thbr extends player_bra
 			return;
 		}
 		
-		$extra_hp = random(10, 20);
-		$extra_att = random(0, 10);
-		$extra_def = random(10, 20);
+		$extra_hp = $GLOBALS['g']->random(10, 20);
+		$extra_att = $GLOBALS['g']->random(0, 10);
+		$extra_def = $GLOBALS['g']->random(10, 20);
 		
 		$this->data['baseatt'] += $extra_att;
 		$this->data['basedef'] += $extra_def;
@@ -642,7 +642,7 @@ class player_thbr extends player_bra
 					//琪露诺套五件效果
 					case 'cirno_suit':
 						if($buff['param']['quantity'] >= 5){
-							if(!isset($this->package[0]) && determine(50)){
+							if(!isset($this->package[0]) && $GLOBALS['g']->determine(50)){
 								$this->feedback('遭遇了埋伏好的 '.$item['n'].' ，发动「液氮排爆」回收陷阱');
 								$trap = array(
 									'n' => $item['n'],
@@ -689,19 +689,19 @@ class player_thbr extends player_bra
 			}
 			
 			//受伤
-			if(determine($GLOBALS['trap_injure_rate'])){
+			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
 				$this->buff('injured_body');
 				$this->feedback('你的胸部受伤了');
 			}
-			if(determine($GLOBALS['trap_injure_rate'])){
+			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
 				$this->buff('injured_arm');
 				$this->feedback('你的碗部受伤了');
 			}
-			if(determine($GLOBALS['trap_injure_rate'])){
+			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
 				$this->buff('injured_head');
 				$this->feedback('你的头部受伤了');
 			}
-			if(determine($GLOBALS['trap_injure_rate'])){
+			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
 				$this->buff('injured_foot');
 				$this->feedback('你的腿部受伤了');
 			}

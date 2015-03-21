@@ -26,7 +26,7 @@ class combat_thbr extends combat_bra
 				//冴月麟套四件效果
 				case 'rin_suit':
 					if($buff['param']['quantity'] >= 4){
-						if(determine(30)){
+						if($GLOBALS['g']->determine(30)){
 							$this->feedback($this->attacker->name.' 发动了 风符「共振激励」 造成 '.$this->defender->name.' 当前生命值 25% 的伤害');
 							$damage += $this->damage($this->defender->hp * 0.25);
 						}
@@ -121,7 +121,7 @@ class combat_thbr extends combat_bra
 					//灵梦套两件效果
 					case 'reimu_suit':
 						if($buff['param']['quantity'] >= 2){
-							if(determine(25)){
+							if($GLOBALS['g']->determine(25)){
 								//生成武器
 								$weapon = array(
 									'n' => '珠符「明珠暗投」',
@@ -165,7 +165,7 @@ class combat_thbr extends combat_bra
 							$this->attacker->buff('shield', 10, array('effect' => 100));
 							$this->attacker->notice('「上海人形」进入了待机状态');
 						}else if($buff['param']['quantity'] >= 2){
-							if(determine(50)){
+							if($GLOBALS['g']->determine(50)){
 								//生成武器
 								$weapon = array(
 									'n' => '爱丽丝·上海人形',
@@ -239,7 +239,7 @@ class combat_thbr extends combat_bra
 				case 'konpaku_suit':
 					//魂魄套两件效果 魂魄套五件效果
 					if($buff['param']['quantity'] >= 2){
-						if(determine(($buff['param']['quantity'] >= 5) ? 10 : 5)){
+						if($GLOBALS['g']->determine(($buff['param']['quantity'] >= 5) ? 10 : 5)){
 							$this->feedback($this->defender->name.' 发动了「反射下界斩」，对 '.$this->attacker->name.' 反弹了 '.(intval($effect * 10) / 10).' 点伤害');
 							$this->attacker->damage($effect , array('pid' => $this->defender->_id, 'weapon' => $this->attacker->equipment['wep']['n'].'（反射下界斩）', 'type' => 'weapon_'.$this->type));
 							
@@ -391,7 +391,7 @@ class combat_thbr extends combat_bra
 				case 'scarlet_suit':
 					if($GLOBALS['g']->gameinfo['weather'] == 13){
 						$ori_multiple = $multiple;
-						while(determine(100 - 100 / sqrt($buff['param']['quantity']))){
+						while($GLOBALS['g']->determine(100 - 100 / sqrt($buff['param']['quantity']))){
 							$this->feedback($this->attacker->name.' 连击！');
 							$multiple = array_merge($multiple, $ori_multiple);
 						}
@@ -555,7 +555,7 @@ class combat_thbr extends combat_bra
 		
 		//盾牌效果
 		if(isset($this->defender->equipment['ara']['sk']['shield'])){
-			if(determine($this->defender->equipment['ara']['sk']['shield'])){
+			if($GLOBALS['g']->determine($this->defender->equipment['ara']['sk']['shield'])){
 				$this->feedback($this->defender->name.' 的 '.$this->defender->equipment['ara']['n'].' 发动格挡，没有造成伤害');
 				return 0;
 			}
@@ -566,7 +566,7 @@ class combat_thbr extends combat_bra
 				//灵梦套五件效果
 				case 'reimu_suit':
 					if($buff['param']['quantity'] >= 5){
-						if(determine(25)){
+						if($GLOBALS['g']->determine(25)){
 							$this->feedback($this->defender->name.' 使用了 阴阳玉 抵消了本次伤害');
 							return 0;
 						}
@@ -624,7 +624,7 @@ class combat_thbr extends combat_bra
 	
 	protected function calc_damage_float()
 	{
-		return pow(2, random(-10000, 10000) / 10000);
+		return pow(2, $GLOBALS['g']->random(-10000, 10000) / 10000);
 	}
 	
 	protected function modulus_critical_hit()

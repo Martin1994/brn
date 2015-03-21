@@ -51,7 +51,7 @@ class item_thbr extends item_bra
 					//十六夜套五件效果
 					case 'sakuya_suit':
 						if($buff['param']['quantity'] >= 5){
-							if(determine(15)){
+							if($GLOBALS['g']->determine(15)){
 								$this->player->notice('回收了 '.$this->data['n']);
 								return;
 							}
@@ -257,9 +257,9 @@ class item_thbr extends item_bra
 	protected function apply_upgrade()
 	{
 		$up = $this->data['e'];
-		$uphp = random(0, $up);
-		$upatt = random(0, $up);
-		$updef = random(0, $up);
+		$uphp = $GLOBALS['g']->random(0, $up);
+		$upatt = $GLOBALS['g']->random(0, $up);
+		$updef = $GLOBALS['g']->random(0, $up);
 		
 		$log = '【命】+'.$uphp.' 【攻】+'.$upatt.' 【防】+'.$updef;
 		
@@ -358,7 +358,7 @@ class item_thbr extends item_bra
 	
 	protected function apply_weatherod()
 	{
-		$weather = random(0, sizeof($GLOBALS['weatherinfo']) - 1);
+		$weather = $GLOBALS['g']->random(0, sizeof($GLOBALS['weatherinfo']) - 1);
 		$GLOBALS['g']->gameinfo['weather'] = $weather;
 		$this->player->feedback('天候棒使用成功，天气变成了'.$GLOBALS['weatherinfo'][$weather]);
 		$GLOBALS['a']->action('weather', array('name' => $GLOBALS['weatherinfo'][$weather]), true);

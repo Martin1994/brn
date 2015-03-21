@@ -45,7 +45,7 @@ class combat_bra extends combat
 		if(false === $counter){
 			$c_combat = new_combat($this->defender, $this->attacker);
 			$c_combat->counter = true;
-			if(determine(intval($this->get_counter_rate()))){
+			if($GLOBALS['g']->determine(intval($this->get_counter_rate()))){
 				$this->feedback($this->defender->name.'发起反击');
 				$c_damage = $c_combat->attack();
 				
@@ -261,14 +261,14 @@ class combat_bra extends combat
 	{
 		$attacker = $this->attacker;
 		if($attacker->club == 9){
-			if($attacker->rage >= 50 && determine(30)){
+			if($attacker->rage >= 50 && $GLOBALS['g']->determine(30)){
 				//TODO: 控制功能 使用技能？
 				$attacker->data['rage'] -= 50;
 				$attacker->ajax('rage', array('rage' => $attacker->rage));
 				return true;
 			}
 		}else{
-			if(intval($attacker->lvl) >= 3 && intval($attacker->proficiency[$this->kind]) >= 20 && $attacker->rage >= 30 && determine(30)){
+			if(intval($attacker->lvl) >= 3 && intval($attacker->proficiency[$this->kind]) >= 20 && $attacker->rage >= 30 && $GLOBALS['g']->determine(30)){
 				$attacker->data['rage'] -= 30;
 				$attacker->ajax('rage', array('rage' => $attacker->rage));
 				return true;

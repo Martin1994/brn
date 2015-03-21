@@ -68,7 +68,7 @@ class command
 				
 				if(isset($cplayer->action['battle'])){
 					//战斗状态中
-					$enemy = get_player(array('_id' => $cplayer->action['battle']['pid']));
+					$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $cplayer->action['battle']['pid']));
 					$enemy = new_player($enemy[0]);
 					$a->action('battle', array(
 						'enemy' => $cplayer->get_enemy_info($enemy),

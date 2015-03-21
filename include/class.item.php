@@ -253,11 +253,11 @@ class item
 			//装备损坏判定
 			global $attrit_rate;
 			if($num == 0 && isset($attrit_rate[$item['k']])){
-				if(determine($attrit_rate[$item['k']])){
+				if($GLOBALS['g']->determine($attrit_rate[$item['k']])){
 					$item['s'] --;
 				}
 			}else{
-				if(determine($attrit_rate['default'])){
+				if($GLOBALS['g']->determine($attrit_rate['default'])){
 					$item['s'] --;
 				}
 			}
@@ -305,11 +305,11 @@ class item
 			//装备损坏判定
 			global $mar_rate;
 			if(isset($mar_rate[$item['k']])){
-				if(determine($mar_rate[$item['k']])){
+				if($GLOBALS['g']->determine($mar_rate[$item['k']])){
 					$item['e'] --;
 				}
 			}else{
-				if(determine($mar_rate['default'])){
+				if($GLOBALS['g']->determine($mar_rate['default'])){
 					$item['e'] --;
 				}
 			}

@@ -1595,7 +1595,7 @@ class player
 			return $this->error('目前尚未碰到敌人');
 		}
 		
-		$enemy = get_player(array('_id' => $this->action['battle']['pid']));
+		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
 		$enemy = new_player($enemy[0]);
 		
 		if($enemy->is_alive()){
@@ -1687,7 +1687,7 @@ class player
 			return $this->error('目前尚未碰到队友');
 		}
 		
-		$enemy = get_player(array('_id' => $this->action['battle']['pid']));
+		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
 		$enemy = new_player($enemy[0]);
 		
 		if($enemy->teamID === '-1' || $enemy->teamID !== $this->teamID){
@@ -1785,7 +1785,7 @@ class player
 			return $this->error('目前没有碰到任何人');
 		}
 		
-		$enemy = get_player(array('_id' => $this->action['battle']['pid']));
+		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
 		$enemy = new_player($enemy[0]);
 		
 		if(($enemy->teamID === '-1' || $enemy->teamID !== $this->teamID) && $enemy->is_alive()){
@@ -1905,7 +1905,7 @@ class player
 		
 		$threshold = $this->get_discover_threshold($mode);
 		
-		if(determine($threshold)){
+		if($GLOBALS['g']->determine($threshold)){
 			//遇敌
 			$players = $db->select('players', '*', array('area' => $this->area));
 			if(false === $players){
@@ -1917,7 +1917,7 @@ class player
 			foreach($players as &$player){
 				$enemy = new_player($player);
 				
-				if(determine($this->enemy_found_rate($enemy))){
+				if($GLOBALS['g']->determine($this->enemy_found_rate($enemy))){
 					//遇敌成功，进入战斗状态
 					$this->found_enemy($enemy);
 					//跳出循环，停止遇敌
@@ -1937,8 +1937,8 @@ class player
 				return;
 			}
 			$threshold = $this->get_item_found_rate();
-			if(determine($threshold)){
-				$item = $items[random(0, sizeof($items) - 1)];
+			if($GLOBALS['g']->determine($threshold)){
+				$item = $items[$GLOBALS['g']->random(0, sizeof($items) - 1)];
 				unset($items);
 				$db->delete('items', array('_id' => $item['_id']));
 				$item = array(
@@ -1973,7 +1973,7 @@ class player
 	
 	protected function calculate_trap_damage(&$trap)
 	{
-		return round(random(0, floor($trap['e'] / 2)) + $trap['e'] / 2);
+		return round($GLOBALS['g']->random(0, floor($trap['e'] / 2)) + $trap['e'] / 2);
 	}
 	
 	protected function get_enemy_found_rate()

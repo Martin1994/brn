@@ -83,7 +83,7 @@ class item_bra extends item
 			
 		}else if($this->player->equipment['wep']['k'] === 'WP' && (strpos($this->player->equipment['wep']['n'], '棍') !== false || strpos($this->player->equipment['wep']['n'], '棒') !== false)){
 			
-			if(determine(80)){
+			if($GLOBALS['g']->determine(80)){
 				
 				if(strpos($this->player->equipment['wep']['n'], '钉') === false){
 					$this->player->feedback($this->player->equipment['wep']['n'].'变成了'.$this->data['n'].$this->player->equipment['wep']['n']);
@@ -136,7 +136,7 @@ class item_bra extends item
 			
 		}else if($this->player->equipment['wep']['k'] === 'WK'){
 			
-			if(determine(80)){
+			if($GLOBALS['g']->determine(80)){
 				
 				$this->player->equipment['wep']['e'] += $this->data['e'];
 				$this->player->feedback($this->data['n'].'使用成功，'.$this->player->equipment['wep']['n'].'的效果增加了'.$this->data['e'].'，变成了'.$this->player->equipment['wep']['e']);
@@ -169,7 +169,7 @@ class item_bra extends item
 			return false;
 		}
 		
-		if(determine(in_array('Hacker', $this->player->skill) ? 95 :25)){
+		if($GLOBALS['g']->determine(in_array('Hacker', $this->player->skill) ? 95 :25)){
 			global $map;
 			$all_map = array();
 			$target_map = array();
@@ -188,11 +188,11 @@ class item_bra extends item
 			$this->player->feedback('Hacking失败了……');
 		}
 		
-		if(determine(5)){
+		if($GLOBALS['g']->determine(5)){
 			$this->player->error($this->data['n'].' 的电路烧毁了', false);
 		}
 		
-		if(determine(3)){
+		if($GLOBALS['g']->determine(3)){
 			$this->player->error('滴滴滴……警报的声响！？', false);
 			$this->player->sacrifice(array('source' => 'hack'));
 		}
@@ -227,7 +227,7 @@ class item_bra extends item
 	
 	protected function apply_weatherod()
 	{
-		$weather = random($GLOBALS['normal_weather'], sizeof($GLOBALS['weatherinfo']) - 1);
+		$weather = $GLOBALS['g']->random($GLOBALS['normal_weather'], sizeof($GLOBALS['weatherinfo']) - 1);
 		$GLOBALS['g']->gameinfo['weather'] = $weather;
 		$this->player->feedback($this->data['n'].' 使用成功，天气变成了'.$GLOBALS['weatherinfo'][$weather]);
 		$GLOBALS['a']->action('weather', array('name' => $GLOBALS['weatherinfo'][$weather]), true);
@@ -265,7 +265,7 @@ class item_bra extends item
 	
 	protected function apply_dice()
 	{
-		$dice = random(0, 99);
+		$dice = $GLOBALS['g']->random(0, 99);
 		if($dice < 20){
 			$up = 5;
 			$log = '是大吉！要有什么好事发生了！';
@@ -283,9 +283,9 @@ class item_bra extends item
 			$log = '大凶？总觉得有什么可怕的事快要发生了';
 		}
 		
-		$uphp = random(0, abs($up)) * ($up > 0 ? 1 : -1);
-		$upatt = random(0, abs($up)) * ($up > 0 ? 1 : -1);
-		$updef = random(0, abs($up)) * ($up > 0 ? 1 : -1);
+		$uphp = $GLOBALS['g']->random(0, abs($up)) * ($up > 0 ? 1 : -1);
+		$upatt = $GLOBALS['g']->random(0, abs($up)) * ($up > 0 ? 1 : -1);
+		$updef = $GLOBALS['g']->random(0, abs($up)) * ($up > 0 ? 1 : -1);
 		
 		if($up > 0){
 			$log .= '【命】+'.$uphp.' 【攻】+'.$upatt.' 【防】+'.$updef;
