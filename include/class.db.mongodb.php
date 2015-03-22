@@ -132,7 +132,7 @@ class chlorodb_mongodb implements IChloroDB
 	{
 		if(true === is_array($table)){
 			foreach($table as $subtable){
-				$this->create_table(strval($subtable));
+				$this->create_table(strval($subtable), $column);
 			}
 			return;
 		}

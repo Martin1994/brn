@@ -23,7 +23,7 @@ include(ROOT_DIR.'/include/func.game.php');
 
 include(ROOT_DIR.'/include/func.cache_'.CACHE_TYPE.'.php');
 
-include(ROOT_DIR.'/include/class.game.php');
+include(ROOT_DIR.'/include/class.factory.php');
 
 include(ROOT_DIR.'/include/class.command.php');
 
