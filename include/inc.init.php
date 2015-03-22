@@ -19,11 +19,11 @@ include(ROOT_DIR.'/gamedata/settings.default.php');
 include(ROOT_DIR.'/include/func.file_lock.php');
 include(ROOT_DIR.'/include/func.general.php');
 include(ROOT_DIR.'/include/func.user.php');
-include(ROOT_DIR.'/include/func.game.php');
+include(ROOT_DIR.'/include/func.factory.php');
 
 include(ROOT_DIR.'/include/func.cache_'.CACHE_TYPE.'.php');
 
-include(ROOT_DIR.'/include/class.factory.php');
+include(ROOT_DIR.'/include/class.game.php');
 
 include(ROOT_DIR.'/include/class.command.php');
 
