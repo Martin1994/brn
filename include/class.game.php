@@ -968,7 +968,7 @@ class game
 		
 		do{
 			$loop = false;
-			$GLOBALS['cplayer'] = current_player();
+			$GLOBALS['cplayer'] = $this->current_player();
 			if($GLOBALS['cplayer'] === false){
 				$loop = true;
 				usleep(100000);
