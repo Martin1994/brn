@@ -1,6 +1,10 @@
 var UIconfig;
 var UIvar;
 var request_msec = 0;
+var frame;
+var current_frame;
+var ajax_lock;
+var ajax_plock;
 
 function daemon(){
 	//防止服务器错误导致客户端卡死
@@ -105,8 +109,8 @@ function panel_block(name){
 
 function panel_selector(element){
 	element = $(element);
-	block = element.attr("block");
-	action = element.attr("action");
+	var block = element.attr("block");
+	var action = element.attr("action");
 	
 	if(block == 'equipment' && action == 'switch'){
 		request('switch');
@@ -136,6 +140,7 @@ function panel_selector_default(block){
 }
 
 function battle_action(element){
+	var action;
 	if(typeof(element) == "string"){
 		action = element;
 	}else{
@@ -159,7 +164,7 @@ function battle_action(element){
 		case 'strip':
 			//禁用丢弃按钮
 			var disable_btn = true;
-			$("F-console-package item").each(function(e){
+			$("#F-console-package .item").each(function(e){
 				if($(this).find("null").length > 0){
 					disable_btn = false;
 				}
@@ -188,9 +193,9 @@ function battle_action(element){
 }
 
 function parse_goods(goods){
-	result = "";
+	var result = "";
 	for(var i in goods){
-		item = goods[i];
+		var item = goods[i];
 		
 		result += '<div class="item" iid="'+item['_id']+'">';
 		result += '<div class="controller"><button action="add">△</button><input type="text" value="0" max="'+item['max']+'"price="'+item['price']+'" /><button action="cut">▽</button></div>';
@@ -208,7 +213,7 @@ function parse_goods(goods){
 }
 
 function update_price(){
-	total = 0;
+	var total = 0;
 	
 	$("#F-console-shop .goods .controller input").each(function(){
 		total += parseInt($(this).val()) * parseInt($(this).attr("price"));
@@ -235,7 +240,7 @@ function update_item(param){
 	
 	if(param["capacity"] != undefined && param["capacity"] != UIconfig["capacity"]){
 		//需要更新背包容量
-		result = "";
+		var result = "";
 		for(i = 1; i <= param["capacity"]; i ++){
 			result += '<div class="item" iid="' + i + '"></div>';
 		}
@@ -267,7 +272,7 @@ function update_item(param){
 			}
 			
 			//判断是否可以合并
-			mergable = 0;
+			var mergable = 0;
 			for(var i in param["package"]){
 				if(
 					i > 0 &&
@@ -303,7 +308,7 @@ function update_item(param){
 
 	$("#F-console-panel .item").unbind("click");
 	$("#F-console-panel .item").click(function(e){
-		item = $(this);
+		var item = $(this);
 		select_item(item);
 	});
 	
@@ -323,12 +328,11 @@ function parse_item(div, item, type){
 	}else{
 		div.html('<div class="null">无'+type+'</div>');
 	}
-	return;
 }
 
 function submit_item(e){
-	action = UIvar['panel_action']['package'];
-	items = [];
+	var action = UIvar['panel_action']['package'];
+	var items = [];
 	$("#F-console-package .item.selected").each(function(e){
 		items.push($(this).attr("iid"));
 	});
@@ -348,10 +352,10 @@ function drop_collecting_item(e){
 }
 
 function select_item(item){
-	iid = item.attr("iid");
+	var iid = item.attr("iid");
 	if(!$("#F-console-package .item[iid='"+iid+"'] .null").length){
-		block = item.parent().attr("block");
-		action = UIvar['panel_action'][block];
+		var block = item.parent().attr("block");
+		var action = UIvar['panel_action'][block];
 		switch(action){
 			case 'merge':
 			case 'compose':
@@ -370,7 +374,7 @@ function select_item(item){
 function show_item_param(param){
 	$("#F-console-center .wrapper[content='item_param']").fadeIn(200);
 	
-	result = "<form iid='"+param['id']+"'>";
+	var result = "<form iid='"+param['id']+"'>";
 	
 	if(param['intro'] != undefined){
 		result += '<div class="intro">'+param['intro']+'</div>';
@@ -658,8 +662,8 @@ function respond(data){
 	
 	for(var aid in data){
 		
-		action = data[aid]["action"];
-		param = data[aid]["param"];
+		var action = data[aid]["action"];
+		var param = data[aid]["param"];
 		
 		switch(action){
 			
@@ -870,7 +874,7 @@ function respond(data){
 				update_price();
 				
 				$("#F-console-shop .goods button[action='add']").click(function(e){
-					input = $(this).parent().find("input");
+					var input = $(this).parent().find("input");
 					if(parseInt(input.val()) < parseInt(input.attr("max"))){
 						input.val(parseInt(input.val()) + 1);
 					}
@@ -878,7 +882,7 @@ function respond(data){
 				});
 				
 				$("#F-console-shop .goods button[action='cut']").click(function(e){
-					input = $(this).parent().find("input");
+					var input = $(this).parent().find("input");
 					if(parseInt(input.val()) > 0){
 						input.val(parseInt(input.val()) - 1);
 					}
@@ -887,7 +891,7 @@ function respond(data){
 				
 				$("#F-console-shop .goods .item").mousewheel(function(e, delta){
 					e.preventDefault();
-					input = $(this).find("input");
+					var input = $(this).find("input");
 					if(delta > 0){
 						if(parseInt(input.val()) < parseInt(input.attr("max"))){
 							input.val(parseInt(input.val()) + 1);
@@ -966,6 +970,7 @@ function respond(data){
 			
 			case 'currency':
 				UIconfig['currency'] = param['name'];
+				$("#F-console-playerinfo .infodetail .currency").html(param['name'] + "：");
 				break;
 			
 			case 'need_login':
@@ -982,7 +987,7 @@ function respond(data){
 			
 			case 'performance':
 				show_performance = true;
-				process_msec = parseInt(param['process_sec'] * 1000);
+				var process_msec = parseInt(param['process_sec'] * 1000);
 				break;
 				
 			default:
@@ -1151,7 +1156,7 @@ function init_gameUI(){
 	
 	//Team
 	$("#F-console-teaminfo button").click(function(e){
-		action = $(this).attr("action");
+		var action = $(this).attr("action");
 		switch(action){
 			case 'create':
 			case 'join':
@@ -1190,7 +1195,7 @@ function init_gameUI(){
 	
 	$("#F-console-chat-form").submit(function(e){
 		e.preventDefault();
-		chat_content = $("#F-console-chat-input").val();
+		var chat_content = $("#F-console-chat-input").val();
 		$("#F-console-chat-input").val("");
 		request("chat_send", { content : chat_content });
 	});
@@ -1233,14 +1238,14 @@ function init_join(param){
 	$("#F-enter-form-icon-m").val(0);
 	
 	$("#F-enter-form .icon-selector select").change(function(){
-		gender = $("#F-enter-form input[name='gender']:checked").val();
-		icon = $(this).children('option:selected').val();
+		var gender = $("#F-enter-form input[name='gender']:checked").val();
+		var icon = $(this).children('option:selected').val();
 		enter_change_avatar(gender, icon);
 	});
 	
 	$("#F-enter-info input[type='radio']").change(function(){
-		gender = $(this).val();
-		icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
+		var gender = $(this).val();
+		var icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
 		enter_change_avatar(gender, icon);
 		switch(gender){
 			case "f":
@@ -1275,8 +1280,8 @@ function enter_change_avatar(gender, icon){
 
 function enter_submit(e){
 	e.preventDefault();
-	gender = $("#F-enter-form input[name='gender']:checked").val();
-	icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
+	var gender = $("#F-enter-form input[name='gender']:checked").val();
+	var icon = $("#F-enter-form .icon-selector select#F-enter-form-icon-"+gender).children('option:selected').val();
 	request('enter_game', {
 		icon : icon,
 		gender : gender,
