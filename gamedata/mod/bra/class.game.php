@@ -88,7 +88,7 @@ class game_bra extends game
 	
 	protected function new_player()
 	{
-		$player = parent::new_player();
+		$player = parent::new_joined_player();
 		$player['exp'] = $GLOBALS['gameinfo']['round'] * 75; //晚进游戏的补偿
 		return $player;
 	}
