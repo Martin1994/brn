@@ -21,6 +21,7 @@ $page_header = 'BRN Installation';
 $template_dir = './template/default';
 
 $dbclass = 'chlorodb_'.DB_TYPE;
+/* @global IChloroDB $db */
 $db = new $dbclass(DB_USER, DB_PASS, DB_NAME, DB_HOST_M, DB_HOST_S);
 unset($dbclass);
 $db->set_table_prefix(DB_TABLE_PREFIX);
@@ -31,7 +32,7 @@ $db->create_table('users', $column);
 $column = file_get_contents(ROOT_DIR.'/gamedata/sql/gameinfo.sql');
 $db->create_table('gameinfo', $column);
 $db->insert('gameinfo', array(
-	'gamenum' => 0, //¿ª¾Öºó×Ô¶¯±ä³É1
+	'gamenum' => 0, //ï¿½ï¿½ï¿½Öºï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½1
 	'gamestate' => 0,
 	'starttime' => time(),
 	'winmode' => 0,

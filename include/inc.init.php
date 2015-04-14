@@ -56,11 +56,13 @@ escape_post($_POST);
 session_start();
 
 $dbclass = 'chlorodb_'.DB_TYPE;
+/* @global IChloroDB $db */
 $db = new $dbclass(DB_USER, DB_PASS, DB_NAME, DB_HOST_M, DB_HOST_S, DB_PERSISTENT);
 unset($dbclass);
 $db->set_table_prefix(DB_TABLE_PREFIX);
 
 $cometclass = 'chlorocomet_'.COMET_TYPE;
+/* @global IChloroComet $c */
 $c = new $cometclass($COMET_CONFIG);
 unset($cometclass);
 
@@ -74,24 +76,7 @@ if(CONNECTION_MODE === 'ajax' && isset($in_game_ajax) && $in_game_ajax){
 	$c->set_self($cuser['_id'], $a);
 }
 
+/* @global game $g */
 $g = new_game();
-
-//include(ROOT_DIR.'/gamedata/settings.local.php');
-//Load local settings
-$s_cache = cache_read('localsettings.'.$g->gameinfo['settings'].'.serialize');
-if(false !== $s_cache){
-	extract(unserialize($s_cache));
-}else{
-	$result = $db->select('gamesettings', array('settings'), array('name' => $g->gameinfo['settings']));
-	if(!is_array($result)){
-		throw_error('Failed to access to gamesettings.');
-		exit();
-	}
-	extract($result[0]['settings']);
-	cache_write('localsettings.'.$g->gameinfo['settings'].'.serialize', serialize($result[0]['settings']));
-}
-unset($s_cache);
-
-$g->_construct();
 
 ?>

@@ -16,6 +16,8 @@ class game
 	/**
 	 * 游戏类的构造函数
 	 * 会载入gameinfo
+	 * 会载入gamesettings
+	 * 会在此做出游戏开始与结束的判定（只有全灭结局会在此做出结束判定）
 	 */
 	public function __construct()
 	{
@@ -24,20 +26,28 @@ class game
 		$GLOBALS['gameinfo'] = &$this->gameinfo; //兼容老代码
 		$this->players = array(); //初始化玩家池
 		$this->db = $GLOBALS['db']; //引用db类，在摧毁类时有依赖（如果db类先被摧毁会导致无法更新数据库）
-		
-		return;
-	}
-	
-	/**
-	 * 游戏类的初始化函数
-	 * 构造函数结束后游戏会载入本地设置，载入完成后才调用此函数
-	 * 会在此做出游戏开始与结束的判定（只有全灭结局会在此做出结束判定）
-	 */
-	public function _construct()
-	{
+
+		//Load local settings
+		$s_cache = cache_read('localsettings.'.$this->gameinfo['settings'].'.serialize');
+		if(false !== $s_cache){
+			$a_cache = unserialize($s_cache);
+		}else{
+			$result = $this->db->select('gamesettings', array('settings'), array('name' => $this->gameinfo['settings']));
+			if(!is_array($result)){
+				throw_error('Failed to access to gamesettings.');
+				exit();
+			}
+			$a_cache = $result[0]['settings'];
+			cache_write('localsettings.'.$this->gameinfo['settings'].'.serialize', serialize($result[0]['settings']));
+		}
+		unset($s_cache);
+		foreach($a_cache as $key => $value){
+			$GLOBALS[$key] = $value;
+		}
+
 		global $map;
 		$gameinfo = &$this->gameinfo;
-		
+
 		if(($gameinfo['gamestate'] & GAME_STATE_START) === 0){
 			if($gameinfo['starttime'] < time()){
 				$this->game_start();
@@ -375,7 +385,7 @@ class game
 				$item['itmsk']['poison'] = 0;
 				global $poison;
 				for($i = 0; $i < $times; $i ++){
-					$item['itmsk']['poison'] += $poison['Hlast'];
+					$item['itmsk']['poison'] += $poison['Hlast'] * $item['itme'];
 				}
 				$item['itmk'] = 'H'.$kind[1];	
 				break;
