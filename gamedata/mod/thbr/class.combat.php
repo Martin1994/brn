@@ -556,7 +556,7 @@ class combat_thbr extends combat_bra
 		//盾牌效果
 		if(isset($this->defender->equipment['ara']['sk']['shield'])){
 			if($GLOBALS['g']->determine($this->defender->equipment['ara']['sk']['shield'])){
-				$this->feedback($this->defender->name.' 的 '.$this->defender->equipment['ara']['n'].' 发动格挡，没有造成伤害');
+				$this->feedback($this->defender->name.' 的 '.$this->defender->equipment['ara']['n'].' 发动格挡');
 				return 0;
 			}
 		}
