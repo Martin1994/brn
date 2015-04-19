@@ -78,5 +78,6 @@ if(CONNECTION_MODE === 'ajax' && isset($in_game_ajax) && $in_game_ajax){
 
 /* @global game $g */
 $g = new_game();
+$g->initialize();
 
 ?>

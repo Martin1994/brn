@@ -21,13 +21,15 @@ class player_thbr extends player_bra
 	
 	protected function levelup($extra_text = '')
 	{
+		global $g;
+
 		if(!$this->is_alive()){
 			return;
 		}
 		
-		$extra_hp = $GLOBALS['g']->random(10, 20);
-		$extra_att = $GLOBALS['g']->random(0, 10);
-		$extra_def = $GLOBALS['g']->random(10, 20);
+		$extra_hp = $g->random(10, 20);
+		$extra_att = $g->random(0, 10);
+		$extra_def = $g->random(10, 20);
 		
 		$this->data['baseatt'] += $extra_att;
 		$this->data['basedef'] += $extra_def;
@@ -51,16 +53,32 @@ class player_thbr extends player_bra
 		$rate = parent::enemy_found_rate($enemy);
 		
 		if($this->pose == 6){
+			//狙击姿态降低毛玉发见率
 			if(in_array('kedama', $enemy->skill)){
 				$rate *= 0.2;
 			}else{
 				$rate *= 1.25;
 			}
 		}
+
+		foreach($this->buff as &$buff){
+			switch($buff['type']){
+				//古明地套两件效果
+				case 'komeiji_suit':
+					if($buff['param']['quantity'] >= 2){
+						$rate *= 1.1;
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+
 		return $rate;
 	}
 	
-	public function attack_by_weapon($weapon, $uncounterable = false, $is_extra_attack = false)
+	public function attack_by_weapon($weapon)
 	{
 		//换上武器
 		$current_weapon = $this->equipment['wep'];
@@ -68,7 +86,7 @@ class player_thbr extends player_bra
 		$this->calculate_battle_info(false);
 		
 		//攻击
-		$success = $this->attack($uncounterable, $is_extra_attack);
+		$this->attack();
 		
 		//换回来
 		$this->data['equipment']['wep'] = $current_weapon;
@@ -76,8 +94,6 @@ class player_thbr extends player_bra
 		
 		//更新武器名
 		$this->ajax('item', array('equipment' => $this->parse_equipment()));
-		
-		return $success;
 	}
 	
 	public function calculate_battle_info($ajax = true)
@@ -477,7 +493,7 @@ class player_thbr extends player_bra
 	{
 		$modulus = parent::get_potion_effect();
 		
-		/*foreach($this->buff as &$buff){
+		foreach($this->buff as &$buff){
 			switch($buff['type']){
 				//永琳套五件效果
 				case 'eirin_suit':
@@ -489,7 +505,7 @@ class player_thbr extends player_bra
 				default:
 					break;
 			}
-		}*/
+		}
 		
 		return $modulus;
 	}
@@ -545,7 +561,7 @@ class player_thbr extends player_bra
 		foreach($this->buff as &$buff){
 			switch($buff['type']){
 				//八云紫套四件效果
-				case 'yukari':
+				case 'yukari_suit':
 					if($buff['param']['quantity'] >= 4){
 						return true;
 					}
@@ -603,8 +619,13 @@ class player_thbr extends player_bra
 		
 		return $power;
 	}
-	
-	public function get_enemy_info($enemy, $end = false)
+
+	/**
+	 * @param player_thbr $enemy
+	 * @param bool $end
+	 * @return array
+	 */
+	public function get_enemy_info(player $enemy, $end = false)
 	{
 		$info = parent::get_enemy_info($enemy, $end);
 		
@@ -636,13 +657,14 @@ class player_thbr extends player_bra
 	
 	protected function found_item($item)
 	{
+		global $g, $trap_injure_rate;
 		if($item['k'] === 'TO'){
 			foreach($this->buff as &$buff){
 				switch($buff['type']){
 					//琪露诺套五件效果
 					case 'cirno_suit':
 						if($buff['param']['quantity'] >= 5){
-							if(!isset($this->package[0]) && $GLOBALS['g']->determine(50)){
+							if(!isset($this->package[0]) && $g->determine(50)){
 								$this->feedback('遭遇了埋伏好的 '.$item['n'].' ，发动「液氮排爆」回收陷阱');
 								$trap = array(
 									'n' => $item['n'],
@@ -673,7 +695,7 @@ class player_thbr extends player_bra
 					return;
 				}
 				
-				$player_data = $GLOBALS['g']->get_player_by_id($item['sk']['owner']);
+				$player_data = $g->get_player_by_id($item['sk']['owner']);
 				if(!$player_data){
 					return;
 				}
@@ -689,26 +711,26 @@ class player_thbr extends player_bra
 			}
 			
 			//受伤
-			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
+			if($g->determine($trap_injure_rate)){
 				$this->buff('injured_body');
 				$this->feedback('你的胸部受伤了');
 			}
-			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
+			if($g->determine($trap_injure_rate)){
 				$this->buff('injured_arm');
 				$this->feedback('你的碗部受伤了');
 			}
-			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
+			if($g->determine($trap_injure_rate)){
 				$this->buff('injured_head');
 				$this->feedback('你的头部受伤了');
 			}
-			if($GLOBALS['g']->determine($GLOBALS['trap_injure_rate'])){
+			if($g->determine($trap_injure_rate)){
 				$this->buff('injured_foot');
 				$this->feedback('你的腿部受伤了');
 			}
 		}
 	}
 	
-	protected function get_emptive_rate($enemy)
+	protected function get_emptive_rate(player $enemy)
 	{
 		$rate = parent::get_emptive_rate($enemy);
 		
@@ -720,10 +742,21 @@ class player_thbr extends player_bra
 						$rate *= 1.5;
 					}
 					break;
+
+				//古明地套两件效果
+				case 'komeiji_suit':
+					if($buff['param']['quantity'] >= 2){
+						$rate *= 1.1;
+					}
+					break;
 				
 				default:
 					break;
 			}
+		}
+
+		if(isset($this->equipment['wep']['sk']['emptive-buff'])){
+			$rate *= $this->equipment['wep']['sk']['emptive-buff'];
 		}
 		
 		return $rate;
@@ -772,11 +805,13 @@ class player_thbr extends player_bra
 			}
 		}
 		
-		return parent::experience($add);
+		parent::experience($add);
 	}
 	
 	public function sacrifice($source = array())
 	{
+		global $g;
+
 		foreach($this->buff as $bid => $buff){
 			switch($buff['type']){
 				case 'horai':
@@ -785,9 +820,8 @@ class player_thbr extends player_bra
 					$this->remove_buff($bid);
 					$this->feedback('你死亡了');
 					$this->feedback('潜伏在体内的蓬莱之药从全身各处爆发出来，发出了耀眼的光芒，你复活了！');
-					$GLOBALS['g']->insert_news('horai', array('name' => $this->name));
+					$g->insert_news('horai', array('name' => $this->name));
 					return;
-					break;
 				
 				default:
 					break;
@@ -795,10 +829,11 @@ class player_thbr extends player_bra
 		}
 		
 		if(isset($source['pid']) && false !== $source['pid']){
-			$killer_data = $GLOBALS['g']->get_player_by_id($source['pid']);
+			$killer_data = $g->get_player_by_id($source['pid']);
 			
 			if(!$killer_data){
-				return parent::sacrifice($source);
+				parent::sacrifice($source);
+				return;
 			}
 			
 			$killer = new_player($killer_data);
@@ -819,7 +854,7 @@ class player_thbr extends player_bra
 			}
 		}
 		
-		return parent::sacrifice($source);
+		parent::sacrifice($source);
 	}
 }
 

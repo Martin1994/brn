@@ -165,7 +165,22 @@ class game_thbr extends game_bra
 			case 'horai':
 				$content = '<span class="username">'.$args['name'].'</span>体内的蓬莱之药发出了光芒，<span class="username">'.$args['name'].'</span>复活了';
 				break;
-			
+
+			case 'kill':
+				$args['type'] = isset($args['type']) ? $args['type'] : 'default';
+				switch($args['type']){
+					case 'weapon_sc':
+						$content = '<span class="username">'.$args['killer'].'</span>使用<span class="weapon">'.$args['weapon'].'</span>将<span class="username">'.$args['deceased'].'</span>击杀';
+						break;
+
+					case 'diamond':
+						$content = '<span class="username">'.$args['deceased'].'</span>被钻石星辰撕裂伤口，失血过多死亡';
+						break;
+
+					default:
+						return parent::insert_news($type, $args);
+				}
+				break;
 			default:
 				$content =  parent::insert_news($type, $args);
 				if($type != 'damage'){

@@ -10,10 +10,8 @@ class item_thbr extends item_bra
 		switch($k[0]){
 			case 'S':
 				if($k[1] == 'W'){
-					$success = $this->player->attack_by_weapon($this->data, false, true);
-					if($success){
-						$this->consume(1);
-					}
+					$this->player->attack_by_weapon($this->data, false, true);
+					$this->consume(1);
 				}else if($k[1] == 'Y'){
 					$this->special($param);
 				}
@@ -477,7 +475,7 @@ class item_thbr extends item_bra
 		return true;
 	}
 	
-	protected function apply_shield($duration, $ettect)
+	protected function apply_shield($duration, $amount, $effect)
 	{
 		$this->player->buff('shield', $duration, array('amount' => $amount, 'effect' => $effect));
 		$this->player->feedback('使用 '.$this->data['n'].' 成功，如有神护');
@@ -691,18 +689,17 @@ class item_thbr extends item_bra
 			switch($buff['type']){
 				//永琳套五件效果
 				case 'eirin_suit':
-					if($buff['param']['effect'] >= 5){
-						$modulus['hp'] *= 2;
-					}
-					$is_poisoning = false;
-					foreach($this->player->buff as $key => $buff){
-						if($buff['type'] === 'poison'){
-							$this->player->remove_buff($key);
-							$is_poisoning = true;
+					if($buff['param']['quantity'] >= 5) {
+						$is_poisoning = false;
+						foreach ($this->player->buff as $key => $subbuff) {
+							if ($subbuff['type'] === 'poison') {
+								$this->player->remove_buff($key);
+								$is_poisoning = true;
+							}
 						}
-					}
-					if($is_poisoning){
-						$this->player->feedback('毒状态解除了');
+						if ($is_poisoning) {
+							$this->player->feedback('毒状态解除了');
+						}
 					}
 					break;
 				

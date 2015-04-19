@@ -2,11 +2,48 @@
 //TODO: 超大型提示（伤害 击杀 损坏等）
 //TODO: 中毒体力回复bug（待验证）
 //TODO: 尸体雾天bug（应该在mod里）
+/**
+ * Class player
+ * @property string $_id 玩家id
+ * @property string $uid 玩家用户id（"-1"代表NPC）
+ * @property int $type 玩家类型（见GAME类开头的定义）
+ * @property string $gender 性别
+ * @property string $icon 头像相对路径
+ * @property int $club 社团编号
+ * @property string $name 玩家名字
+ * @property array $skill 可用技能
+ * @property int $daemontime 上次调用daemon函数的时间
+ * @property int $deathtime 死亡时间
+ * @property array $killer 凶手的玩家id
+ * @property string $deathreason 死因
+ * @property array $buff buff列表
+ * @property array $action 动作列表
+ * @property int $tactic 应战策略编号
+ * @property int $pose 基础姿态编号
+ * @property float $hp 生命值
+ * @property float $mhp 最大生命值
+ * @property float $sp 体力值
+ * @property float $msp 最大体力值
+ * @property float $att 攻击力（计算后）
+ * @property float $def 防御力（计算后）
+ * @property float $baseatt 基础攻击力（不计装备）
+ * @property float $basedef 基础防御力（不计装备）
+ * @property int $area 地图编号
+ * @property int $lvl 玩家等级
+ * @property int $exp 玩家经验
+ * @property int $upexp 升级所需经验
+ * @property int $money 玩家所持金钱
+ * @property int $killnum 击杀数
+ * @property array $proficiency 熟练度
+ * @property string $teamID 队伍id（"-1"为无队伍）
+ * @property array $collecting 拾取中的物品（空数组为无拾取）
+ * @property int $capacity 背包容量
+ * @property array $package 背包
+ * @property array $equipment 装备
+ */
 class player
 {
-	
-	protected $data;
-	
+
 	/**
 	 * 玩家类初始化时调用的函数
 	 * 加入玩家控制系统（自动在执行结束时更新玩家数据并自动完成数据的预处理后处理）
@@ -14,12 +51,15 @@ class player
 	 * 在执行命令前，会先执行上次操作至今的每秒动作（回血 buff等）
 	 * 如果MOD中有其他需要执行的功能，请继承此函数
 	 *
-	 * @param array 玩家数据
+	 * @param array $data 玩家数据，与数据库中的结构相同
 	 */
+	public $data;
+
 	public function __construct(&$data)
 	{
+		global $g;
 		//加入玩家池
-		$GLOBALS['g']->push_player_pool($data);
+		$g->push_player_pool($data);
 		
 		$this->data = &$data;
 		
@@ -179,7 +219,8 @@ class player
 	public function move($destination)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $map, $shopmap;
@@ -233,7 +274,8 @@ class player
 	public function search()
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if($this->action && isset($this->action['battle'])){
@@ -333,12 +375,13 @@ class player
 	 * 购买物品
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * param array $cart 购物车
+	 * @param array $cart 购物车
 	 */
 	public function buy(array $cart)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $db;
@@ -417,9 +460,8 @@ class player
 	 * 使用物品
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * param $iid(int) 要使用的物品ID
-	 * param $param(array) 使用参数（绝大多数物品没有参数，有参数的物品如果无参数传入的话会向玩家弹出对话框要求输入参数）
-	 * return null
+	 * @param $iid(int) 要使用的物品ID
+	 * @param $param(array) 使用参数（绝大多数物品没有参数，有参数的物品如果无参数传入的话会向玩家弹出对话框要求输入参数）
 	 */
 	public function item_apply($iid, $param = array())
 	{
@@ -447,8 +489,8 @@ class player
 	 * 食品毒效为持续时间，武器毒效为持续攻击次数
 	 * 如果MOD中有其他设定，请继承或重载此函数
 	 *
-	 * param $kind(string) 物品类型
-	 * return int 毒效
+	 * @param string $kind 物品类型
+	 * @return int $item_e 毒效
 	 */
 	public function get_poison_power($kind, $item_e)
 	{
@@ -472,7 +514,7 @@ class player
 	 * 获取补给品治疗效果（倍数）
 	 * 如果MOD中有其他设定，请继承或重载此函数
 	 *
-	 * return array
+	 * @return array
 	 */
 	public function get_potion_effect()
 	{
@@ -482,8 +524,6 @@ class player
 	/**
 	 * 获取可下毒（淬毒）的物品
 	 * 如果MOD中有其他设定，请继承或重载此函数
-	 *
-	 * return null
 	 */
 	public function get_envenomable_items()
 	{
@@ -509,13 +549,13 @@ class player
 	 * 如果该部位已有物品会被自动换下
 	 * 如果MOD中有其他设定，请继承或重载此函数
 	 *
-	 * param $iid(int) 要装备的物品ID
-	 * return null
+	 * param int $iid 要装备的物品ID
 	 */
 	public function equip($iid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $equipment_position;
@@ -546,13 +586,12 @@ class player
 	 * 卸载装备
 	 * 卸载完毕后会自动更新玩家战斗属性
 	 * 如果MOD中有其他设定，请继承或重载此函数
-	 *
-	 * return null
 	 */
 	public function unload($position)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		switch($position){
@@ -605,13 +644,12 @@ class player
 	/**
 	 * 丢弃物品
 	 * 如果MOD中有其他设定，请继承此函数
-	 *
-	 * return null
 	 */
 	public function item_drop($iid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		$iid = intval($iid);
@@ -650,13 +688,12 @@ class player
 	 * 拾取物品
 	 * 正在拾取的物品存放在包裹0偏移的位置
 	 * 如果MOD中有其他设定，请继承此函数
-	 *
-	 * return null
 	 */
 	public function collect()
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if(false === isset($this->package[0])){
@@ -725,12 +762,13 @@ class player
 	 * 物品合成
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * return boolean 合成成功或失败
+	 * @return boolean 合成成功或失败
 	 */
 	public function item_compose($iids)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return false;
 		}
 		
 		$items = array();
@@ -787,6 +825,7 @@ class player
 			}
 		}
 		$this->error(implode('、', $items_bak).'不能合成');
+		return false;
 	}
 	
 	/**
@@ -804,29 +843,33 @@ class player
 	 * 物品合并
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * return null
+	 * @param int $iid 物品在背包中的id
 	 */
 	public function item_merge($iids)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		$items = array();
 		$check_repeat = array();
 		foreach($iids as $iid){
 			if(!isset($this->package[$iid])){
-				return $this->error('物品不存在');
+				$this->error('物品不存在');
+				return;
 			}
 			if(isset($check_repeat[$iid])){
-				return $this->error('请不要选择重复的物品');
+				$this->error('请不要选择重复的物品');
+				return;
 			}
 			$check_repeat[$iid] = true;
 			$items[] = $this->package[$iid];
 		}
 		
 		if(false === $this->items_mergable($items)){
-			return $this->error('这些物品不能合并');
+			$this->error('这些物品不能合并');
+			return;
 		}
 		
 		$n = $items[0]['n'];
@@ -874,7 +917,8 @@ class player
 	 * 判断物品是否可以合并
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * return boolean 是否可以合并
+	 * @param array $item 物品数据
+	 * @return boolean 是否可以合并
 	 */
 	protected function item_mergable($item)
 	{
@@ -904,7 +948,7 @@ class player
 	 * 会首先调用item_mergable()函数判定这种物品是否可以合并
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * return boolean 是否可以合并
+	 * @return boolean 是否可以合并
 	 */
 	protected function items_mergable($items)
 	{
@@ -939,7 +983,8 @@ class player
 	 * 获取行动消耗
 	 * 如果MOD中有其他设定，修改MOD中的$consumption数组或继承此函数
 	 *
-	 * return null
+	 * @param string 行动类型
+	 * @return array 行动消耗
 	 */
 	protected function get_consumption($action)
 	{
@@ -947,7 +992,7 @@ class player
 			return $GLOBALS['consumption'][$action];
 		}else{
 			$this->notice('有什么奇怪的动作在消耗体力');
-			return 0;
+			return array();
 		}
 	}
 	
@@ -956,8 +1001,7 @@ class player
 	 * 攻防并不会每次战斗时都计算一遍，只会在玩家发生变化时计算
 	 * 如果MOD中有其他设定（如套装），请继承此函数
 	 *
-	 * param $ajax(boolean) 是否向玩家发送ajax更新数据（主要用于继承）
-	 * return null
+	 * @param boolean $ajax 是否向玩家发送ajax更新数据（主要用于继承）
 	 */
 	public function calculate_battle_info($ajax = true)
 	{
@@ -983,8 +1027,6 @@ class player
 	/**
 	 * 激活已装备的套装
 	 * 激活表现为玩家增加一个"套装名_suit"的buff，有一个"quantity"参数代表装备件数，具体实现请在buff处处理
-	 *
-	 * return null
 	 */
 	public function active_suits()
 	{
@@ -1033,8 +1075,6 @@ class player
 	 * 获取恢复速度
 	 * 中毒也计算入恢复速度内
 	 * 如果MOD中有其他设定，请继承或重载此函数
-	 *
-	 * return null
 	 */
 	public function get_heal_rate()
 	{
@@ -1061,8 +1101,6 @@ class player
 	/**
 	 * 获取基础恢复速度（不计入毒物）
 	 * 如果MOD中有其他设定（如技能加成），请继承此函数
-	 *
-	 * return null
 	 */
 	protected function get_base_heal_rate()
 	{
@@ -1090,9 +1128,9 @@ class player
 	 * 如果恢复负数的生命，会调用damage()函数
 	 * 如果MOD中有其他设定，请继承此函数
 	 *
-	 * param $type(string) 恢复类型
-	 * param $effect(int) 恢复量
-	 * return int 恢复量 / boolean 常为false，恢复未成功
+	 * @param string $type 恢复类型
+	 * @param int $effect 恢复量
+	 * @return int|boolean 恢复量/恢复未成功
 	 */
 	public function heal($type, $effect)
 	{
@@ -1119,6 +1157,7 @@ class player
 	 *
 	 * @param float $damage 伤害值
 	 * @param array $source 伤害来源 //TODO: 来源文档说明
+	 * @return float 最终造成的伤害值
 	 */
 	public function damage($damage, array $source = array())
 	{
@@ -1331,7 +1370,8 @@ class player
 	public function team_create($name, $pass)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $db;
@@ -1340,7 +1380,8 @@ class player
 		
 		$team = $db->select('team', '*', array('name' => $name));
 		if(false !== $team){
-			return $this->error('队伍 '.$name.' 已存在');
+			$this->error('队伍 '.$name.' 已存在');
+			return;
 		}
 		unset($team);
 		
@@ -1349,13 +1390,13 @@ class player
 		
 		$db->insert('team', array('name' => $name, 'pass' => md5($pass)));
 		$this->team_join($name, $pass);
-		return;
 	}
 	
 	public function team_join($name, $pass)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $db;
@@ -1368,12 +1409,14 @@ class player
 		
 		$team = $db->select('team', '*', array('name' => $name));
 		if(!$team){
-			return $this->error('队伍 '.$name.' 不存在');
+			$this->error('队伍 '.$name.' 不存在');
+			return;
 		}
 		
 		$team = $db->select('team', '*', array('name' => $name, 'pass' => $pass));
 		if(!$team){
 			return $this->error('密码不正确');
+			return;
 		}
 		
 		$this->data['teamID'] = $team[0]['_id'];
@@ -1386,8 +1429,6 @@ class player
 				$GLOBALS['a']->action('notice', array('msg' => $this->name.'加入了你的队伍'), $player['uid']);
 			}
 		}
-		
-		return;
 	}
 	
 	public function team_leave()
@@ -1443,7 +1484,8 @@ class player
 	public function pose($tid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $poseinfo;
@@ -1451,7 +1493,8 @@ class player
 		$tid = intval($tid);
 		
 		if($tid < 0 || $tid >= sizeof($poseinfo)){
-			return $this->error('姿态不存在');
+			$this->error('姿态不存在');
+			return;
 		}
 		
 		$this->data['pose'] = $tid;
@@ -1459,14 +1502,13 @@ class player
 		
 		$hr = $this->get_heal_rate();
 		$this->ajax('heal_speed', array('hpps' => $hr['hp'], 'spps' => $hr['sp']));
-		
-		return;
 	}
 	
 	public function tactic($tid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		global $tacticinfo;
@@ -1482,15 +1524,17 @@ class player
 		
 		$hr = $this->get_heal_rate();
 		$this->ajax('heal_speed', array('hpps' => $hr['hp'], 'spps' => $hr['sp']));
-		
-		return;
 	}
 	
 	public function is_alive()
 	{
 		return ($this->hp > 0);
 	}
-	
+
+	/**
+	 * 获取躲避概率（降低其他人发现该玩家的概率）
+	 * @return int
+	 */
 	public function get_hide_rate()
 	{
 		global $modulus_hide;
@@ -1527,26 +1571,29 @@ class player
 	
 	public function attack()
 	{
+		global $g;
+
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了', false);
+			$this->error('你已经死了', false);
+			return;
 		}
 		
 		if(false === isset($this->action['battle'])){
-			return $this->error('目前尚未碰到敌人', false);
+			$this->error('目前尚未碰到敌人', false);
+			return;
 		}
 		
-		$enemy_data = $GLOBALS['g']->get_player_by_id($this->action['battle']['pid']);
+		$enemy_data = $g->get_player_by_id($this->action['battle']['pid']);
 		$enemy = new_player($enemy_data);
 		
 		if(false === $enemy->is_alive()){
-			$this->update_enemy_info($enemy, $end);
-			return $this->error('对方已阵亡', false);
+			$this->update_enemy_info($enemy, true);
+			$this->error('对方已阵亡', false);
+			return;
 		}
 		
 		$combat = new_combat($this, $enemy);
-		$damage = $combat->attack();
-		
-		$GLOBALS['g']->record_battle_damage($damage, $this, $enemy);
+		$combat->battle_start();
 		
 		$this->ajax('battle', array(
 			'enemy' => $this->get_enemy_info($enemy, true),
@@ -1556,18 +1603,18 @@ class player
 		if($enemy->is_alive()){
 			unset($this->data['action']['battle']);
 		}
-		
-		return true;
 	}
 	
 	public function escape()
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if(false === isset($this->action['battle'])){
-			return $this->error('目前尚未碰到敌人');
+			$this->error('目前尚未碰到敌人');
+			return;
 		}
 		
 		unset($this->data['action']['battle']);
@@ -1577,11 +1624,13 @@ class player
 	public function strip($iid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if(false === isset($this->action['battle'])){
-			return $this->error('目前尚未碰到敌人');
+			$this->error('目前尚未碰到敌人');
+			return;
 		}
 		
 		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
@@ -1589,7 +1638,8 @@ class player
 		
 		if($enemy->is_alive()){
 			$this->update_enemy_info($enemy, false);
-			return $this->error('对方仍存活');
+			$this->error('对方仍存活');
+			return;
 		}
 		
 		if($iid == ''){
@@ -1600,7 +1650,8 @@ class player
 			//捡钱
 			if($enemy->money <= 0){
 				$this->update_enemy_info($enemy, false);
-				return $this->error($enemy->name.'身上已经没有钱了');
+				$this->error($enemy->name.'身上已经没有钱了');
+				return;
 			}
 			
 			$this->feedback('从'.$enemy->name.'身上成功获得'.$enemy->money.$GLOBALS['currency']);
@@ -1615,7 +1666,8 @@ class player
 			if(false === isset($enemy->data['package'][$iid])){
 				$enemy->rearrange_package();
 				$this->update_enemy_info($enemy, false);
-				return $this->error($enemy->name.'身上已经没有这个物品');
+				$this->error($enemy->name.'身上已经没有这个物品');
+				return;
 			}
 			
 			if(isset($this->data['package'][$this->capacity])){
@@ -1639,7 +1691,8 @@ class player
 			//捡装备
 			if(false === isset($enemy->data['equipment'][$iid]['n']) || $enemy->data['equipment'][$iid]['n'] == ''){
 				$this->update_enemy_info($enemy, false);
-				return $this->error($enemy->name.'身上已经没有这个物品');
+				$this->error($enemy->name.'身上已经没有这个物品');
+				return;
 			}
 			
 			global $null_item;
@@ -1662,18 +1715,18 @@ class player
 		
 		unset($this->data['action']['battle']);
 		$this->update_enemy_info($enemy, true);
-		
-		return;
 	}
 	
 	public function give($iid)
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if(false === isset($this->action['battle'])){
-			return $this->error('目前尚未碰到队友');
+			$this->error('目前尚未碰到队友');
+			return;
 		}
 		
 		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
@@ -1681,7 +1734,8 @@ class player
 		
 		if($enemy->teamID === '-1' || $enemy->teamID !== $this->teamID){
 			$this->update_enemy_info($enemy, false);
-			return $this->error('对方对你怀有敌意');
+			$this->error('对方对你怀有敌意');
+			return;
 		}
 		
 		if($iid == ''){
@@ -1691,7 +1745,8 @@ class player
 		}else if($iid === 'money'){
 			//给钱
 			if($this->money <= 0){
-				return $this->error('你身上已经没有钱了');
+				$this->error('你身上已经没有钱了');
+				return;
 			}
 			
 			$this->feedback($enemy->name.'获得了'.$this->money.$GLOBALS['currency']);
@@ -1706,13 +1761,15 @@ class player
 			$iid = intval($iid);
 			if(false === isset($this->data['package'][$iid])){
 				$this->rearrange_package();
-				return $this->error('你身上没有这个物品');
+				$this->error('你身上没有这个物品');
+				return;
 			}
 			
 			$item_name = $this->data['package'][$iid]['n'];
 			if(isset($enemy->data['package'][$enemy->capacity])){
 				if(isset($enemy->data['package'][0])){
-					return $this->error('对方包裹已满');
+					$this->error('对方包裹已满');
+					return;
 				}else{
 					$enemy->data['package'][0] = $this->data['package'][$iid];
 					unset($this->data['package'][$iid]);
@@ -1733,14 +1790,16 @@ class player
 		}else{
 			//给装备
 			if(false === isset($this->data['equipment'][$iid]['n']) || $this->data['equipment'][$iid]['n'] == ''){
-				return $this->error('你身上已经没有这个物品');
+				$this->error('你身上已经没有这个物品');
+				return;
 			}
 			
 			global $null_item;
 			$item_name = $this->data['equipment'][$iid]['n'];
 			if(isset($enemy->data['package'][$enemy->capacity])){
 				if(isset($enemy->data['package'][0])){
-					return $this->error('对方包裹已满');
+					$this->error('对方包裹已满');
+					return;
 				}else{
 					$enemy->data['package'][0] = $this->data['equipment'][$iid];
 					$this->data['equipment'][$iid] = $null_item;
@@ -1760,18 +1819,18 @@ class player
 		
 		unset($this->data['action']['battle']);
 		$this->update_enemy_info($enemy, true);
-		
-		return;
 	}
 	
 	public function leave()
 	{
 		if(false === $this->is_alive()){
-			return $this->error('你已经死了');
+			$this->error('你已经死了');
+			return;
 		}
 		
 		if(false === isset($this->action['battle'])){
-			return $this->error('目前没有碰到任何人');
+			$this->error('目前没有碰到任何人');
+			return;
 		}
 		
 		$enemy = $GLOBALS['db']->select('players', '*', array('_id' => $this->action['battle']['pid']));
@@ -1779,7 +1838,8 @@ class player
 		
 		if(($enemy->teamID === '-1' || $enemy->teamID !== $this->teamID) && $enemy->is_alive()){
 			$this->update_enemy_info($enemy, false);
-			return $this->error('战斗中无法离开');
+			$this->error('战斗中无法离开');
+			return;
 		}
 		
 		unset($this->data['action']['battle']);
@@ -1815,7 +1875,7 @@ class player
 			);
 	}
 	
-	public function get_enemy_info($enemy, $end = false)
+	public function get_enemy_info(player $enemy, $end = false)
 	{
 		$info = $enemy->get_basic_info($end);
 		if(strval($enemy->teamID) !== '-1' && $enemy->teamID === $this->teamID){
@@ -1830,14 +1890,17 @@ class player
 		return $info;
 	}
 	
-	public function update_enemy_info($enemy, $end)
+	public function update_enemy_info(player $enemy, $end)
 	{
-		return $this->ajax('battle', array(
+		$this->ajax('battle', array(
 			'enemy' => $this->get_enemy_info($enemy, $end),
 			'end' => $end
 			));
 	}
-	
+
+	/**
+	 * @param player $enemy
+	 */
 	public function found_enemy($enemy)
 	{
 		if(false === $enemy->is_alive()){
@@ -1863,6 +1926,10 @@ class player
 			
 			case 'move':
 				$threshold = 70;
+				break;
+
+			default:
+				$threshold = 0;
 				break;
 		}
 		
@@ -1890,11 +1957,11 @@ class player
 	}
 	
 	protected function discover($mode = 'search'){
-		global $db;
+		global $db, $g;
 		
 		$threshold = $this->get_discover_threshold($mode);
 		
-		if($GLOBALS['g']->determine($threshold)){
+		if($g->determine($threshold)){
 			//遇敌
 			$players = $db->select('players', '*', array('area' => $this->area));
 			if(false === $players){
@@ -1906,7 +1973,7 @@ class player
 			foreach($players as &$player){
 				$enemy = new_player($player);
 				
-				if($GLOBALS['g']->determine($this->enemy_found_rate($enemy))){
+				if($g->determine($this->enemy_found_rate($enemy))){
 					//遇敌成功，进入战斗状态
 					$this->found_enemy($enemy);
 					//跳出循环，停止遇敌

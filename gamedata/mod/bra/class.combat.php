@@ -1,107 +1,115 @@
 <?php
 
+/**
+ * Class combat_bra
+ *
+ * @property player_bra $attacker 先手发动攻击的玩家，在战斗引擎中并不一定总是攻击者（例如反击时）
+ * @property player_bra $defender 后手发动攻击的玩家，在战斗引擎中并不一定总是防御者（例如反击时）
+ */
 class combat_bra extends combat
 {
-	public $counter = false;
-	
-	public function __construct(player $att, player $def)
+	public function __construct(player_bra $att, player_bra $def)
 	{
 		parent::__construct($att, $def);
 		
-		if(isset($this->defender->equipment['arb']['sk']['anti-'.$this->kind])){
-			$this->feedback($this->defender->name.'的'.$this->defender->equipment['n'].'展现出了惊人的抗性');
-		}
-		
 		return;
 	}
-	
-	public function attack_without_counter()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return float
+	 */
+	public function attack(player $attacker, player $defender)
 	{
-		$damage = parent::attack();
-		
-		$attacker = $this->attacker;
-		$defender = $this->defender;
-		
+		$damage = parent::attack($attacker, $defender);
+
 		$rage = round(($attacker->lvl - $defender->lvl) / 3);
 		if($rage < 1){
 			$rage = 1;
 		}
-		
+
 		$defender->rage += $rage;
 		$defender->ajax('rage', array('rage' => $defender->rage));
 		
 		return $damage;
 	}
 	
-	public function attack()
+	public function battle_start()
 	{
-		$total_damage = $this->attack_without_counter(false);
-		
-		$counter = $this->counter;
-		
-		$attacker = $this->attacker;
-		$defender = $this->defender;
-		
-		if(false === $counter){
-			$c_combat = new_combat($this->defender, $this->attacker);
-			$c_combat->counter = true;
-			if($GLOBALS['g']->determine(intval($this->get_counter_rate()))){
-				$this->feedback($this->defender->name.'发起反击');
-				$c_damage = $c_combat->attack();
-				
-				$GLOBALS['g']->record_battle_damage($c_damage, $this->defender, $this->attacker);
-				
-				//反击致死
-				if(false === $attacker->is_alive()){
-					if((false === isset($defender->data['action']['battle'])) && (intval($defender->type) === GAME_PLAYER_USER)){
-						$defender->found_enemy($attacker);
-					}
-				}
-			}else{
-				$this->feedback($this->defender->name.'无法反击，逃跑了');
-				$c_combat->gain_experience();
+		global $g;
+		if(isset($this->defender->equipment['arb']['sk']['anti-'.$this->weapon_kind($this->attacker)])){
+			$this->feedback($this->defender->name.'的'.$this->defender->equipment['n'].'展现出了惊人的抗性');
+		}
+
+		$this->attack_round($this->attacker, $this->defender);
+
+		if ($g->determine(intval($this->get_counter_rate($this->attacker, $this->defender)))) {
+			$this->feedback($this->defender->name . '发起反击');
+
+			if (isset($this->attacker->equipment['arb']['sk']['anti-' . $this->weapon_kind($this->defender)])) {
+				$this->feedback($this->attacker->name . '的' . $this->attacker->equipment['n'] . '展现出了惊人的抗性');
 			}
-			$this->feedback('战斗结束');
+
+			$this->attack_round($this->defender, $this->attacker);
+
+			//反击致死
+			if (false === $this->attacker->is_alive()) {
+				if ((false === isset($this->defender->data['action']['battle']))
+					&& (intval($this->defender->type) === GAME_PLAYER_USER)
+				) {
+					$this->defender->found_enemy($this->attacker);
+				}
+			}
+		} else {
+			$this->feedback($this->defender->name . '无法反击，逃跑了');
+			$this->gain_experience($this->defender, $this->attacker);
+		}
+		$this->feedback('战斗结束');
+	}
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @param $ma_modulus
+	 * @return float
+	 */
+	protected function calc_damage(player $attacker, player $defender, $ma_modulus)
+	{
+		$damage =
+			  $this->modulus_proficiency($attacker, $defender)
+			* $this->modulus_critical_hit($attacker, $defender)
+			* $this->modulus_attack($attacker, $defender)
+			/ $this->modulus_defend($attacker, $defender)
+			* $ma_modulus;
+
+		$weapon_kind = $this->weapon_kind($attacker);
+
+		if($this->weapon_kind($attacker) === 'd'){
+			$damage += $attacker->equipment['wep']['e'];
 		}
 		
-		return $total_damage;
-	}
-	
-	protected function damage($effect)
-	{
-		$damage = parent::damage($effect);
+		if(isset($defender->equipment['arb']['sk']['anti-'.$weapon_kind])){
+			$damage *= $defender->equipment['arb']['sk']['anti-'.$weapon_kind];
+		}
 		
 		return $damage;
 	}
-	
-	public function gain_experience()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return bool
+	 */
+	protected function get_counter_rate(player $attacker, player $defender)
 	{
-		return parent::gain_experience();
-	}
-	
-	protected function calc_damage($ma_modulus)
-	{
-		$damage = $this->modulus_proficiency() * $this->modulus_critical_hit() * $this->modulus_attack() / $this->modulus_defend() * $ma_modulus;
-		if($this->kind === 'd'){
-			$damage += $this->attacker->equipment['wep']['e'];
-		}
-		
-		if(isset($this->defender->equipment['arb']['sk']['anti-'.$this->kind])){
-			$damage *= $this->defender->equipment['arb']['sk']['anti-'.$this->kind];
-		}
-		
-		return $damage;
-	}
-	
-	protected function get_counter_rate()
-	{
-		if(false === $this->defender->is_alive()){
+		if(false === $defender->is_alive()){
 			return false;
 		}
 		
 		global $base_counter_rate;
 		
-		$counter_rate = $base_counter_rate[$this->kind];
+		$counter_rate = $base_counter_rate[$this->weapon_kind($attacker)];
 		
 		if(isset($modulus_counter_rate['weather'])){
 			global $gameinfo;
@@ -111,40 +119,45 @@ class combat_bra extends combat
 		}
 		
 		if(isset($modulus_counter_rate['area'])){
-			if(isset($modulus_counter_rate['area'][intval($this->attacker->data['area'])])){
-				$counter_rate *= $modulus_counter_rate['area'][intval($this->attacker->data['area'])];
+			if(isset($modulus_counter_rate['area'][intval($attacker->data['area'])])){
+				$counter_rate *= $modulus_counter_rate['area'][intval($attacker->data['area'])];
 			}
 		}
 		
 		if(isset($modulus_counter_rate['pose'])){
-			if(isset($modulus_counter_rate['pose'][intval($this->attacker->data['pose'])])){
-				$counter_rate *= $modulus_counter_rate['pose'][intval($this->attacker->data['pose'])];
+			if(isset($modulus_counter_rate['pose'][intval($attacker->data['pose'])])){
+				$counter_rate *= $modulus_counter_rate['pose'][intval($attacker->data['pose'])];
 			}
 		}
 		
 		if(isset($modulus_counter_rate['tactic'])){
-			if(isset($modulus_counter_rate['tactic'][intval($this->attacker->data['tactic'])])){
-				$counter_rate *= $modulus_counter_rate['tactic'][intval($this->attacker->data['tactic'])];
+			if(isset($modulus_counter_rate['tactic'][intval($attacker->data['tactic'])])){
+				$counter_rate *= $modulus_counter_rate['tactic'][intval($attacker->data['tactic'])];
 			}
 		}
 		
 		return $counter_rate;
 	}
-	
-	protected function get_hitrate()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return float|int
+	 */
+	protected function get_hitrate(player $attacker, player $defender)
 	{
-		if($this->kind === 'c'){
+		if($this->weapon_kind($attacker) === 'c'){
 			return 100;
 		}else{
 			global $gameinfo;
 			
-			$hitrate = parent::get_hitrate();
+			$hitrate = parent::get_hitrate($attacker, $defender);
 			
 			if(intval($gameinfo['weather']) === 12){
 				$hitrate += 20;
 			}
 			
-			foreach($this->attacker->buff as $buff){
+			foreach($attacker->buff as $buff){
 				if($buff['type'] === 'injured_head'){
 					$hitrate -= 20;
 				}
@@ -153,102 +166,129 @@ class combat_bra extends combat
 			return $hitrate;
 		}
 	}
-	
-	protected function injure($position)
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @param $position
+	 */
+	protected function injure(player $attacker, player $defender, $position)
 	{
 		switch($position){
 			case 'b':
-				$this->defender->buff('injured_body');
-				$this->feedback($this->defender->name.'的胸部受伤了');
+				$defender->buff('injured_body');
+				$this->feedback($defender->name.'的胸部受伤了');
 				break;
 			
 			case 'h':
-				$this->defender->buff('injured_head');
-				$this->feedback($this->defender->name.'的头部受伤了');
+				$defender->buff('injured_head');
+				$this->feedback($defender->name.'的头部受伤了');
 				break;
 			
 			case 'a':
-				$this->defender->buff('injured_arm');
-				$this->feedback($this->defender->name.'的腕部受伤了');
+				$defender->buff('injured_arm');
+				$this->feedback($defender->name.'的腕部受伤了');
 				break;
 			
 			case 'f':
-				$this->defender->buff('injured_foot');
-				$this->feedback($this->defender->name.'的足部受伤了');
+				$defender->buff('injured_foot');
+				$this->feedback($defender->name.'的足部受伤了');
 				break;
 		}
 	}
-	
-	protected function modulus_attack()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return float
+	 */
+	protected function modulus_attack(player $attacker, player $defender)
 	{
 		global $modulus_attack;
+
+		$att = parent::modulus_attack($attacker, $defender);
+
+		//判断本次攻击是不是反击
+		$counter = $attacker->_id == $this->attacker->_id;
 		
-		$att = parent::modulus_attack();
-		
-		if($this->counter){
+		if($counter){
 			if(isset($modulus_attack['pose'])){
-				if(isset($modulus_attack['pose'][intval($this->attacker->data['pose'])])){
-					$att /= $modulus_attack['pose'][intval($this->attacker->data['pose'])];
+				if(isset($modulus_attack['pose'][intval($attacker->data['pose'])])){
+					$att /= $modulus_attack['pose'][intval($attacker->data['pose'])];
 				}
 			}
 		}else{
 			if(isset($modulus_attack['tactic'])){
-				if(isset($modulus_attack['tactic'][intval($this->attacker->data['tactic'])])){
-					$att /= $modulus_attack['tactic'][intval($this->attacker->data['tactic'])];
+				if(isset($modulus_attack['tactic'][intval($attacker->data['tactic'])])){
+					$att /= $modulus_attack['tactic'][intval($attacker->data['tactic'])];
 				}
 			}
 		}
 		
-		foreach($this->attacker->buff as $buff){
+		foreach($attacker->buff as $buff){
 			if($buff['type'] === 'injured_arm'){
+				//腕部受伤
 				$att *= 0.8;
 			}
 		}
 		
 		return $att;
 	}
-	
-	protected function modulus_defend()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return float
+	 */
+	protected function modulus_defend(player $attacker, player $defender)
 	{
 		global $modulus_defend;
 		
-		$def = parent::modulus_defend();
+		$def = parent::modulus_defend($attacker, $defender);
+
+		//判断本次攻击是不是反击
+		$counter = $attacker->_id == $this->attacker->_id;
 		
-		if($this->counter){
+		if($counter){
 			if(isset($modulus_defend['pose'])){
-				if(isset($modulus_defend['pose'][intval($this->defender->data['pose'])])){
-					$def /= $modulus_defend['pose'][intval($this->defender->data['pose'])];
+				if(isset($modulus_defend['pose'][intval($defender->data['pose'])])){
+					$def /= $modulus_defend['pose'][intval($defender->data['pose'])];
 				}
 			}
 		}else{
 			if(isset($modulus_defend['tactic'])){
-				if(isset($modulus_defend['tactic'][intval($this->defender->data['tactic'])])){
-					$def /= $modulus_defend['tactic'][intval($this->defender->data['tactic'])];
+				if(isset($modulus_defend['tactic'][intval($defender->data['tactic'])])){
+					$def /= $modulus_defend['tactic'][intval($defender->data['tactic'])];
 				}
 			}
 		}
 		
-		foreach($this->defender->buff as $buff){
+		foreach($defender->buff as $buff){
 			if($buff['type'] === 'injured_body'){
+				//胸部受伤
 				$def *= 0.8;
 			}
 		}
 		
 		return $def;
 	}
-	
-	protected function modulus_critical_hit()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return float|int
+	 */
+	protected function modulus_critical_hit(player $attacker, player $defender)
 	{
 		$modulus = 1;
-		
-		$attacker = $this->attacker;
+
 		if($attacker->club == 9){
-			if($this->is_critical_hit()){
+			if($this->is_critical_hit($attacker, $defender)){
 				$this->feedback($attacker->name.'使出了必杀技！');
 				$modulus *= 1.8;
 			}
 		}else{
-			if($this->is_critical_hit()){
+			if($this->is_critical_hit($attacker, $defender)){
 				$this->feedback($attacker->name.'会心一击！');
 				$modulus *= 1.4;
 			}
@@ -256,19 +296,28 @@ class combat_bra extends combat
 		
 		return $modulus;
 	}
-	
-	protected function is_critical_hit()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 * @return bool
+	 */
+	protected function is_critical_hit(player $attacker, player $defender)
 	{
-		$attacker = $this->attacker;
+		global $g;
+
 		if($attacker->club == 9){
-			if($attacker->rage >= 50 && $GLOBALS['g']->determine(30)){
+			if($attacker->rage >= 50 && $g->determine(30)){
 				//TODO: 控制功能 使用技能？
 				$attacker->data['rage'] -= 50;
 				$attacker->ajax('rage', array('rage' => $attacker->rage));
 				return true;
 			}
 		}else{
-			if(intval($attacker->lvl) >= 3 && intval($attacker->proficiency[$this->kind]) >= 20 && $attacker->rage >= 30 && $GLOBALS['g']->determine(30)){
+			if(intval($attacker->lvl) >= 3
+				&& intval($attacker->proficiency[$this->weapon_kind($attacker)]) >= 20
+				&& $attacker->rage >= 30
+				&& $g->determine(30)){
 				$attacker->data['rage'] -= 30;
 				$attacker->ajax('rage', array('rage' => $attacker->rage));
 				return true;
@@ -276,22 +325,26 @@ class combat_bra extends combat
 		}
 		return false;
 	}
-	
-	protected function make_noise()
+
+	/**
+	 * @param player_bra $attacker
+	 * @param player_bra $defender
+	 */
+	protected function make_noise(player $attacker, player $defender)
 	{
-		if(isset($this->attacker->data['equipment']['wep']['sk']['silent'])){
+		if(isset($attacker->data['equipment']['wep']['sk']['silent'])){
 			return;
 		}
 		
-		switch($this->kind){
+		switch($this->weapon_kind($attacker)){
 			case 'g':
 				global $a, $map;
-				$a->action('notice', array('msg' => $map[$this->attacker->area].'传来了枪声'), array('$exception' => array($this->attacker->uid, $this->defender->uid)));
+				$a->action('notice', array('msg' => $map[$attacker->area].'传来了枪声'), array('$exception' => array($attacker->uid, $defender->uid)));
 				break;
 			
 			case 'd':
 				global $a, $map;
-				$a->action('notice', array('msg' => $map[$this->attacker->area].'传来了爆炸声'), array('$exception' => array($this->attacker->uid, $this->defender->uid)));
+				$a->action('notice', array('msg' => $map[$defender->area].'传来了爆炸声'), array('$exception' => array($attacker->uid, $defender->uid)));
 				break;
 		}
 		return;

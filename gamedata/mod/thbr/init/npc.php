@@ -1642,10 +1642,6 @@ $npcinfo = array
 		'itme2' => 25,
 		'itms2' => 10,
 		'itmsk2' => array('suit' => 'komeiji'),
-		'itm3' => '塞钱',
-		'itmk3' => 'M',
-		'itme3' => 1,
-		'itms3' => 1,
 	),
 	31 => array
 	(
@@ -1685,7 +1681,7 @@ $npcinfo = array
 		'artk' => 'A',
 		'arte' => 1,
 		'arts' => 1,
-		'artsk' => array('suit' => 'komeiji', 'emptive-buff' => 1.25),
+		'artsk' => array('suit' => 'komeiji', 'be-countered-buff' => 1.25),
 		'name' => '古明地 恋',
 		'icon' => 38,
 		'wep' => '恋·地底蔷薇',

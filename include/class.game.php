@@ -11,15 +11,16 @@ class game
 	public $gameinfo;
 	protected $gameinfo_bak;
 	protected $players; //玩家控制系统中的玩家池，脚本结束是会自动更新数据库
-	protected $db; //引用db类在摧毁类时有依赖
+	/* @var IChloroDB $db 数据库操作类的引用，摧毁类时有依赖 */
+	protected $db;
 	
 	/**
-	 * 游戏类的构造函数
+	 * 游戏类的初始化函数
 	 * 会载入gameinfo
 	 * 会载入gamesettings
 	 * 会在此做出游戏开始与结束的判定（只有全灭结局会在此做出结束判定）
 	 */
-	public function __construct()
+	public function initialize()
 	{
 		
 		$this->gameinfo = $this->gameinfo_bak = $this->get_gameinfo(); //初始化并备份gameinfo，脚本结束时如果检测到没有更改就不会更新gameinfo
@@ -101,15 +102,20 @@ class game
 		//连斗
 		if($gameinfo['round'] >= $combo_round){
 			$gameinfo['gamestate'] |= GAME_STATE_COMBO;
-			$survivor = $GLOBALS['db']->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
+			$survivor = $db->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
 			if($survivor !== false){
+				$player = null;
 				foreach($survivor as $player_data){
 					$player = new_player($player_data);
 					if(intval($player->hp) > 0){
 						break;
 					}
 				}
-				$this->game_end('survive', $player, 'individual');
+				if($player == null){
+					$this->game_end('timeup');
+				}else {
+					$this->game_end('survive', $player, 'individual');
+				}
 			}else if($survivor == false){
 				$this->game_end('timeup');
 			}
@@ -191,14 +197,14 @@ class game
 	 * 进行各种初始化动作，为新一局的游戏创建全新的数据库，清空缓存与推送池
 	 * 如果MOD中有对游戏结果的进一步处理（比如玩家积分），请务必继承此函数
 	 *
-	 * @param string 游戏结局
-	 * @param player|array $winner 胜利者player对象（可以是数组也可以是单个对象）
+	 * @param string $type 游戏结局
+	 * @param player|array $winners 胜利者player对象（可以是数组也可以是单个对象）
 	 * @param string $mode 胜利方式（团队或个人）
 	 * @return array 胜利玩家的id
 	 */
 	public function game_end($type = 'timeup', $winners = array(), $mode = 'team') //TODO: 发送推送消息（剧情）
 	{
-		global $gameinfo, $db, $p;
+		global $gameinfo, $db, $a;
 		
 		if(is_array($winners) === false){
 			$winners = array($winners);
@@ -264,7 +270,7 @@ class game
 
 		$this->insert_news('end');
 		
-		$GLOBALS['a']->action('end', array(), true);
+		$a->action('end', array(), true);
 		
 		$news = $db->select('news', array('time', 'content'));
 
@@ -409,7 +415,7 @@ class game
 	/**
 	 * 添加N禁时新增的地图物品
 	 *
-	 * @param int 禁区次数（开局是0）
+	 * @param int $round 禁区次数（开局是0）
 	 * @return boolean
 	 */
 	protected function update_mapitem($round)
@@ -477,6 +483,7 @@ class game
 	 * 由NPC的原始数据创建一个完整的NPC数组
 	 * 如果MOD中添加了新的玩家数据并需要自定义NPC的该数据，请在npc.php中添加一个键并在此添加进数组
 	 *
+	 * @param array $player NPC数据
 	 * @return array
 	 */
 	protected function new_npc(&$player)
@@ -522,12 +529,13 @@ class game
 	/**
 	 * 创建第N禁的NPC
 	 *
-	 * @param int 禁区次数（开局是0）
+	 * @param int $round 禁区次数（开局是0）
 	 * @return boolean
 	 */
 	protected function update_npc($round){
 		global $db, $health_accuracy;
-		
+
+		/** @var array $npcinfo */
 		include (get_mod_path(MOD_NAME).'/init/npc.php');
 		
 		$players = array();
@@ -564,7 +572,7 @@ class game
 	/**
 	 * 添加第N禁时的商店物品
 	 *
-	 * @param int 禁区次数（开局是0）
+	 * @param int $round （开局是0）
 	 * @return boolean
 	 */
 	protected function update_shopitem($round){
@@ -643,7 +651,7 @@ class game
 	 * 确定NPC的性别
 	 * 如果MOD中有有其他性别设定，请务必重载此函数
 	 *
-	 * @param array NPC的数据数组
+	 * @param array $player NPC的数据数组
 	 * @return string
 	 */
 	protected function npc_gender(&$player){
@@ -690,6 +698,7 @@ class game
 	 * 这是对旧引擎数据格式的一个兼容函数
 	 * 如果MOD中对NPC背包的数据格式有改变，请务必重载此函数
 	 *
+	 * @param $player array NPC数据数组
 	 * @return array
 	 */
 	protected function npc_package(&$player)
@@ -1004,6 +1013,7 @@ class game
 	 * 首先会判定玩家名是否合法
 	 * 如果MOD中有其他对玩家名字的设定（如战队、自动称号等），请继承此函数
 	 *
+	 * @param array $user 玩家数据（users表）
 	 * @return string
 	 */
 	protected function np_generate_name(&$user)
@@ -1024,6 +1034,7 @@ class game
 	 * 格式化玩家性别
 	 * 如果MOD中有其他性别设定，请重载此函数
 	 *
+	 * @param array $user 玩家数据（users表）
 	 * @return string
 	 */
 	protected function np_generate_gender(&$user)
@@ -1052,6 +1063,8 @@ class game
 	 * 生成玩家头像地址
 	 * 如果MOD中更改了头像地址的存储方式，请重载或继承此函数
 	 *
+	 * @param array $user 玩家数据（users表）
+	 * @param string $gender 性别
 	 * @return string
 	 */
 	protected function np_generate_icon(&$user, $gender)
@@ -1084,6 +1097,7 @@ class game
 	 * 生成玩家社团
 	 * 如果MOD中有其他社团设定，请重载此函数
 	 *
+	 * @param array $user 玩家数据（users表）
 	 * @return int
 	 */
 	protected function np_generate_club(&$user)
@@ -1095,6 +1109,8 @@ class game
 	 * 生成玩家技能
 	 * 每个社团都可以有对应的附属技能，在资源文件中修改
 	 *
+	 * @param array $user 玩家数据（users表）
+	 * @param int $club 社团编号
 	 * @return array
 	 */
 	protected function np_generate_skill(&$user, $club)
@@ -1120,6 +1136,7 @@ class game
 	 * 生成玩家属性点
 	 * 如果MOD中有新的生成方式，请重载此函数
 	 *
+	 * @param array $skill 玩家技能
 	 * @return array
 	 */
 	protected function np_generate_health($skill)
@@ -1137,11 +1154,14 @@ class game
 	 * 会将所有熟练全部设置为proficiency键的值，并根据部分被动技能增加初始值
 	 * 如果MOD中有新的生成方式，请重载此函数
 	 *
+	 * @param array $skill 玩家技能
 	 * @return array
 	 */
-	protected function np_generate_combat_index($skills)
+	protected function np_generate_combat_index($skill)
 	{
 		global $new_player;
+		$index = array();
+
 		$index['baseatt'] = $new_player['baseatt'];
 		$index['basedef'] = $new_player['basedef'];
 		$index['p'] = $new_player['proficiency'];
@@ -1157,6 +1177,7 @@ class game
 	 * 生成玩家出生地点
 	 * 如果MOD中有新的设定，请重载此函数
 	 *
+	 * @param array $skill 玩家技能
 	 * @return int
 	 */
 	protected function np_generate_area($skill)
@@ -1170,6 +1191,8 @@ class game
 	 * 生成玩家包裹与装备
 	 * 如果MOD中有新的设定，请重载此函数
 	 *
+	 * @param int $club 社团编号
+	 * @param string $gender 性别
 	 * @return array array('equipment' => array 装备, 'package' => array 包裹)
 	 */
 	protected function np_generate_item($club, $gender)
@@ -1210,7 +1233,7 @@ class game
 	/**
 	 * 自动填充新NPC身上没有的装备
 	 * 
-	 * @param array 自动填充前的装备数组
+	 * @param array $equipment 自动填充前的装备数组
 	 * @return array 自动填充后的装备数组
 	 */
 	protected function parse_equipment($equipment)
@@ -1252,9 +1275,9 @@ class game
 	 * 记录战斗伤害
 	 * 引擎中是个空函数，如果MOD中需要使用，请重载此函数
 	 *
-	 * @param float 伤害值
-	 * @param player 攻击者
-	 * @param player 防御者
+	 * @param float $damage 伤害值
+	 * @param player $attacker 攻击者
+	 * @param player $defender 防御者
 	 */
 	public function record_battle_damage($damage, player $attacker, player $defender)
 	{
@@ -1265,6 +1288,7 @@ class game
 	 * 进入游戏时提交用户偏好，并更新游戏记录
 	 * 如果MOD中保存了其他用户偏好，请重载此函数
 	 *
+	 * @param array $userparam 用户设定（来自进入游戏前的页面）
 	 * @return boolean 数据库操作结果
 	 */
 	protected function update_user_game_settings($userparam)
@@ -1334,6 +1358,7 @@ class game
 	 */
 	public function insert_news($type, $args = array())
 	{
+		global $a;
 		
 		$content = '';
 		switch($type){
@@ -1373,7 +1398,7 @@ class game
 			
 			case 'join':
 				$content = '<span class="join"><span class="username">'.$args['username'].'</span>加入了游戏</span>';
-				$GLOBALS['a']->action('notice', array('msg' => $args['username'].'加入了游戏', 'time' => time()));
+				$a->action('notice', array('msg' => $args['username'].'加入了游戏', 'time' => time()));
 				break;
 			
 			case 'kill':
@@ -1404,7 +1429,7 @@ class game
 						break;
 					
 					case 'poison':
-						if(isset($args['killer']) && $arg['killer']){
+						if(isset($args['killer']) && $args['killer']){
 							$content = '<span class="username">'.$args['killer'].'</span>下的毒致使<span class="username">'.$args['deceased'].'</span>毒发身亡';
 						}else{
 							$content = '<span class="username">'.$args['deceased'].'</span>毒发身亡';
@@ -1412,7 +1437,7 @@ class game
 						break;
 					
 					case 'trap':
-						if(isset($args['killer']) && $arg['killer']){
+						if(isset($args['killer']) && $args['killer']){
 							$content = '<span class="username">'.$args['killer'].'</span>的<span class="weapon">'.$args['weapon'].'</span>被<span class="username">'.$args['deceased'].'</span>触发，导致其身亡';
 						}else{
 							$content = '<span class="username">'.$args['deceased'].'</span>成为了陷阱下的冤魂';
@@ -1420,7 +1445,7 @@ class game
 						break;
 					
 					default:
-						if(isset($args['killer']) && $arg['killer']){
+						if(isset($args['killer']) && $args['killer']){
 							$content = '<span class="username">'.$args['killer'].'</span>导致<span class="username">'.$args['deceased'].'</span>神秘死亡';
 						}else{
 							$content = '<span class="username">'.$args['deceased'].'</span>神秘死亡';
@@ -1485,6 +1510,8 @@ class game
 	 * 判定（xx几率发生xx）
 	 * 如果MOD中对判定有其他要求，请继承或重载此函数
 	 *
+	 * @param float $threshold 发生概率
+	 * @param float $max 全概率
 	 * @return boolean 判定结果
 	 */
 	public function determine($threshold, $max = 100)
@@ -1496,11 +1523,36 @@ class game
 	 * 生成随机数
 	 * 如果MOD中对随机数有其他要求，请继承或重载此函数
 	 *
+	 * @param float $min 最小值（含）
+	 * @param float $max 最大值（含）
 	 * @return int 生成的随机数
 	 */
 	public function random($min = 0, $max = 99)
 	{
 		return mt_rand($min, $max);
+	}
+
+	/**
+	 * 生成正态分布的随机数
+	 * @param float $average 期望值
+	 * @param float $stdev 标准差
+	 * @param boolean $nonnegative 禁止生成负数结果
+	 * @return float 生成的随机数
+	 */
+	public function nb_random($average, $stdev, $nonnegative = false)
+	{
+		$result = $average;
+
+		for($i = 0; $i < 12; $i++){
+			$delta = (mt_rand() / mt_getrandmax() - 0.5) * $stdev;
+			$result += $delta;
+		}
+
+		if($nonnegative && $result < 0){
+			$result = 0;
+		}
+
+		return $result;
 	}
 	
 	/**
@@ -1508,7 +1560,7 @@ class game
 	 * 将生命与体力的数值从存储值调整为显示值；将拾取中的物品移至包裹的0偏移位置
 	 * 非常好用的函数，请在MOD中善加使用
 	 *
-	 * @param array 处理前的玩家数据数组（引用）
+	 * @param array $data 处理前的玩家数据数组（引用）
 	 */
 	public function player_data_preprocess(&$data)
 	{
@@ -1535,7 +1587,7 @@ class game
 	 * 将生命与体力的数值从显示值调整为存储值；将拾取中的物品从包裹的0偏移位置移至单独的键；清空空的包裹物品
 	 * 非常好用的函数，请在MOD中善加使用
 	 *
-	 * @param array 处理前的玩家数据数组（引用）
+	 * @param array $player 处理前的玩家数据数组（引用）
 	 */
 	public function player_data_postprocess(&$player)
 	{
@@ -1591,7 +1643,8 @@ class game
 		}else{
 			$result = $db->select('gameinfo', '*');
 			if(!is_array($result)){
-				return throw_error('Failed to access to gameinfo.');
+				throw_error('Failed to access to gameinfo.');
+				return null;
 			}
 			$gameinfo = $result[0];
 		}
@@ -1604,7 +1657,7 @@ class game
 	 * 如果该ID已存在于玩家池中则不会访问数据库
 	 * 如果MOD中有其他实现，请继承或重载此函数
 	 * 
-	 * @param string 玩家ID
+	 * @param string $pid 玩家ID
 	 * @return array 玩家数据
 	 */
 	public function get_player_by_id($pid)

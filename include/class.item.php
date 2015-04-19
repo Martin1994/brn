@@ -202,13 +202,13 @@ class item
 						if(isset($this->data['sk']['poison-applier'])){
 							$damage_source['pid'] = $this->data['sk']['poison-applier'];
 						}
-						$damage = $this->player->damage($this->data['e'], $damage_source); //TODO: 下毒者信息
+						$damage = $this->player->damage($this->data['e'], $damage_source);
 						$this->player->buff('poison', $this->data['sk']['poison']);
 						$this->player->feedback('糟糕，'.$this->data['n'].'有毒，你中毒了，并失去了'.$damage.'点'.$healthinfo['hp']);
 					}else{
 						$hp_add = $this->player->heal('hp', $this->data['e'] * $modulus['hp']);
 						$sp_add = $this->player->heal('sp', $this->data['e'] * $modulus['sp']);
-						$this->player->feedback($this->data['n'].'使用成功，'.$healthinfo['hp'].'增加了'.strval($hp_add).'，').$healthinfo['sp'].'增加了'.strval($sp_add);
+						$this->player->feedback($this->data['n'].'使用成功，'.$healthinfo['hp'].'增加了'.strval($hp_add).'，'.$healthinfo['sp'].'增加了'.strval($sp_add));
 					}
 				}
 				
@@ -222,7 +222,7 @@ class item
 						if(isset($this->data['sk']['poison-applier'])){
 							$damage_source['pid'] = $this->data['sk']['poison-applier'];
 						}
-						$damage = $this->player->damage($this->data['e'], $damage_source); //TODO: 下毒者信息
+						$damage = $this->player->damage($this->data['e'], $damage_source);
 						$this->player->buff('poison', $this->data['sk']['poison']);
 						$this->player->feedback('糟糕，'.$this->data['n'].'有毒，你中毒了，并失去了'.$damage.'点'.$healthinfo['hp']);
 					}else{
@@ -244,6 +244,7 @@ class item
 	
 	public function consume($num = 0, $rearrange = true)
 	{
+		global $g;
 		$id = $this->id;
 		$item = &$this->data;
 		
@@ -253,11 +254,11 @@ class item
 			//装备损坏判定
 			global $attrit_rate;
 			if($num == 0 && isset($attrit_rate[$item['k']])){
-				if($GLOBALS['g']->determine($attrit_rate[$item['k']])){
+				if($g->determine($attrit_rate[$item['k']])){
 					$item['s'] --;
 				}
 			}else{
-				if($GLOBALS['g']->determine($attrit_rate['default'])){
+				if($g->determine($attrit_rate['default'])){
 					$item['s'] --;
 				}
 			}
@@ -305,11 +306,11 @@ class item
 			//装备损坏判定
 			global $mar_rate;
 			if(isset($mar_rate[$item['k']])){
-				if($GLOBALS['g']->determine($mar_rate[$item['k']])){
+				if($g->determine($mar_rate[$item['k']])){
 					$item['e'] --;
 				}
 			}else{
-				if($GLOBALS['g']->determine($mar_rate['default'])){
+				if($g->determine($mar_rate['default'])){
 					$item['e'] --;
 				}
 			}

@@ -1,25 +1,32 @@
 <?php
 
+/**
+ * Class player_bra
+ *
+ * @property float rage 怒气值
+ */
 class player_bra extends player
 {
 	
 	public function move($destination)
 	{
-		if(intval($this->area) !== $destination && intval($GLOBALS['g']->gameinfo['weather']) === 11){
+		global $g, $map, $weatherinfo;
+
+		if(intval($this->area) !== $destination && intval($g->gameinfo['weather']) === 11){
 			//龙卷风
-			$areainfo = $GLOBALS['g']->get_areainfo();
+			$areainfo = $g->get_areainfo();
 			do{
-				$destination = $GLOBALS['g']->random(0, sizeof($GLOBALS['weatherinfo']) - 1);
+				$destination = $g->random(0, sizeof($weatherinfo) - 1);
 			}while(in_array($destination, $areainfo['forbidden']));
 		}
 		$area = $this->area;
 		
 		parent::move($destination);
 		
-		if(intval($GLOBALS['g']->gameinfo['weather']) === 11){
-			$this->notice('一阵龙卷风把你刮到了'.$GLOBALS['map'][$destination]);
-		}else if(intval($area) !== intval($destination) && intval($GLOBALS['g']->gameinfo['weather']) === 13){
-			$damage = $GLOBALS['g']->random(1, 4);
+		if(intval($g->gameinfo['weather']) === 11){
+			$this->notice('一阵龙卷风把你刮到了'.$map[$destination]);
+		}else if(intval($area) !== intval($destination) && intval($g->gameinfo['weather']) === 13){
+			$damage = $g->random(1, 4);
 			$this->damage($damage);
 			$this->notice('冰雹砸中了你，造成了'.$damage.'点伤害');
 		}
@@ -82,7 +89,7 @@ class player_bra extends player
 			
 			default:
 				$this->error('请指定正确的包扎部位');
-				break;
+				return;
 		}
 		
 		foreach($this->buff as $bid => $buff){
@@ -147,9 +154,11 @@ class player_bra extends player
 	
 	protected function levelup($extra_text = '')
 	{
-		$extra_hp = $GLOBALS['g']->random(8, 10);
-		$extra_att = $GLOBALS['g']->random(2, 4);
-		$extra_def = $GLOBALS['g']->random(3, 5);
+		global $g;
+
+		$extra_hp = $g->random(8, 10);
+		$extra_att = $g->random(2, 4);
+		$extra_def = $g->random(3, 5);
 		
 		$this->data['baseatt'] += $extra_att;
 		$this->data['basedef'] += $extra_def;
@@ -167,27 +176,35 @@ class player_bra extends player
 		
 		parent::levelup($extra_text);
 	}
-	
+
+	/**
+	 * @param player_bra $enemy
+	 */
 	public function found_enemy($enemy)
 	{
+		global $g;
+
 		if(false === $enemy->is_alive()){
 			parent::found_enemy($enemy);
 		}else if(strval($enemy->teamID) !== '-1' && $enemy->teamID === $this->teamID){
 			parent::found_enemy($enemy);
-		}else if($GLOBALS['g']->determine($this->get_emptive_rate($enemy))){
+		}else if($g->determine($this->get_emptive_rate($enemy))){
 			parent::found_enemy($enemy);
 		}else{
 			$this->feedback($enemy->name.'突然向你袭来');
 			$combat = new_combat($enemy, $this);
-			$damage = $combat->attack();
-			
-			$GLOBALS['g']->record_battle_damage($damage, $enemy, $this);
+			$combat->battle_start();
 			
 			$this->update_enemy_info($enemy, $enemy->is_alive());
 		}
 	}
-	
-	protected function get_emptive_rate($enemy)
+
+	/**
+	 * 获得先发攻击的概率
+	 * @param player $enemy
+	 * @return int
+	 */
+	protected function get_emptive_rate(player $enemy)
 	{
 		global $modulus_emptive, $base_emptive;
 		
@@ -311,14 +328,23 @@ class player_bra extends player
 	
 	protected function found_item($item)
 	{
-		$damage = parent::found_item($item);
+		global $g;
 		
 		if($item['k'] === 'TO'){
+			//中陷阱
+			$pid = isset($item['sk']['owner']) ? $item['sk']['owner'] : false;
+			$damage = $this->calculate_trap_damage($item);
+			$damage = $this->damage($damage, array('pid' => $pid, 'weapon' => $item['n'], 'type' => 'trap'));
+			global $healthinfo;
+			$this->feedback('糟糕，你中了'.$item['n'].'，失去了'.$damage.'点'.$healthinfo['hp']);
+
 			//添加中陷阱公告
 			if(isset($item['sk']['owner'])){
-				$victimizer = $GLOBALS['g']->get_player_by_id($item['sk']['owner']);
-				$GLOBALS['g']->insert_news('trap', array('victim' => $this->name, 'victimizer' => $victimizer->name, 'item' => $item['n'], 'damage' => $damage));
+				$victimizer = new_player($g->get_player_by_id($item['sk']['owner']));
+				$g->insert_news('trap', array('victim' => $this->name, 'victimizer' => $victimizer->name, 'item' => $item['n'], 'damage' => $damage));
 			}
+		}else{
+			parent::found_item($item);
 		}
 	}
 	

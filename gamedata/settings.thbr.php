@@ -4,7 +4,7 @@
 $mod_name = 'Touhou Battle Royale';
 
 //MOD版本
-$mod_version = '0.35 beta';
+$mod_version = '0.4 beta';
 
 //MOD作者
 $mod_author = array(
