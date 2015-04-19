@@ -15,14 +15,13 @@ class chloroajax
 	
 	/**
 	 * 发送ajax命令
-	 * param: $action String 命令名
-	 *        $param Array 命令参数（形如: Array('p1' => 'v1', 'p2' => 2)）
-	 *        $comet Array/Boolean 发送对象：
+	 * @param string $action 命令名
+	 * @param array|boolean $param 命令参数（形如: Array('p1' => 'v1', 'p2' => 2)）
+	 * @param array|boolean $comet 发送对象：
 	 *                                 数组内容为userID，$exception键存在则代表全员发送且不发送$exception内的userID；
 	 *                                 true代表全员发送；
 	 *                                 默认值false代表发送触发本次脚本的玩家
-	 *        $unshift Boolean 是否将本条消息插入到消息队列的第一条
-	 * return: null
+	 * @param boolean $unshift 是否将本条消息插入到消息队列的第一条
 	 */
 	public function action($action, $param = false, $comet = false, $unshift = false)
 	{

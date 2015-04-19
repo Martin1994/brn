@@ -6,7 +6,7 @@ interface IChloroDB
 	
 	public function set_table_prefix($table_prefix);
 	
-	public function select($table, $column, $where, $limit = 0, $order = false);
+	public function select($table, $column, $where = false, $limit = 0, $order = false);
 	
 	public function update($table, array $data, $where, $limit = true);
 	
