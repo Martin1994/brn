@@ -75,7 +75,7 @@
 			</div>
 			<div class="block" block="special">
 				<h3>特殊道具</h3>
-				<div class="title">毒药</div><div class="value">可以对补给品下毒，使用有毒的补给品会造成一次性伤害及一段时间的持续伤害。如果是烹饪社的话还能对武器进行淬毒，被淬毒武器击中的敌人会变成中毒状态，可以叠加。</div><div class="clear"></div>
+				<div class="title">毒药</div><div class="value">可以对补给品下毒，使用有毒的补给品会造成一次性伤害及一段时间的持续伤害。如果是<b><生物社></生物社></b>的话还能对武器进行淬毒，被淬毒武器击中的敌人会变成中毒状态，可以叠加。</div><div class="clear"></div>
 				<div class="title">解毒剂</div><div class="value">使用后可以解除毒状态，避免持续伤害。</div><div class="clear"></div>
 				<div class="title">御神签</div><div class="value">有可能永久提升攻击防御与生命也有可能永久降低的道具，谨慎使用。</div><div class="clear"></div>
 				<div class="title">结界解除钥匙</div><div class="value">使用它便可直接获胜。</div><div class="clear"></div>
@@ -85,6 +85,7 @@
 				<div class="title">结界干扰器</div><div class="value">使用后可以解除禁区。</div><div class="clear"></div>
 				<div class="title">魔法催化剂</div><div class="value">可以给结界干扰器补充能量。</div><div class="clear"></div>
 				<div class="title">鲜血精华</div><div class="value">强化咲夜·红魔银刃。</div><div class="clear"></div>
+				<div class="title">萌</div><div class="value">使用后不由自主地卖起萌来，武器使用得更得心应手，因此熟练度增加了。</div><div class="clear"></div>
 				<div class="title">黑历史史册残页</div><div class="value">召唤某些特殊的NPC。</div><div class="clear"></div>
 				<div class="title">凯夫拉纤维</div><div class="value">使用后你的身体防具会带有防弹属性，对枪械攻击有一定免疫力。</div><div class="clear"></div>
 				<div class="title">怪力药丸</div><div class="value">使用后短时间内可以提升攻击力。</div><div class="clear"></div>
@@ -111,19 +112,20 @@
 				<h3>特殊装备</h3>
 				<div class="title">伏特加（补给品）</div><div class="value">短时间内提升攻击但降低防御。</div><div class="clear"></div>
 				<div class="title">梦蝶·II型（补给品）</div><div class="value">短时间内降低攻击并降低防御。</div><div class="clear"></div>
-				<div class="title">狸猫的枫叶（饰品）</div><div class="value">佩戴后套装激活所需要装备的数量 - 1。</div><div class="clear"></div>
+				<div class="title">狸猫的枫叶（饰品）</div><div class="value">佩戴后套装激活所需要装备的数量 - 1（但一定不会小于两件）。</div><div class="clear"></div>
 				<div class="title">气枪（射系武器）</div><div class="value">只能填充六发子弹。</div><div class="clear"></div>
 				<div class="title">密集型弹幕发生器（射系武器）</div><div class="value">无需填充子弹。</div><div class="clear"></div>
 				<div class="title">氷符「アイシクルフォール」</div><div class="value">无法击中近战敌人，但一定会打中持有远程武器的敌人。</div><div class="clear"></div>
 				<div class="title">空观剑「六根清净斩」</div><div class="value">无法主动攻击，不过一旦对方发起进攻，会首先无效化本次攻击，并发起反击，且一定会击中。</div><div class="clear"></div>
 				<div class="title">秘薬「仙香玉兎」</div><div class="value">击中后敌人会在半小时内过度致幻而死。</div><div class="clear"></div>
-				<div class="title">带有「盾」字样的腕部防具</div><div class="value">能够抵消一定数额的战斗伤害。</div><div class="clear"></div>
+				<div class="title">带有「盾」字样的腕部防具</div><div class="value">一定几率将战斗伤害无效化。</div><div class="clear"></div>
+				<div class="title">擦弹判定点（防具）</div><div class="value">装备后会不由自主地对射系攻击进行擦弹，降低一大部分伤害。</div><div class="clear"></div>
 				<div class="title">形如「角色名·装备名」的 NPC 装备</div><div class="value">NPC 套装，装备多件以后会触发特效，详细作用请参考「套装效果」选项卡。</div><div class="clear"></div>
 				<div class="title">装备后名称为紫色的武器</div><div class="value">带有淬毒效果的武器，击中敌人后会造成持续伤害，可叠加。</div><div class="clear"></div>
 			</div>
 			<div class="block" block="suit">
 				<table class="suit">
-					<tr><td class="name">套装名</td><td class="quantity">激活数量</td><td class="effect">效果</td></tr>
+					<tr><td class="name">套装拥有者</td><td class="quantity">激活数量</td><td class="effect">效果</td></tr>
 					<tr>
 					<td rowspan=2>毛玉</td>
 					<td>2</td>
@@ -308,13 +310,17 @@
 					<td>爆击时触发寿命「无寿国への約束手形」；不爆击时触发霊符「无寿の夢」</td>
 					</tr>
 					<tr>
-					<td rowspan=2>古名地</td>
+					<td rowspan=3>古明地</td>
 					<td>2</td>
-					<td>爆击概率提升100%</td>
+					<td>先发率提升10%；发见率提升10%</td>
 					</tr>
 					<tr>
-					<td>4</td>
-					<td>先发率提升10%；发见率提升10%；命中率提升10%；闪避率提升10%</td>
+					<td>3</td>
+					<td>命中率提升10%；闪避率提升10%</td>
+					</tr>
+					<tr>
+					<td>5</td>
+					<td>可以反击对手的反击</td>
 					</tr>
 					<tr>
 					<td rowspan=3>爱丽丝</td>
