@@ -3,7 +3,7 @@ define('GAME_STATE_START', 1);
 define('GAME_STATE_COMBO', 2);
 define('GAME_PLAYER_USER', 1);
 define('GAME_PLAYER_NPC', 3);
-//TODO: 尝试加入GAME_PLAYER_BOSS
+//TODO: 游戏结束后的画面而不是下一局尚未开始的画面
 //TODO: MOD的SQL读取
 class game
 {
@@ -116,7 +116,7 @@ class game
 				}else {
 					$this->game_end('survive', $player, 'individual');
 				}
-			}else if($survivor == false){
+			}else if($survivor == false || sizeof($Farealist) == $mapsize){
 				$this->game_end('timeup');
 			}
 		}
@@ -235,7 +235,7 @@ class game
 			if($player->teamID == -1){
 				$team_names[$player->_id] = '无队伍';
 			}else{
-				$team = $db->select('team', array('name'), array('_id' => $player['teamID']));
+				$team = $db->select('team', array('name'), array('_id' => $player->teamID));
 				if($team){
 					$team_names[$player->_id] = $team[0]['name'];
 				}else{
