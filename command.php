@@ -59,6 +59,13 @@ if(true === $show_performance){
 		));
 }
 
+//Show trace
+foreach($error_stack as $msg){
+	if($cuser['groupid'] > 1){
+		$a->action('trace', array('msg' => $msg));
+	}
+}
+
 //Show error message
 foreach($error as $msg){
 	$a->action('error', array('msg' => $msg));
@@ -66,7 +73,7 @@ foreach($error as $msg){
 
 $error_data = array();
 //Store error message
-foreach($error_stack as $msg){
+foreach($error_stack as $msg) {
 	$error_data[] = array('time' => time(), 'msg' => $msg);
 }
 $db->batch_insert('error', $error_data);

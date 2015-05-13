@@ -58,9 +58,14 @@ function throw_error($error)
 			break;
 	
 		case 'ajax':
-			global $a;
+			global $a, $cuser;
 			//$a->clear();
 			$a->action('error', array('msg' => strval($error)));
+
+			//Show trace
+			if(isset($cuser) && $cuser['groupid'] > 1){
+				$a->action('trace', array('msg' => debug_backtrace()));
+			}
 			
 			unset($GLOBALS['p']);
 			unset($GLOBALS['g']);
