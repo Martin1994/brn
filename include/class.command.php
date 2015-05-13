@@ -2,7 +2,9 @@
 
 class command
 {
-	
+	/**
+	 * @param player $player 当前执行命令的玩家
+	 */
 	protected $player;
 	
 	public function __construct($cplayer)
@@ -38,7 +40,10 @@ class command
 		switch($action){
 			case 'enter_game':
 				$g->enter_game();
-				$cplayer = $this->player = $GLOBALS['cplayer'];
+				$this->player = $GLOBALS['cplayer'];
+				$this->action_handler('init', $param);
+				break;
+
 			case 'init':
 				$a->action('init', false, false, true); //初始化动作拥有最高优先级
 				$a->action('game_settings', array('poison_damage' => $GLOBALS['poison']['damage'], 'poison_recover' => $GLOBALS['poison']['recover']));
