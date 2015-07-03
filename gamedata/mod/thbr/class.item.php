@@ -327,12 +327,14 @@ class item_thbr extends item_bra
 	
 	protected function apply_hacker()
 	{
+		global $g;
+
 		if($this->data['s'] == 0){
 			$this->player->error($this->data['n'].' 没能量了，无法使用', false);
 			return false;
 		}
 		
-		if(determine(in_array('Hacker', $this->player->skill) ? 95 :50)){
+		if($g->determine(in_array('Hacker', $this->player->skill) ? 95 :50)){
 			global $map;
 			$all_map = array();
 			$target_map = array();
@@ -342,10 +344,10 @@ class item_thbr extends item_bra
 					$target_map[] = $mid;
 				}
 			}
-			
-			$GLOBALS['g']->gameinfo['forbiddenlist'] = array();
-			$GLOBALS['g']->moving_NPC($all_map, $target_map);
-			$GLOBALS['a']->action('area_info', $GLOBALS['g']->get_areainfo(), true);
+
+			$g->gameinfo['forbiddenlist'] = array();
+			$g->moving_NPC($all_map, $target_map);
+			$GLOBALS['a']->action('area_info', $g->get_areainfo(), true);
 			$this->player->feedback('结界中和完毕，禁区解开了！');
 		}else{
 			$this->player->feedback('结界中和失败了');

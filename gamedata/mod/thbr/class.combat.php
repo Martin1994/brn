@@ -234,7 +234,7 @@ class combat_thbr extends combat_bra
 							$this->feedback($attacker->name.' 释放了「上海人形」');
 							$damage += $this->bonus_attack($attacker, $defender, $weapon);
 							//待机状态，身代效果
-							$attacker->buff('shield', 10, array('effect' => 100));
+							$attacker->buff('shield', 10, array('amount' => 100, 'effect' => 0.9));
 							$attacker->notice('「上海人形」进入了待机状态');
 						}else if($buff['param']['quantity'] >= 2){
 							if($g->determine(50)){
@@ -425,19 +425,6 @@ class combat_thbr extends combat_bra
 					}
 					break;
 				
-				//魂魄套五件效果
-				case 'konpaku_suit':
-					if($buff['param']['quantity'] >= 5){
-						if($attacker->equipment['wep']['n'] == '魂魄对剑「白楼观」'){
-							$sub_multiple = array();
-							for($i = 0; $i < sizeof($multiple) / 2; $i ++){
-								$sub_multiple[] = ($multiple[$i * 2] + $multiple[$i * 2 + 1]) * 0.25;
-							}
-							$multiple = array_merge($multiple, $sub_multiple);
-						}
-					}
-					break;
-				
 				//魔理沙套四件效果
 				case 'marisa_suit':
 					if($buff['param']['quantity'] >= 4){
@@ -450,7 +437,7 @@ class combat_thbr extends combat_bra
 						}
 					}
 					break;
-				
+
 				//十六夜套四件效果
 				case 'sakuya_suit':
 					if($buff['param']['quantity'] >= 4){
@@ -464,7 +451,7 @@ class combat_thbr extends combat_bra
 						}
 					}
 					break;
-					
+
 				//斯卡雷特套血月效果
 				case 'scarlet_suit':
 					if($g->gameinfo['weather'] == 13){
@@ -475,12 +462,39 @@ class combat_thbr extends combat_bra
 						}
 					}
 					break;
-				
+
 				default:
 					break;
 			}
 		}
-		
+
+		return $multiple;
+	}
+
+	protected function get_multistage(player $attacker, player $defender)
+	{
+
+		global $g;
+
+		$multiple = parent::get_multistage($attacker, $defender);
+
+		foreach ($attacker->buff as &$buff) {
+			switch ($buff['type']) {
+				//魂魄套五件效果
+				case 'konpaku_suit':
+					if ($buff['param']['quantity'] >= 5) {
+						if ($attacker->equipment['wep']['n'] == '魂魄对剑「白楼观」') {
+							$sub_multiple = array();
+							for ($i = 0; $i < sizeof($multiple) / 2; $i++) {
+								$sub_multiple[] = ($multiple[$i * 2] + $multiple[$i * 2 + 1]) * 0.25;
+							}
+							$multiple = array_merge($multiple, $sub_multiple);
+						}
+					}
+					break;
+			}
+		}
+
 		return $multiple;
 	}
 	
@@ -622,7 +636,7 @@ class combat_thbr extends combat_bra
 
 		if(isset($defender->equipment['wep']['sk']['be-countered-buff'])){
 			$rate *= $defender->equipment['wep']['sk']['be-countered-buff'];
-		}
+		} //TODO: 帮助文件添加饰品的说明
 		
 		return $rate;
 	}

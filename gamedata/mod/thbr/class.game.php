@@ -73,8 +73,14 @@ class game_thbr extends game_bra
 	public function game_forbid_area()
 	{
 		$return = game::game_forbid_area(); //不调用BRA的禁区（BRA实现了禁区死亡），直接调用BRN的禁区，然后重新实现禁区死亡
-		
+
 		global $db, $map;
+
+		if($this->gameinfo['gamestate'] == 0){
+			//游戏已结束
+			return $return;
+		}
+
 		$forbidden = $this->gameinfo['forbiddenlist'];
 		$safe = array();
 		$all = array();
@@ -94,21 +100,22 @@ class game_thbr extends game_bra
 					switch($buff['type']){
 						//八云紫套三件效果
 						case 'yukari_suit':
-							if($buff['param']['quantity'] >= 3){
+							if($buff['param']['quantity'] >= 3 && sizeof($safe) > 0){
 								$player->notice('八云紫的力量让你躲避了禁区死亡');
-								$player->data['area'] = $safe[array_rand($safe)];
 								$player->ajax('location', array('name' => $GLOBALS['map'][$player->data['area']], 'shop' => in_array(intval($player->data['area']), $GLOBALS['shopmap'], true)));
 								continue 2; //自动躲避禁区
 							}
+							break;
 							
 						//毛玉套三件效果
 						case 'kedama_suit':
-							if($buff['param']['quantity'] >= 3){
+							if($buff['param']['quantity'] >= 3 && sizeof($safe) > 0){
 								$player->notice('毛玉的力量让你躲避了禁区死亡');
 								$player->data['area'] = $safe[array_rand($safe)];
 								$player->ajax('location', array('name' => $GLOBALS['map'][$player->data['area']], 'shop' => in_array(intval($player->data['area']), $GLOBALS['shopmap'], true)));
-								continue 2; //自动躲避禁区
+								continue 2; //自动躲避禁区 TODO: continue 运作不正常？
 							}
+							break;
 						
 						default:
 							break;
