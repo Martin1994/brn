@@ -32,6 +32,9 @@ $round_time = 3600;
 //地图图像
 $map_image_url = 'img/bra/map.png';
 
+//头像文件夹
+$avatar_dir = 'bra';
+
 //币种
 $currency = '元';
 
