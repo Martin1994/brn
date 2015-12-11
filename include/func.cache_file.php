@@ -15,6 +15,11 @@ function cache_write($cache_name, $contents)
 {
 	$file_uri = $GLOBALS['CACHE_CONFIG']['file']['directory'].'/'.$cache_name;
 	
+	$dirname = dirname($file_uri);
+	if(!is_dir($dirname)){
+		mkdir($dirname, 0755, true);
+	}
+	
 	if(false === file_put_contents($file_uri, $contents)){
 		throw_error($file_uri.' is not writable');
 	}else{
