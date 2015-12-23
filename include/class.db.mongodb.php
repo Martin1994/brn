@@ -1,24 +1,39 @@
 <?php
 
+use MongoDB\BSON\ObjectID;
+use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
+use MongoDB\Driver\Exception\RuntimeException;
+use MongoDB\Driver\Manager;
+use MongoDB\Driver\Query;
+use MongoDB\Driver\ReadPreference;
+
 class chlorodb_mongodb implements IChloroDB
 {
 	
 	protected $query_time = 0;
 	protected $table_prefix = '';
-	protected $db_m;
-	protected $db_s;
+	protected $manager;
+	protected $server_m;
+	protected $server_s;
+	protected $db_name;
 	
 	public function __construct($user, $pass, $name, $host_m, $host_s = false, $persistent = false)
 	{
-		$m = new MongoClient('mongodb://'.$user.':'.$pass.'@'.$host_m);
-		$this->db_m = $m->selectDB($name);
-		
-		if(false === $host_s){
-			$this->db_s = $this->db_m;
-		}else{
-			$m = new MongoClient('mongodb://'.$user.':'.$pass.'@'.$host_s);
-			$this->db_s = $m->selectDB($name);
+		$url = 'mongodb://'.$user.':'.$pass.'@'.$host_m;
+		if($host_s){
+			$url .= ','.$host_s;
 		}
+		
+		$this->manager = new Manager($url);
+		
+		$this->db_name = $name;
+		
+		$read_preference_m = new ReadPreference(ReadPreference::RP_PRIMARY_PREFERRED);
+		$read_preference_s = new ReadPreference(ReadPreference::RP_SECONDARY_PREFERRED);		
+		
+		$this->server_m = $this->manager->selectServer($read_preference_m);
+		$this->server_s = $this->manager->selectServer($read_preference_s);
 		
 		return;
 	}
@@ -30,48 +45,68 @@ class chlorodb_mongodb implements IChloroDB
 	
 	public function select($table, $column, $where = false, $limit = 0, $order = false)
 	{
-		$db = $this->db_s;
-		
 		$table = $this->parse_table($table);
 		$column = $this->parse_column($column);
 		$where = $this->parse_where($where);
 		
-		$cursor = $db->selectCollection($table)->find($where, $column);
-		$this->query_time ++;
+		$options = array(
+			'partial' => true
+		);
+		if(sizeof($column) > 0){
+			$options['projection'] = $column;
+		}
+		
+		if(false !== $limit){
+			$limit = $this->parse_limit($limit);
+			if($limit[0] > 0){
+				$options['skip'] = $limit[0];
+			}
+			if($limit[1] > 0){
+				$options['limit'] = $limit[1];
+			}
+		}
 		
 		if(false !== $order){
-			$cursor = $cursor->sort($order);
+			$options['sort'] = $order;			
 		}
 		
-		if(false != $limit){
-			$limit = $this->parse_limit($limit);
-			$cursor = $cursor->limit($limit[1])->skip($limit[0]);
-		}
+		$query = new Query($where, $options);
+		$server = $this->server_s;
+		$cursor = $server->executeQuery($this->db_name.'.'.$table, $query);
 		
-		$result = array();
-		foreach($cursor as $key => $value){
+		$this->query_time ++;
+		$cursor->setTypeMap(array(
+			'root' => 'array',
+			'document' => 'array',
+			'array' => 'array'
+		));
+		$result = $cursor->toArray();
+		foreach($result as &$value){
 			if(isset($value['_id'])){
 				$value['_id'] = strval($value['_id']);
 			}
-			$result[] = $value;
 		}
-		if(sizeof($result) === 0){
-			$result = false;
-		}
-		
 		return $result;
 	}
 	
 	public function update($table, array $data, $where = false, $limit = true)
 	{
-		$db = $this->db_m;
 		$table = $this->parse_table($table);
 		$where = $this->parse_where($where);
 		if(isset($data['_id'])){
 			unset($data['_id']);
 		}
 		
-		$result = $db->selectCollection($table)->update($where, array('$set' => $data), array('multi' => !$limit));
+        $options = array(
+            'multi' => !$limit,
+            'upsert' => false,
+		);
+		
+		$data = unserialize(serialize($data));
+		$bulk = new BulkWrite();
+		$bulk->update($where, array('$set' => $data), $options);
+		$server = $this->server_m;
+		$result = $server->executeBulkWrite($this->db_name.'.'.$table, $bulk);
 		$this->query_time ++;
 		
 		return $result;
@@ -82,25 +117,37 @@ class chlorodb_mongodb implements IChloroDB
 		if(sizeof($data) === 0){
 			return false;
 		}
-		$db = $this->db_m;
+		
 		$table = $this->parse_table($table);
+		
+        $delete_options = array('multi' => true);
+		
+		$data = unserialize(serialize($data));
+		$bulk = new BulkWrite();
 		$ids = array();
 		foreach($data as &$row){
-			$row['_id'] = new MongoId($row['_id']);
+			$row['_id'] = new ObjectID($row['_id']);
 			array_push($ids, $row['_id']);
 		}
-		$collection = $db->selectCollection($table);
-		$collection->remove(array('_id' => array('$in' => $ids)));
-		$result = $collection->batchInsert($data);
+		$bulk->delete(array('_id' => array('$in' => $ids)), $delete_options);
+		foreach($data as &$row){
+			$bulk->insert($row);
+		}
+		$server = $this->server_m;
+		$result = $server->executeBulkWrite($this->db_name.'.'.$table, $bulk);
 		$this->query_time ++;
 		return $result;
 	}
 	
 	public function insert($table, array $data)
 	{
-		$db = $this->db_m;
 		$table = $this->parse_table($table);
-		$result = $db->selectCollection($table)->insert($data);
+		
+		$data = unserialize(serialize($data));
+		$bulk = new BulkWrite();
+		$bulk->insert($data);
+		$server = $this->server_m;
+		$result = $server->executeBulkWrite($this->db_name.'.'.$table, $bulk);
 		$this->query_time ++;
 		return $result;
 	}
@@ -110,20 +157,33 @@ class chlorodb_mongodb implements IChloroDB
 		if(sizeof($data) === 0){
 			return false;
 		}
-		$db = $this->db_m;
+		
 		$table = $this->parse_table($table);
-		$result = $db->selectCollection($table)->batchInsert($data);
+		
+        $delete_options = array('multi' => true);
+		
+		$data = unserialize(serialize($data));
+		$bulk = new BulkWrite();
+		foreach($data as &$row){
+			$bulk->insert($row);
+		}
+		$server = $this->server_m;
+		$result = $server->executeBulkWrite($this->db_name.'.'.$table, $bulk);
 		$this->query_time ++;
 		return $result;
 	}
 	
 	public function delete($table, $where = false, $limit = true)
 	{
-		$db = $this->db_m;
 		$table = $this->parse_table($table);
 		$where = $this->parse_where($where);
 		
-		$result = $db->selectCollection($table)->remove($where, array('justOne' => ($limit == true)));
+        $options = array('multi' => !$limit);
+		
+		$bulk = new BulkWrite();
+		$bulk->delete($where, $options);
+		$server = $this->server_m;
+		$result = $server->executeBulkWrite($this->db_name.'.'.$table, $bulk);
 		$this->query_time ++;
 		return $result;
 	}
@@ -140,19 +200,35 @@ class chlorodb_mongodb implements IChloroDB
 		$db = $this->db_m;
 		$table = $this->parse_table($table);
 		
-		$db->dropCollection($table);
+		$server = $this->server_m;
+		try{
+			$cursor = $server->executeCommand($this->db_name, new Command(array('drop' => $table)));
+		}catch(RuntimeException $ex){
+			
+		}
+		$cursor = $server->executeCommand($this->db_name, new Command(array('create' => $table)));
+		$cursor->setTypeMap(array(
+			'root' => 'array',
+			'document' => 'array',
+			'array' => 'array'
+		));
+		$result = current($cursor->toArray());
 		$this->query_time ++;
-		return $db->createCollection($table);
+		return $result;
 	}
 	
 	public function count($table, $where = false)
 	{
-		$db = $this->db_s;
+		$table = $this->parse_table($table);
+		
+		$command = array('count' => $table);
 		if($where){
-			return $db->selectCollection($this->parse_table($table))->count($this->parse_where($where));
-		}else{
-			return $db->selectCollection($this->parse_table($table))->count();
+			$command['query'] = $this->parse_where($where);
 		}
+		$server = $this->server_s;
+		$cursor = $server->executeCommand($this->db_name, new Command($command));
+		$result = current($cursor->toArray());
+		return intval($result->n);
 	}
 	
 	public function get_query_time()
@@ -173,9 +249,13 @@ class chlorodb_mongodb implements IChloroDB
 			}else{
 				return array($column => 1);
 			}
+		}else{
+			$result = array();
+			foreach($column as $name){
+				$result[$name] = 1;
+			}
+			return $result;
 		}
-		
-		return $column;
 	}
 	
 	protected function parse_where($where)
@@ -184,24 +264,18 @@ class chlorodb_mongodb implements IChloroDB
 			return array();
 		}
 		
-		/*
-		if(isset($where['_id']) && is_string($where['_id'])){
-			$where['_id'] = new MongoId($where['_id']);
-		}
-		*/
-		
-		$where = $this->convert_id($where);
+		$this->convert_id($where);
 		
 		return $where;
 	}
 	
-	protected function convert_id($array, $is_id = false){
+	protected function convert_id(&$array, $is_id = false){
 		foreach($array as $key => $value){
 			if($is_id || $key === '_id'){
 				if(is_array($value)){
 					$array[$key] = $this->convert_id($value, true);
 				}else{
-					$array[$key] = new MongoId($value);
+					$array[$key] = new ObjectID($value);
 				}
 			}else{
 				if(is_array($value)){
@@ -209,17 +283,18 @@ class chlorodb_mongodb implements IChloroDB
 				}
 			}
 		}
-		
-		return $array;
 	}
 	
 	protected function parse_limit($limit)
 	{
+		$parsed_limit = array();
 		if(false === is_array($limit)){
-			return array(0 => 0, 1 => intval($limit));
+			$parsed_limit[0] = 0;
+			$parsed_limit[1] = intval($limit);
 		}else{
-			return $limit;
+			$parsed_limit = $limit;
 		}
+		return $parsed_limit;
 	}
 	
 }

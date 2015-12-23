@@ -319,8 +319,6 @@ class chlorodb_pdo implements IChloroDB
 			$db = $this->db_m;
 		}
 		
-		//echo $query_string, '<br />';
-		
 		try{
 			$statement = $db->prepare($query_string);
 			$exec = $statement->execute($params);
@@ -337,7 +335,7 @@ class chlorodb_pdo implements IChloroDB
 		}
 		
 		if(sizeof($result) == 0){
-			return false;
+			return array();
 		}
 		$data = $result;
 		foreach($data as &$record){
@@ -353,14 +351,6 @@ class chlorodb_pdo implements IChloroDB
 	protected function parse_column(&$params, $column, $increate = false)
 	{
 		if($increate){
-			/*if(false === is_array($column)){
-				return throw_error('MySQL Class Param Error: Invaild column information when creating table');
-			}
-			
-			$result = '(';
-			foreach($column as $value){
-				$result .= $value['name'].' '.$value['type'];
-			}*/
 			return $column;
 		}else{
 			if(false === is_array($column)){
@@ -478,6 +468,11 @@ class chlorodb_pdo implements IChloroDB
 								
 								case '$ne':
 									$result .= ' != ?';
+									$params[] = $subvalue;
+									break;
+								
+								case '$eq':
+									$result .= ' = ?';
 									$params[] = $subvalue;
 									break;
 								

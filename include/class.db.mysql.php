@@ -294,7 +294,7 @@ class chlorodb_mysql implements IChloroDB
 			return true;
 		}
 		if($result === false){
-			return false;
+			return array();
 		}
 		$data = array();
 		while($record = mysql_fetch_assoc($result)){
@@ -305,23 +305,12 @@ class chlorodb_mysql implements IChloroDB
 			}
 			$data[] = $record;
 		}
-		if(sizeof($data) === 0){
-			$data = false;
-		}
 		return $data;
 	}
 	
 	protected function parse_column($column, $increate = false)
 	{
 		if($increate){
-			/*if(false === is_array($column)){
-				return throw_error('MySQL Class Param Error: Invaild column information when creating table');
-			}
-			
-			$result = '(';
-			foreach($column as $value){
-				$result .= $value['name'].' '.$value['type'];
-			}*/
 			return $column;
 		}else{
 			if(false === is_array($column)){
@@ -461,6 +450,15 @@ class chlorodb_mysql implements IChloroDB
 								
 								case '$ne':
 									$result .= ' != ';
+									if(gettype($subvalue) === 'string'){
+										$result .= '"'.$this->parse_text($subvalue).'"';
+									}else{
+										$result .= $this->parse_text(strval($subvalue));
+									}
+									break;
+								
+								case '$eq':
+									$result .= ' = ';
 									if(gettype($subvalue) === 'string'){
 										$result .= '"'.$this->parse_text($subvalue).'"';
 									}else{

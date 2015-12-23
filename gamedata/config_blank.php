@@ -27,7 +27,7 @@ $CACHE_CONFIG = array(
 	);
 
 //Database Configuration
-define('DB_TYPE', 'pdo_mysql'); //Available: mysql mongodb pdo_mysql
+define('DB_TYPE', 'pdo_mysql'); //Available: mysql mongo mongodb pdo_mysql
 define('DB_HOST_M', 'localhost');
 define('DB_HOST_S', false);
 define('DB_PERSISTENT', false);
