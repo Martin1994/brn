@@ -19,7 +19,14 @@ class chlorodb_pdo implements IChloroDB
 		}
 		
 		try{
-			$this->db_m = new PDO($this->db_type.':host='.$host_m.';dbname='.$name.';charset=utf8', $user, $pass, $connection_param);
+			$host_part = explode(':', $host_m);
+			$host_str = ':host='.$host_m;
+			$port_str = '';
+			if(isset($host_part[1])){
+				$host_str = ':host='.$host_part[0];
+				$port_str = ';port='.$host_part[1];
+			}
+			$this->db_m = new PDO($this->db_type.$host_str.$port_str.';dbname='.$name.';charset=utf8', $user, $pass, $connection_param);
 		}catch(PDOException $e){
 			throw_error($e->getMessage());
 		}
@@ -30,7 +37,14 @@ class chlorodb_pdo implements IChloroDB
 			$this->db_s = $this->db_m;
 		}else{
 			try{
-				$this->db_s = new PDO($this->db_type.':host='.$host_s.';dbname='.$name.';charset=utf8', $user, $pass, $connection_param);
+				$host_part = explode(':', $host_s);
+				$host_str = ':host='.$host_s;
+				$port_str = '';
+				if(isset($host_part[1])){
+					$host_str = ':host='.$host_part[0];
+					$port_str = ';port='.$host_part[1];
+				}
+				$this->db_s = new PDO($this->db_type.$host_str.$port_str.';dbname='.$name.';charset=utf8', $user, $pass, $connection_param);
 			}catch(PDOException $e){
 				throw_error($e->getMessage());
 			}
@@ -319,6 +333,8 @@ class chlorodb_pdo implements IChloroDB
 			$db = $this->db_m;
 		}
 		
+		//echo $query_string, '<br />';
+		
 		try{
 			$statement = $db->prepare($query_string);
 			$exec = $statement->execute($params);
@@ -335,7 +351,7 @@ class chlorodb_pdo implements IChloroDB
 		}
 		
 		if(sizeof($result) == 0){
-			return array();
+			return false;
 		}
 		$data = $result;
 		foreach($data as &$record){
@@ -351,6 +367,14 @@ class chlorodb_pdo implements IChloroDB
 	protected function parse_column(&$params, $column, $increate = false)
 	{
 		if($increate){
+			/*if(false === is_array($column)){
+				return throw_error('MySQL Class Param Error: Invaild column information when creating table');
+			}
+			
+			$result = '(';
+			foreach($column as $value){
+				$result .= $value['name'].' '.$value['type'];
+			}*/
 			return $column;
 		}else{
 			if(false === is_array($column)){
@@ -468,11 +492,6 @@ class chlorodb_pdo implements IChloroDB
 								
 								case '$ne':
 									$result .= ' != ?';
-									$params[] = $subvalue;
-									break;
-								
-								case '$eq':
-									$result .= ' = ?';
 									$params[] = $subvalue;
 									break;
 								
