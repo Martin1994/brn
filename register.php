@@ -16,7 +16,7 @@ if(isset($_POST['username'])){
 			$info = '用户名与密码不能为空';
 		}else{
 			$users = $db->select('users', '_id', array('username' => $username));
-			if($users === false){
+			if(!$users){
 				$db->insert('users', array(
 					'username' => $username,
 					'password' => encode_password($password),

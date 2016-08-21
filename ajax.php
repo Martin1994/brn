@@ -150,7 +150,7 @@ switch($action){
 				
 				$players = $db->select('players', '*', $_POST['query']);
 				
-				if($players === false || sizeof($players) != 1){
+				if(sizeof($players) != 1){
 					$data['success'] = false;
 					break;
 				}

@@ -103,7 +103,7 @@ class game
 		if($gameinfo['round'] >= $combo_round){
 			$gameinfo['gamestate'] |= GAME_STATE_COMBO;
 			$survivor = $db->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
-			if($survivor !== false){
+			if($survivor){
 				$player = null;
 				foreach($survivor as $player_data){
 					$player = new_player($player_data);
@@ -840,7 +840,7 @@ class game
 			'type' => GAME_PLAYER_USER
 			));
 		
-		if($data === false){
+		if(!$data){
 			return false;
 		}else{
 			return new_player($data[0]);
@@ -971,7 +971,7 @@ class game
 		global $db, $a, $c, $cuser, $gameinfo, $param;
 		//TODO: 连斗判定禁止加入
 		$player_probe = $db->select('players', '_id', array('uid' => $cuser['_id'], 'type' => GAME_PLAYER_USER));
-		if($player_probe !== false){
+		if($player_probe){
 			$a->action('error', array('msg' => ($cuser['username'].' 已经加入了游戏')));
 			return;
 		}
@@ -1335,14 +1335,6 @@ class game
 			);
 		
 		$news = $db->select('news', '*');
-		
-		if($players === false){
-			$players = array();
-		}
-		
-		if($news === false){
-			$news = array();
-		}
 		
 		$contents = $this->render_news($players, $news);
 		

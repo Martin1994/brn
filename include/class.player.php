@@ -316,9 +316,6 @@ class player
 		}
 		
 		$items = $this->get_shop_items(array('area' => intval($this->area), 'kind' => intval($kind)));
-		if($items === false){
-			$items = array();
-		}
 		
 		global $iteminfo;
 		

@@ -104,7 +104,7 @@ class chlorocomet_mongodb implements IChloroComet
 	
 	public function query($hash){
 		$result = $this->collection->findOne(array('hash' => $hash));
-		if($result !== false){
+		if($result){
 			if(false === isset($result['value']) || sizeof($result['value']) === 0){
 				return false;
 			}else{
