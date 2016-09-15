@@ -21,7 +21,11 @@ function cache_write($cache_name, $contents)
 	}
 	
 	if(false === file_put_contents($file_uri, $contents)){
-		throw_error($file_uri.' is not writable');
+		if(false === touch($file_uri) || false === chmod($file_uri, 777) || false === file_put_contents($file_uri, $contents)){
+			throw_error($file_uri.' is not writable');
+		}else{
+			return true;
+		}
 	}else{
 		return true;
 	}
