@@ -1446,6 +1446,10 @@ class game
 				}	
 				break;
 			
+			case 'trap':
+				$content = '<span class="username">'.$args['victim'].'</span>中了<span class="username">'.$args['victimizer'].'</span>设置的陷阱<span class="weapon">'.$args['item'].'</span>';
+				break;
+			
 			default:
 				$content = '未知的类型：'.$type.'.';
 				break;
