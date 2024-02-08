@@ -5,7 +5,7 @@
   `time` int(10) not null default '0',
   `winner_info` varchar(1000) not null default '[]',
   `winners` text not null,
-  `news` text not null,
+  `news` mediumtext not null,
   
   PRIMARY KEY  (_id)
 )
