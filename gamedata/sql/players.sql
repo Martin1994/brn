@@ -16,7 +16,7 @@
   killer varchar(255) NOT NULL default '[]',
   deathreason varchar(64) NOT NULL default '',
   cooldowntime char(255)  NOT NULL default '{}',
-  buff varchar(1000) NOT NULL default '[]',
+  buff varchar(10000) NOT NULL default '[]',
   action varchar(255) NOT NULL default '{}',
   pose tinyint(1) unsigned NOT NULL default '0',
   tactic tinyint(1) unsigned NOT NULL default '0',
