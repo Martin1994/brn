@@ -10,7 +10,7 @@ class game
 	
 	public $gameinfo;
 	protected $gameinfo_bak;
-	protected $players; //玩家控制系统中的玩家池，脚本结束是会自动更新数据库
+	protected $players = array(); //玩家控制系统中的玩家池，脚本结束是会自动更新数据库
 	/* @var IChloroDB $db 数据库操作类的引用，摧毁类时有依赖 */
 	protected $db;
 	
@@ -25,7 +25,6 @@ class game
 		
 		$this->gameinfo = $this->gameinfo_bak = $this->get_gameinfo(); //初始化并备份gameinfo，脚本结束时如果检测到没有更改就不会更新gameinfo
 		$GLOBALS['gameinfo'] = &$this->gameinfo; //兼容老代码
-		$this->players = array(); //初始化玩家池
 		$this->db = $GLOBALS['db']; //引用db类，在摧毁类时有依赖（如果db类先被摧毁会导致无法更新数据库）
 
 		//Load local settings
@@ -1699,8 +1698,6 @@ class game
 	 * 判断游戏信息是否和一开始相同，不同的话就存储游戏信息
 	 * 将玩家池中的所有数据更新至数据库，更新前会自动转换玩家数据（调用game::player_data_postprocess）
 	 * 如果MOD中有其他在类销毁时需要处理的内容，请继承此函数
-	 * 
-	 * @return boolean 常为true
 	 */
 	public function __destruct()
 	{
@@ -1708,6 +1705,12 @@ class game
 		foreach($this->players as $pid => &$player){
 			$this->player_data_postprocess($player);
 		}
+
+		if (!$this->db) {
+			// 初始化之前销毁对象
+			return;
+		}
+
 		if(sizeof($this->players) == 1){
 			$key = array_keys($this->players);
 			$this->db->update('players', $this->players[$key[0]], array('_id' => $this->players[$key[0]]['_id']));
@@ -1721,7 +1724,6 @@ class game
 				$this->db->update('gameinfo', $this->gameinfo);
 			}
 		}
-		return true;
 	}
 	
 }

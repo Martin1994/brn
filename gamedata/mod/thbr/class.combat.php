@@ -133,7 +133,7 @@ class combat_thbr extends combat_bra
 					case 'recover_hp':
 					case 'recover_sp':
 						if($damage <= 0){
-							continue;
+							continue 2;
 						}
 						if($buff['param']['interrupt']){
 							$defender->remove_buff($key);
@@ -151,7 +151,7 @@ class combat_thbr extends combat_bra
 					//大小无寿
 					case 'ageless_dream':
 						if($damage <= 0){
-							continue;
+							continue 2;
 						}
 						$attacker->remove_buff($key);
 						$this->feedback('霊符「无寿の夢」 的效果消失了');
@@ -159,7 +159,7 @@ class combat_thbr extends combat_bra
 					
 					case 'ageless_land':
 						if($damage <= 0){
-							continue;
+							continue 2;
 						}
 						$attacker->remove_buff($key);
 						$this->feedback('寿命「无寿国への約束手形」 的效果消失了');
@@ -211,7 +211,7 @@ class combat_thbr extends combat_bra
 					//文套五件效果
 					case 'aya_suit':
 						if($damage <= 0){
-							continue;
+							continue 2;
 						}
 						if($buff['param']['quantity'] >= 5){
 							$g->insert_news('aya_ridicule', array('attacker' => $attacker->name, 'defender' => $defender->name));

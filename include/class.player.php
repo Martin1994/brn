@@ -316,7 +316,11 @@ class player
 		}
 		
 		$items = $this->get_shop_items(array('area' => intval($this->area), 'kind' => intval($kind)));
-		
+
+		if (false === $items) {
+			return array();
+		}
+
 		global $iteminfo;
 		
 		foreach($items as &$item){
@@ -1257,7 +1261,7 @@ class player
 				$killers_avatar[] = $data['icon'];
 			}
 		}
-		$reason = strpos($this->deathreason, 'custom:') === 0 ? substr($this->deathreason, 7): isset($GLOBALS['deathreasoninfo'][$this->deathreason]) ? $GLOBALS['deathreasoninfo'][$this->deathreason] : $GLOBALS['deathreasoninfo']['default'];
+		$reason = strpos($this->deathreason, 'custom:') === 0 ? substr($this->deathreason, 7): (isset($GLOBALS['deathreasoninfo'][$this->deathreason]) ? $GLOBALS['deathreasoninfo'][$this->deathreason] : $GLOBALS['deathreasoninfo']['default']);
 		$this->ajax('die', array('reason' => $reason, 'time' => $this->deathtime, 'killer' => $killers_name, 'avatar' => $killers_avatar));
 	}
 	

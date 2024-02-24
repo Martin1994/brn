@@ -5,8 +5,12 @@ define('CONNECTION_MODE', 'normal');
 
 header("Content-type: text/html; charset=utf-8");
 
-if(!isset($_GET['pass']) || $_GET['pass'] !== '!acbr321'){
+if(!isset($_GET['doinstall'])){
 	exit('Access Denied');
+}
+
+function unlock() {
+	// dummy
 }
 
 include(ROOT_DIR.'/gamedata/config.php');
@@ -17,6 +21,7 @@ include(ROOT_DIR.'/include/class.db.'.DB_TYPE.'.php');
 include(ROOT_DIR.'/include/func.cache_'.CACHE_TYPE.'.php');
 
 $error = array();
+$page_title = 'BRN Installation';
 $page_header = 'BRN Installation';
 $template_dir = './template/default';
 
@@ -32,7 +37,7 @@ $db->create_table('users', $column);
 $column = file_get_contents(ROOT_DIR.'/gamedata/sql/gameinfo.sql');
 $db->create_table('gameinfo', $column);
 $db->insert('gameinfo', array(
-	'gamenum' => 0, //���ֺ��Զ����1
+	'gamenum' => 0,
 	'gamestate' => 0,
 	'starttime' => time(),
 	'winmode' => 0,
@@ -63,5 +68,3 @@ cache_destroy('localsettings.default.serialize');
 cache_destroy('gameinfo.serialize');
 
 throw_error('Installed successfully.');
-
-?>
