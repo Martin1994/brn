@@ -168,7 +168,7 @@ class combat_thbr extends combat_bra
 					//梦想天生
 					case 'fantasy_nature':
 						if($damage <= 0){
-							continue;
+							continue 2;
 						}
 						$attacker->feedback('为 「夢想天生」 的发动积聚了能量！');
 						$buff['param']['hits'] ++;

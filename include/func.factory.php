@@ -13,7 +13,7 @@ function new_command($cplayer)
 }
 
 /* @return player */
-function new_player(&$data)
+function new_player($data)
 {
 	return new $GLOBALS['PLAYER_CLASS']($data);
 }

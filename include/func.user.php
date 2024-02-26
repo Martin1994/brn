@@ -10,6 +10,10 @@ function login($username, $password, $encoded = false)
 	
 	$condition = array('username' => $username);
 	$users = $db->select('users', '*', $condition);
+
+	if (!$users) {
+		$users = array();
+	}
 	
 	switch(count($users)){
 		case '0':

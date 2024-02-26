@@ -14,5 +14,3 @@ function comet_hello()
 {
 	return '<script>h();</script>';
 }
-
-?>
