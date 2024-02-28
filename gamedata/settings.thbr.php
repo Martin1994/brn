@@ -4,7 +4,7 @@
 $mod_name = 'Touhou Battle Royale';
 
 //MOD版本
-$mod_version = '0.4 beta';
+$mod_version = '0.5 beta';
 
 //MOD作者
 $mod_author = array(
@@ -16,9 +16,9 @@ $mod_license = array('name' => 'CC-BY-SA 协议', 'url' => 'http://creativecommo
 
 //MOD补充说明
 $mod_extra_info = '';
-	
+
 //公告
-$bulletin = '<p>内测中，如发现任何bug请及时反馈<br />QQ群：30173786</p><p>第一次游玩前请阅读帮助</p><p>讨论板：<a href="http://thbr.sinaapp.com/bbs">http://thbr.sinaapp.com/bbs</a></p>';
+$bulletin = '<p>欢迎反馈 bug</p><p>QQ群：30173786</p><p>源码：<a href="https://github.com/Martin1994/brn">https://github.com/Martin1994/brn</a></p><p>第一次游玩前请阅读帮助</p>';
 
 //模板名
 $template_name = 'thbr';
@@ -100,7 +100,7 @@ $buff_name = array_merge($buff_name, array(
 	'komeiji_suit' => '古名地套装',
 	'alice_suit' => '玛格特罗依德套装'
 	));
-	
+
 //buff说明
 $buff_help = array_merge($buff_help, array(
 	'shield' => '代替自身受到伤害',
@@ -192,7 +192,7 @@ $weapon_types = array(
 	'd' => '爆',
 	'sc' => '符卡',
 	);
-	
+
 //数值名（仅用于显示）
 $healthinfo = array(
 	'hp' => '生命',
