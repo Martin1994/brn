@@ -39,7 +39,7 @@ define('DB_TABLE_PREFIX', 'brn_');
 //Comet Configuration
 define('COMET_SLEEP', 250000); //Microseconds
 define('COMET_TIMEOUT', 25); //Seconds
-define('COMET_TYPE', 'file'); //Available: file mongodb memcache memcache_SAE channel_SAE chlorocomet
+define('COMET_TYPE', 'file'); //Available: file mongodb memcache
 $COMET_CONFIG = array(
 	'file' => array(
 		'dir' => 'cache/comet'
