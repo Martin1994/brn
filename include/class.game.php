@@ -102,7 +102,7 @@ class game
 		if($gameinfo['round'] >= $combo_round){
 			$gameinfo['gamestate'] |= GAME_STATE_COMBO;
 			$survivor = $db->select('players', '*', array('type' => GAME_PLAYER_USER, 'hp' => array('$gt' => 0)));
-			if($survivor){
+			if($survivor && $GLOBALS['g']->gameinfo['alivenum'] == 1){
 				$player = null;
 				foreach($survivor as $player_data){
 					$player = new_player($player_data);
@@ -1473,22 +1473,25 @@ class game
 	public function render_news($players, $news)
 	{
 		$contents = '<div id="news_playerlist">';
-		foreach($players as $player){
-			$contents .=
-				'<div class="player">'.
-					'<div class="icon"><img src="'.$player['icon'].'"></div>'.
-					'<div class="info">'.
-						'<div class="name">'.$player['name'].'</div>'.
-						'<div class="number">'.$player['number'].'号</div>'.
-						'<div class="gender">'.$GLOBALS['genderinfo'][$player['gender']].'</div>'.
-						'<div class="killnum">击杀数量：'.$player['killnum'].'</div>'.
-						'<div class="level">等级：'.$player['lvl'].'</div>'.
-						'<div class="motto">座右铭：'.$player['motto'].'</div>'.
-					'</div>'.
-				'</div>';
+		if ($players) {
+			foreach($players as $player){
+				$contents .=
+					'<div class="player">'.
+						'<div class="icon"><img src="'.$player['icon'].'"></div>'.
+						'<div class="info">'.
+							'<div class="name">'.$player['name'].'</div>'.
+							'<div class="number">'.$player['number'].'号</div>'.
+							'<div class="gender">'.$GLOBALS['genderinfo'][$player['gender']].'</div>'.
+							'<div class="killnum">击杀数量：'.$player['killnum'].'</div>'.
+							'<div class="level">等级：'.$player['lvl'].'</div>'.
+							'<div class="motto">座右铭：'.$player['motto'].'</div>'.
+						'</div>'.
+					'</div>';
+			}
 		}
+
 		$contents .= '</div>';
-		
+
 		$contents .= '<div id="news_newslist">';
 		foreach($news as $piece){
 			$contents .=

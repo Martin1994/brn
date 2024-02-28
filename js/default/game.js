@@ -1274,7 +1274,12 @@ function init_join(param){
 }
 
 function enter_change_avatar(gender, icon){
-	uri = 'img/' + gender + "_" + icon + ".gif";
+	var uri;
+	if(icon == 0){
+		uri = "img/bra/question.gif";
+	}else {
+		uri = "img/bra/" + gender + "_" + icon + ".jpg";
+	}
 	$("#F-enter-avatar").attr("src", uri);
 }
 

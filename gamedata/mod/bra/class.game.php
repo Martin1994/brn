@@ -162,7 +162,7 @@ class game_bra extends game
 	{
 		$message = '
 <p class="welcome">
-<img border="0" src="img/i_hayashida.gif" width="70" height="70"><br /><br />
+<img border="0" src="img/bra/i_hayashida.jpg" width="70" height="70"><br /><br />
 你是转校生？我是班主任林田。<br />嘿嘿，你很懂挑学校嘛！ (露出邪恶的笑容)<br />
 
 转校手续刚办完，明天就是毕业旅行。<br>
@@ -174,7 +174,7 @@ class game_bra extends game
 用手碰自己的颈，也感觉到冷冷的金属触感。<br>
 正在疑惑大家为什么都套上同样的那个银色项圈的时候...<br><br>
 突然，从前面的门，一个男人全副武装装备的军人走了进来···。<br><br>
-<img border="0" src="./img/n_1.gif" width="70" height="70"><br><br>
+<img border="0" src="./img/bra/n_1.jpg" width="70" height="70"><br><br>
 「大家好，一年前的时候我也是这次计划的担当者。很荣幸能再担任此次计划的任务。很好！<br>
 随着时间日子人民越来越安于现状，过着幸福日子的时候，相信各位已经忘记了国家曾多努力多辛苦才能建成今天的社会地位，<br>
 如今国家开始衰退，想再振兴，但人们已经再没有自信，这是很危险的。因此，伟大的人们商量制定了这个计划。<br><br>
@@ -209,7 +209,36 @@ class game_bra extends game
 		';
 		return $message;
 	}
-	
+
+	protected function new_npc(&$player)
+	{
+		return array_merge(parent::new_npc($player), array(
+			'icon' => 'img/bra/n_'.$player['icon'].'.jpg'
+			));
+	}
+
+	protected function np_generate_icon(&$user, $gender)
+	{
+		global $param, $icon_num;
+
+		if(false === isset($param['icon'])){
+			$param['icon'] = $user['icon'];
+			return $user['iconuri'];
+		}
+
+		$icon = $param['icon'];
+
+		if($icon > $icon_num[$gender]){
+			throw_error("头像设置错误");
+		}
+
+		if($icon == 0){
+			$icon = mt_rand(1, $icon_num[$gender]);
+		}
+
+		return 'img/bra/'.$gender.'_'.$icon.'.jpg';
+	}
+
 	public function insert_news($type, $args = array())
 	{
 		$content = '';

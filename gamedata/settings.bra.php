@@ -15,7 +15,7 @@ $mod_author = array(
 $mod_license = array('name' => 'CC-BY-SA 协议', 'url' => 'http://creativecommons.org/licenses/by-sa/3.0/legalcode');
 
 //MOD补充说明
-$mod_extra_info = '';
+$mod_extra_info = '<p>原版游戏来自 <a href="http://www.b-r-u.net/">Battle Royale Ultimate</a> 与 <a href="http://loongyou.com">Battle Royale Advanced</a></p>';
 
 //公告
 $bulletin = '欢迎来到全新的 Battle Royale Advanced+ 服务器';
